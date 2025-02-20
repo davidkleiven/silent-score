@@ -2,6 +2,8 @@
 
 package musicxml
 
+import "encoding/xml"
+
 // Abovebelow is The above-below type is used to indicate whether one element appears above or below another element.
 type Abovebelow string
 
@@ -585,10 +587,11 @@ type Enclosure struct {
 
 // Font is The font attribute group gathers together attributes for determining the font within a credit or direction. They are based on the text styles for Cascading Style Sheets. The font-family is a comma-separated list of font names.The font-style can be normal or italic. The font-size can be one of the CSS sizes or a numeric point size. The font-weight can be normal or bold. The default is application-dependent, but is a text font vs. a music font.
 type Font struct {
-	FontfamilyAttr string    `xml:"font-family,attr,omitempty"`
-	FontstyleAttr  string    `xml:"font-style,attr,omitempty"`
-	FontsizeAttr   *Fontsize `xml:"font-size,attr,omitempty"`
-	FontweightAttr string    `xml:"font-weight,attr,omitempty"`
+	FontfamilyAttr string `xml:"font-family,attr,omitempty"`
+	FontstyleAttr  string `xml:"font-style,attr,omitempty"`
+	//FontsizeAttr   *Fontsize `xml:"font-size,attr,omitempty"`
+	FontsizeAttr   string `xml:"font-size,attr,omitempty"`
+	FontweightAttr string `xml:"font-weight,attr,omitempty"`
 }
 
 // Halign is In cases where text extends over more than one line, horizontal alignment and justify values can be different. The most typical case is for credits, such as:
@@ -690,10 +693,16 @@ type Printspacing struct {
 
 // Printstyle is The print-style attribute group collects the most popular combination of printing attributes: position, font, and color.
 type Printstyle struct {
+	Position
+	Font
+	ColorAttr Color `xml:"color,attr,omitempty"`
 }
 
 // Printstylealign is The print-style-align attribute group adds the halign and valign attributes to the position, font, and color attributes.
 type Printstylealign struct {
+	Printstyle
+	Halign
+	ValignAttr Valign `xml:"valign,attr,omitempty"`
 }
 
 // Printout is The printout attribute group collects the different controls over printing an object (e.g. a note or rest) and its parts, including augmentation dots and lyrics. This is especially useful for notes that overlap in different voices, or for chord sheets that contain lyrics and chords but no melody.
@@ -718,6 +727,7 @@ type Textdecoration struct {
 
 // Textrotation ...
 type Textrotation struct {
+	RotationAttr Rotationdegrees `xml:"rotation,attr,omitempty"`
 }
 
 // Symbolformatting is The symbol-formatting attribute group collects the common formatting attributes for musical symbols. Default values may differ across the elements that use this group.
@@ -728,6 +738,14 @@ type Symbolformatting struct {
 type Textformatting struct {
 	XmlLangAttr  *Lang  `xml:"xml:lang,attr,omitempty"`
 	XmlSpaceAttr *Space `xml:"xml:space,attr,omitempty"`
+	Justify
+	Printstylealign
+	Textdecoration
+	Textrotation
+	Letterspacing
+	Lineheight
+	TextdirectionAttr Textdirection `xml:"text-direction,attr,omitempty"`
+	Enclosure
 }
 
 // Trillsound is The trill-sound attribute group includes attributes used to guide the sound of trills, mordents, turns, shakes, and wavy lines. The default choices are:
@@ -977,15 +995,15 @@ type Formattedsymbolid struct {
 
 // Formattedtext is The formatted-text type represents a text element with text-formatting attributes.
 type Formattedtext struct {
-	Textformatting *Textformatting
+	Textformatting Textformatting
 	Value          string `xml:",chardata"`
 }
 
 // Formattedtextid is The formatted-text-id type represents a text element with text-formatting and id attributes.
 type Formattedtextid struct {
-	Textformatting   *Textformatting
-	Optionaluniqueid *Optionaluniqueid
-	Value            string `xml:",chardata"`
+	Textformatting
+	Optionaluniqueid
+	Value string `xml:",chardata"`
 }
 
 // Fret is The fret element is used with tablature notation and chord diagrams. Fret numbers start with 0 for an open string and 1 for the first fret.
@@ -1001,7 +1019,7 @@ type Fret struct {
 //
 // The type attribute indicates whether the editorial information applies to the start of a series of symbols, the end of a series of symbols, or a single symbol. It is single if not specified for compatibility with earlier MusicXML versions.
 type Level struct {
-	Leveldisplay  *Leveldisplay
+	Leveldisplay
 	ReferenceAttr string `xml:"reference,attr,omitempty"`
 	TypeAttr      string `xml:"type,attr,omitempty"`
 	Value         string `xml:",chardata"`
@@ -1018,13 +1036,13 @@ type Mididevice struct {
 type Midiinstrument struct {
 	IdAttr        string  `xml:"id,attr"`
 	Midichannel   int     `xml:"midi-channel"`
-	Midiname      string  `xml:"midi-name"`
-	Midibank      int     `xml:"midi-bank"`
+	Midiname      string  `xml:"midi-name,omitempty"`
+	Midibank      int     `xml:"midi-bank,omitempty"`
 	Midiprogram   int     `xml:"midi-program"`
-	Midiunpitched int     `xml:"midi-unpitched"`
+	Midiunpitched int     `xml:"midi-unpitched,omitempty"`
 	Volume        float64 `xml:"volume"`
 	Pan           float64 `xml:"pan"`
-	Elevation     float64 `xml:"elevation"`
+	Elevation     float64 `xml:"elevation,omitempty"`
 }
 
 // Namedisplay is The name-display type is used for exact formatting of multi-font text in part and group names to the left of the system. The print-object attribute can be used to determine what, if anything, is printed at the start of each system. Enclosure for the display-text element is none by default. Language for the display-text element is Italian ("it") by default.
@@ -1086,9 +1104,9 @@ type Attributes struct {
 	Divisions    float64          `xml:"divisions"`
 	Key          []*Key           `xml:"key"`
 	Time         []*Timesignature `xml:"time"`
-	Staves       int              `xml:"staves"`
+	Staves       int              `xml:"staves,omitempty"`
 	Partsymbol   *Partsymbol      `xml:"part-symbol"`
-	Instruments  int              `xml:"instruments"`
+	Instruments  int              `xml:"instruments,omitempty"`
 	Clef         []*Clef          `xml:"clef"`
 	Staffdetails []*Staffdetails  `xml:"staff-details"`
 	Transpose    []*Transpose     `xml:"transpose"`
@@ -1130,7 +1148,13 @@ type Clef struct {
 	AdditionalAttr   string `xml:"additional,attr,omitempty"`
 	SizeAttr         string `xml:"size,attr,omitempty"`
 	AfterbarlineAttr string `xml:"after-barline,attr,omitempty"`
-	Clef             *Clef
+	ClefDesc
+}
+
+type ClefDesc struct {
+	Sign         string `xml:"sign"`
+	Line         int    `xml:"line,omitempty"`
+	OctaveChange int    `xml:"clef-octave-change,omitempty"`
 }
 
 // Double is The double type indicates that the music is doubled one octave from what is currently written. If the above attribute is set to yes, the doubling is one octave above what is written, as for mixed flute / piccolo parts in band literature. Otherwise the doubling is one octave below what is written, as for mixed cello / bass parts in orchestral literature.
@@ -1156,11 +1180,11 @@ type Interchangeable struct {
 
 // Key is The optional list of key-octave elements is used to specify in which octave each element of the key signature appears.
 type Key struct {
-	Printstyle        *Printstyle
-	Printobject       *Printobject
-	Optionaluniqueid  *Optionaluniqueid
-	NumberAttr        int `xml:"number,attr,omitempty"`
-	Traditionalkey    *Traditionalkey
+	Printstyle
+	Printobject
+	Optionaluniqueid
+	NumberAttr int `xml:"number,attr,omitempty"`
+	Traditionalkey
 	Nontraditionalkey []*Nontraditionalkey
 	Keyoctave         []*Keyoctave `xml:"key-octave"`
 }
@@ -1295,7 +1319,7 @@ type Transpose struct {
 
 // Barstylecolor is The bar-style-color type contains barline style and color information.
 type Barstylecolor struct {
-	Color string
+	Color string `xml:"color,omitempty"`
 	Value string `xml:",chardata"`
 }
 
@@ -1322,9 +1346,9 @@ type Barline struct {
 //
 // The number attribute indicates which times the ending is played, similar to the time-only attribute used by other elements. While this often represents the numeric values for what is under the ending line, it can also indicate whether an ending is played during a larger dal segno or da capo repeat. Single endings such as "1" or comma-separated multiple endings such as "1,2" may be used. The ending element text is used when the text displayed in the ending is different than what appears in the number attribute. The print-object attribute is used to indicate when an ending is present but not printed, as is often the case for many parts in a full score.
 type Ending struct {
-	Printobject    *Printobject
-	Printstyle     *Printstyle
-	Systemrelation string
+	Printobject
+	Printstyle
+	Systemrelation string  `xml:"system-relation,omitempty"`
 	NumberAttr     string  `xml:"number,attr"`
 	TypeAttr       string  `xml:"type,attr"`
 	EndlengthAttr  float64 `xml:"end-length,attr,omitempty"`
@@ -1455,16 +1479,16 @@ type Degreevalue struct {
 //
 // By default, a series of direction-type elements and a series of child elements of a direction-type within a single direction element follow one another in sequence visually. For a series of direction-type children, non-positional formatting attributes are carried over from the previous element by default.
 type Direction struct {
-	Placement               *Placement
-	Directive               *Directive
-	Systemrelation          string
-	Optionaluniqueid        *Optionaluniqueid
-	Editorialvoicedirection *Editorialvoicedirection
-	Staff                   *Staff
-	Directiontype           []*Directiontype `xml:"direction-type"`
-	Offset                  *Offset          `xml:"offset"`
-	Sound                   *Sound           `xml:"sound"`
-	Listening               *Listening       `xml:"listening"`
+	Placement
+	Directive
+	SystemAttr string `xml:"system,attr,omitempty"`
+	Optionaluniqueid
+	Editorialvoicedirection
+	Staff
+	Directiontype []*Directiontype `xml:"direction-type"`
+	Offset        *Offset          `xml:"offset"`
+	Sound         *Sound           `xml:"sound"`
+	Listening     *Listening       `xml:"listening"`
 }
 
 // Directiontype is The eyeglasses element represents the eyeglasses symbol, common in commercial music.
@@ -1565,7 +1589,7 @@ type Harmony struct {
 	Printobject      *Printobject
 	Printstyle       *Printstyle
 	Placement        *Placement
-	Systemrelation   string
+	Systemrelation   string `xml:"system-relation,omitempty"`
 	Optionaluniqueid *Optionaluniqueid
 	TypeAttr         string `xml:"type,attr,omitempty"`
 	PrintframeAttr   string `xml:"print-frame,attr,omitempty"`
@@ -1647,7 +1671,7 @@ type Listening struct {
 //
 // The optional multiple-rest-always and multiple-rest-range attributes describe how measure numbers are shown on multiple rests when the measure-numbering value is not set to none. The multiple-rest-always attribute is set to yes when the measure number should always be shown, even if the multiple rest starts midway through a system when measure numbering is set to system level. The multiple-rest-range attribute is set to yes when measure numbers on multiple rests display the range of numbers for the first and last measure, rather than just the number of the first measure.
 type Measurenumbering struct {
-	Printstylealign        *Printstylealign
+	Printstylealign
 	SystemAttr             string `xml:"system,attr,omitempty"`
 	StaffAttr              int    `xml:"staff,attr,omitempty"`
 	MultiplerestalwaysAttr string `xml:"multiple-rest-always,attr,omitempty"`
@@ -1826,9 +1850,9 @@ type Principalvoice struct {
 //
 // Layout group elements in a print element only apply to the current page, system, or staff. Music that follows continues to take the default values from the layout determined by the defaults element.
 type Print struct {
-	Printattributes         *Printattributes
-	Optionaluniqueid        *Optionaluniqueid
-	Layout                  *Layout
+	Printattributes
+	Optionaluniqueid
+	Layout
 	Measurelayout           *Measurelayout    `xml:"measure-layout"`
 	Measurenumbering        *Measurenumbering `xml:"measure-numbering"`
 	Partnamedisplay         *Namedisplay      `xml:"part-name-display"`
@@ -1986,9 +2010,9 @@ type Wood struct {
 
 // Encoding is The encoding element contains information about who did the digital encoding, when, with what software, and in what aspects. Standard type values for the encoder element are music, words, and arrangement, but other types may be used. The type attribute is only needed when there are multiple encoder elements.
 type Encoding struct {
+	Software            []string     `xml:"software"`
 	Encodingdate        []string     `xml:"encoding-date"`
 	Encoder             []*Typedtext `xml:"encoder"`
-	Software            []string     `xml:"software"`
 	Encodingdescription []string     `xml:"encoding-description"`
 	Supports            []*Supports  `xml:"supports"`
 }
@@ -1998,7 +2022,7 @@ type Identification struct {
 	Creator       []*Typedtext   `xml:"creator"`
 	Rights        []*Typedtext   `xml:"rights"`
 	Encoding      *Encoding      `xml:"encoding"`
-	Source        string         `xml:"source"`
+	Source        string         `xml:"source,omitempty"`
 	Relation      []*Typedtext   `xml:"relation"`
 	Miscellaneous *Miscellaneous `xml:"miscellaneous"`
 }
@@ -2079,8 +2103,8 @@ type Pagelayout struct {
 
 // Pagemargins is Page margins are specified either for both even and odd pages, or via separate odd and even page number values. The type attribute is not needed when used as part of a print element. If omitted when the page-margins type is used in the defaults element, "both" is the default value.
 type Pagemargins struct {
-	TypeAttr   string `xml:"type,attr,omitempty"`
-	Allmargins *Allmargins
+	TypeAttr string `xml:"type,attr,omitempty"`
+	Allmargins
 }
 
 // Scaling is Margins, page sizes, and distances are all measured in tenths to keep MusicXML data in a consistent coordinate system as much as possible. The translation to absolute units is done with the scaling type, which specifies how many millimeters are equal to how many tenths. For a staff height of 7 mm, millimeters would be set to 7 while tenths is set to 40. The ability to set a formula rather than a single scaling factor helps avoid roundoff errors.
@@ -2114,14 +2138,14 @@ type Systemdividers struct {
 // When used in the print element, the system-layout element affects the appearance of the current system only. All other systems use the default values as determined by the defaults element. If any child elements are missing from the system-layout element in a print element, the values determined by the defaults element are used there as well. This type of system-layout element need only be read from or written to the first visible part in the score.
 type Systemlayout struct {
 	Systemmargins     *Systemmargins  `xml:"system-margins"`
-	Systemdistance    float64         `xml:"system-distance"`
+	Systemdistance    float64         `xml:"system-distance,omitempty"`
 	Topsystemdistance float64         `xml:"top-system-distance"`
 	Systemdividers    *Systemdividers `xml:"system-dividers"`
 }
 
 // Systemmargins is System margins are relative to the page margins. Positive values indent and negative values reduce the margin size.
 type Systemmargins struct {
-	Leftrightmargins *Leftrightmargins
+	Leftrightmargins
 }
 
 // Bookmark is The bookmark type serves as a well-defined target for an incoming simple XLink.
@@ -2468,22 +2492,22 @@ type Notations struct {
 
 // Note is One dot element is used for each dot of prolongation. The placement attribute is used to specify whether the dot should appear above or below the staff line. It is ignored for notes that appear on a staff space.
 type Note struct {
-	Xposition        *Xposition
-	Font             *Font
-	Color            string
-	Printout         *Printout
-	Optionaluniqueid *Optionaluniqueid
-	PrintlegerAttr   string  `xml:"print-leger,attr,omitempty"`
-	DynamicsAttr     float64 `xml:"dynamics,attr,omitempty"`
-	EnddynamicsAttr  float64 `xml:"end-dynamics,attr,omitempty"`
-	AttackAttr       float64 `xml:"attack,attr,omitempty"`
-	ReleaseAttr      float64 `xml:"release,attr,omitempty"`
-	TimeonlyAttr     string  `xml:"time-only,attr,omitempty"`
-	PizzicatoAttr    string  `xml:"pizzicato,attr,omitempty"`
-	Fullnote         *Fullnote
-	Duration         string
-	Editorialvoice   *Editorialvoice
-	Staff            *Staff
+	Xposition
+	Font
+	Color string `xml:"color,omitempty"`
+	Printout
+	Optionaluniqueid
+	PrintlegerAttr  string  `xml:"print-leger,attr,omitempty"`
+	DynamicsAttr    float64 `xml:"dynamics,attr,omitempty"`
+	EnddynamicsAttr float64 `xml:"end-dynamics,attr,omitempty"`
+	AttackAttr      float64 `xml:"attack,attr,omitempty"`
+	ReleaseAttr     float64 `xml:"release,attr,omitempty"`
+	TimeonlyAttr    string  `xml:"time-only,attr,omitempty"`
+	PizzicatoAttr   string  `xml:"pizzicato,attr,omitempty"`
+	Fullnote
+	Duration
+	Editorialvoice
+	Staff
 	Grace            *Grace            `xml:"grace"`
 	Tie              []*Tie            `xml:"tie"`
 	Cue              *Empty            `xml:"cue"`
@@ -2580,7 +2604,7 @@ type Othertext struct {
 // Pitch is Pitch is represented as a combination of the step of the diatonic scale, the chromatic alteration, and the octave.
 type Pitch struct {
 	Step   string  `xml:"step"`
-	Alter  float64 `xml:"alter"`
+	Alter  float64 `xml:"alter,omitempty"`
 	Octave int     `xml:"octave"`
 }
 
@@ -2631,9 +2655,9 @@ type Slur struct {
 
 // Stem is Stems can be down, up, none, or double. For down and up stems, the position attributes can be used to specify stem length. The relative values specify the end of the stem relative to the program default. Default values specify an absolute end stem position. Negative values of relative-y that would flip a stem instead of shortening it are ignored. A stem element associated with a rest refers to a stemlet.
 type Stem struct {
-	Yposition *Yposition
-	Color     string
-	Value     string `xml:",chardata"`
+	Yposition
+	Color string `xml:"color,omitempty"`
+	Value string `xml:",chardata"`
 }
 
 // Strongaccent is The strong-accent type indicates a vertical accent mark. The type attribute indicates if the point of the accent is down or up.
@@ -2830,12 +2854,12 @@ type Credit struct {
 //
 // A document with a concert-score element may not contain any transpose elements that have non-zero values for either the diatonic or chromatic elements. Concert scores may include octave transpositions, so transpose elements with a double element or a non-zero octave-change element value are permitted.
 type Defaults struct {
-	Layout        *Layout
 	Scaling       *Scaling         `xml:"scaling"`
+	Pagelayout    *Pagelayout      `xml:"page-layout"`
 	Concertscore  *Empty           `xml:"concert-score"`
 	Appearance    *Appearance      `xml:"appearance"`
-	Musicfont     *Emptyfont       `xml:"music-font"`
-	Wordfont      *Emptyfont       `xml:"word-font"`
+	Musicfont     *Font            `xml:"music-font"`
+	Wordfont      *Font            `xml:"word-font"`
 	Lyricfont     []*Lyricfont     `xml:"lyric-font"`
 	Lyriclanguage []*Lyriclanguage `xml:"lyric-language"`
 }
@@ -2871,7 +2895,7 @@ type Instrumentlink struct {
 
 // Lyricfont is The lyric-font type specifies the default font for a particular name and number of lyric.
 type Lyricfont struct {
-	Font       *Font
+	Font
 	NumberAttr string `xml:"number,attr,omitempty"`
 	NameAttr   string `xml:"name,attr,omitempty"`
 }
@@ -2912,7 +2936,7 @@ type Partlink struct {
 // Partlist is The part-list identifies the different musical parts in this document. Each part has an ID that is used later within the musical data. Since parts may be encoded separately and combined later, identification elements are present at both the score and score-part levels. There must be at least one score-part, combined as desired with part-group elements that indicate braces and brackets. Parts are ordered from top to bottom in a score based on the order in which they appear in the part-list.
 type Partlist struct {
 	Partgroup []*Partgroup
-	Scorepart *Scorepart
+	Scorepart *Scorepart `xml:"score-part"`
 }
 
 // Partname is The part-name type describes the name or abbreviation of a score-part element. Formatting attributes for the part-name element are deprecated in Version 2.0 in favor of the new part-name-display and part-abbreviation-display elements.
@@ -2930,9 +2954,9 @@ type Player struct {
 // Scoreinstrument is The optional instrument-abbreviation element is typically used within a software application, rather than appearing on the printed page of a score.
 type Scoreinstrument struct {
 	IdAttr                 string `xml:"id,attr"`
-	Virtualinstrumentdata  *Virtualinstrumentdata
 	Instrumentname         string `xml:"instrument-name"`
-	Instrumentabbreviation string `xml:"instrument-abbreviation"`
+	Instrumentabbreviation string `xml:"instrument-abbreviation,omitempty"`
+	Virtualinstrumentdata
 }
 
 // Scorepart is The group element allows the use of different versions of the part for different purposes. Typical values include score, parts, sound, and data. Ordering information can be derived from the ordering within a MusicXML score or opus.
@@ -2959,7 +2983,7 @@ type Virtualinstrument struct {
 
 // Work is The work-title element specifies the title of a work, not including its opus or other work number.
 type Work struct {
-	Worknumber string `xml:"work-number"`
+	Worknumber string `xml:"work-number,omitempty"`
 	Worktitle  string `xml:"work-title"`
 	Opus       *Opus  `xml:"opus"`
 }
@@ -2972,26 +2996,26 @@ type Editorial struct {
 
 // Editorialvoice ...
 type Editorialvoice struct {
-	Footnote *Footnote
-	Level    *Level
-	Voice    *Voice
+	Footnote
+	Level *Level `xml:"level,omitempty"`
+	Voice
 }
 
 // Editorialvoicedirection ...
 type Editorialvoicedirection struct {
-	Footnote *Footnote
-	Level    *Level
-	Voice    *Voice
+	Footnote
+	Level *Level `xml:"level,omitempty"`
+	Voice
 }
 
 // Footnote ...
 type Footnote struct {
-	Footnote *Formattedtext
+	Footnote *Formattedtext `xml:"footnote,omitempty"`
 }
 
 // Staff ...
 type Staff struct {
-	Staff int
+	Staff int `xml:"staff,omitempty"`
 }
 
 // Tuning ...
@@ -3003,15 +3027,15 @@ type Tuning struct {
 
 // Virtualinstrumentdata ...
 type Virtualinstrumentdata struct {
-	Instrumentsound   string
-	Solo              *Empty
-	Ensemble          *Positiveintegerorempty
-	Virtualinstrument *Virtualinstrument
+	Instrumentsound   string                  `xml:"instrument-sound,omitempty"`
+	Solo              *Empty                  `xml:"solo,omitempty"`
+	Ensemble          *Positiveintegerorempty `xml:"ensemble,omitempty"`
+	Virtualinstrument *Virtualinstrument      `xml:"virtual-instrument,omitempty"`
 }
 
 // Voice ...
 type Voice struct {
-	Voice string
+	Voice string `xml:"voice,omitempty"`
 }
 
 // Nontraditionalkey ...
@@ -3023,15 +3047,15 @@ type Nontraditionalkey struct {
 
 // Timesignature ...
 type Timesignature struct {
-	Beats    string
-	Beattype string
+	Beats    string `xml:"beats"`
+	Beattype string `xml:"beat-type"`
 }
 
 // Traditionalkey ...
 type Traditionalkey struct {
-	Cancel *Cancel
-	Fifths int
-	Mode   string
+	Cancel *Cancel `xml:"cancel,omitempty"`
+	Fifths int     `xml:"fifths"`
+	Mode   string  `xml:"mode,omitempty"`
 }
 
 // Beatunit ...
@@ -3053,27 +3077,27 @@ type Harmonychord struct {
 
 // Allmargins ...
 type Allmargins struct {
-	Topmargin        float64
-	Bottommargin     float64
-	Leftrightmargins *Leftrightmargins
+	Leftrightmargins
+	Topmargin    float64 `xml:"top-margin"`
+	Bottommargin float64 `xml:"bottom-margin"`
 }
 
 // Layout ...
 type Layout struct {
 	Pagelayout   *Pagelayout
-	Systemlayout *Systemlayout
+	Systemlayout *Systemlayout `xml:"system-layout,omitempty"`
 	Stafflayout  []*Stafflayout
 }
 
 // Leftrightmargins ...
 type Leftrightmargins struct {
-	Leftmargin  float64
-	Rightmargin float64
+	Leftmargin  float64 `xml:"left-margin"`
+	Rightmargin float64 `xml:"right-margin"`
 }
 
 // Duration ...
 type Duration struct {
-	Duration float64
+	Duration float64 `xml:"duration"`
 }
 
 // Displaystepoctave ...
@@ -3084,10 +3108,10 @@ type Displaystepoctave struct {
 
 // Fullnote ...
 type Fullnote struct {
-	Chord     *Empty
-	Pitch     *Pitch
-	Unpitched *Unpitched
-	Rest      *Rest
+	Chord     *Empty     `xml:"chord,omitempty"`
+	Pitch     *Pitch     `xml:"pitch,omitempty"`
+	Unpitched *Unpitched `xml:"unpitched,omitempty"`
+	Rest      *Rest      `xml:"rest,omitempty"`
 }
 
 // Musicdata ...
@@ -3110,9 +3134,9 @@ type Musicdata struct {
 
 // Scoreheader ...
 type Scoreheader struct {
-	Work           *Work
-	Movementnumber string
-	Movementtitle  string
+	Work           *Work           `xml:"work"`
+	Movementnumber string          `xml:"movement-number,omitempty"`
+	Movementtitle  string          `xml:"movement-title,omitempty"`
 	Identification *Identification `xml:"identification"`
 	Defaults       *Defaults       `xml:"defaults"`
 	Credit         []*Credit       `xml:"credit"`
@@ -3127,14 +3151,15 @@ type Measure struct {
 
 // Part ...
 type Part struct {
-	Partattributes *Partattributes
-	Measure        []*Measure `xml:"measure"`
+	Partattributes
+	Measure []*Measure `xml:"measure"`
 }
 
 type Scorepartwise struct {
-	Documentattributes *Documentattributes
-	Scoreheader                // Edited (error in autogenerated code)
-	Part               []*Part `xml:"part"`
+	XMLName xml.Name `xml:"score-partwise"`
+	Documentattributes
+	Scoreheader
+	Part []*Part `xml:"part"`
 }
 
 // Scoretimewise ...
