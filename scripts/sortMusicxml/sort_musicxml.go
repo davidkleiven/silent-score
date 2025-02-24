@@ -2,8 +2,7 @@ package main
 
 import (
 	"cmp"
-	"fmt"
-	"log/slog"
+	"log"
 	"os"
 	"slices"
 
@@ -21,16 +20,14 @@ type SortTask struct {
 // Therefore, an element tree is used as part of the linting process
 func main() {
 	if len(os.Args) != 3 {
-		slog.Error(fmt.Sprintf("Expect two argument got %d", len(os.Args)))
-		os.Exit(1)
+		log.Fatalf("Expect two argument got %d", len(os.Args))
 	}
 
 	fname := os.Args[1]
 	outfile := os.Args[2]
 	doc := etree.NewDocument()
 	if err := doc.ReadFromFile(fname); err != nil {
-		slog.Error(err.Error())
-		os.Exit(1)
+		log.Fatal(err)
 	}
 
 	sortTasks := []SortTask{
@@ -48,8 +45,7 @@ func main() {
 		performSortTask(doc, sortTask)
 	}
 	if err := doc.WriteToFile(outfile); err != nil {
-		slog.Error(err.Error())
-		os.Exit(1)
+		log.Fatal(err)
 	}
 }
 
