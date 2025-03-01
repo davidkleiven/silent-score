@@ -11,7 +11,10 @@ import (
 )
 
 func initProjectDb() *gorm.DB {
-	database := db.InMemoryGormConnection()
+	database, err := db.InMemoryGormConnection()
+	if err != nil {
+		panic(err)
+	}
 	db.AutoMigrate(database)
 
 	db.SaveProject(database, db.NewProject("project1"))

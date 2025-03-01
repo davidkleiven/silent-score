@@ -3,10 +3,20 @@ package db
 import (
 	"slices"
 	"testing"
+
+	"gorm.io/gorm"
 )
 
+func inMemoryDbPanicOnError() *gorm.DB {
+	db, err := InMemoryGormConnection()
+	if err != nil {
+		panic(err)
+	}
+	return db
+}
+
 func TestCreateProject(t *testing.T) {
-	db := InMemoryGormConnection()
+	db := inMemoryDbPanicOnError()
 	AutoMigrate(db)
 
 	project1 := NewProject("project1")
@@ -33,7 +43,7 @@ func TestCreateProject(t *testing.T) {
 }
 
 func TestUpdateExistingProject(t *testing.T) {
-	db := InMemoryGormConnection()
+	db := inMemoryDbPanicOnError()
 	AutoMigrate(db)
 	project := NewProject("my-project")
 	SaveProject(db, project)
@@ -58,7 +68,7 @@ func TestUpdateExistingProject(t *testing.T) {
 }
 
 func TestDeleteProject(t *testing.T) {
-	db := InMemoryGormConnection()
+	db := inMemoryDbPanicOnError()
 	AutoMigrate(db)
 	project := NewProject("my-project")
 	SaveProject(db, project)
@@ -76,7 +86,7 @@ func TestDeleteProject(t *testing.T) {
 }
 
 func TestErrorOnDuplicateName(t *testing.T) {
-	db := InMemoryGormConnection()
+	db := inMemoryDbPanicOnError()
 	AutoMigrate(db)
 	project := NewProject("my-project")
 	SaveProject(db, project)
@@ -85,5 +95,12 @@ func TestErrorOnDuplicateName(t *testing.T) {
 	err := SaveProject(db, project2)
 	if err == nil {
 		t.Errorf("Expected error because of duplicate name")
+	}
+}
+
+func TestFilterValue(t *testing.T) {
+	p := Project{Name: "my-name"}
+	if p.FilterValue() != "my-name" {
+		t.Errorf("FilterValue should be equal to name")
 	}
 }

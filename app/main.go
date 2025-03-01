@@ -18,8 +18,13 @@ func main() {
 	}
 	defer f.Close()
 
-	programDb := db.GormConnection(config.DbName)
-	db.AutoMigrate(programDb)
+	programDb, err := db.GormConnection(config.DbName)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err = db.AutoMigrate(programDb); err != nil {
+		log.Fatal(err)
+	}
 
 	model := ui.NewAppModel(programDb)
 	program := tea.NewProgram(model)

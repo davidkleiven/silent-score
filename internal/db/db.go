@@ -9,23 +9,16 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-func GormConnection(name string) *gorm.DB {
-	db, err := gorm.Open(sqlite.Open(name), &gorm.Config{Logger: logger.Default.LogMode(logger.Silent)})
-	if err != nil {
-		panic("Failed to connect to database")
-	}
-	return db
+func GormConnection(name string) (*gorm.DB, error) {
+	return gorm.Open(sqlite.Open(name), &gorm.Config{Logger: logger.Default.LogMode(logger.Silent)})
 }
 
-func InMemoryGormConnection() *gorm.DB {
+func InMemoryGormConnection() (*gorm.DB, error) {
 	return GormConnection(":memory:")
 }
 
-func AutoMigrate(con *gorm.DB) {
-	err := con.AutoMigrate(&Project{})
-	if err != nil {
-		panic(err)
-	}
+func AutoMigrate(con *gorm.DB) error {
+	return con.AutoMigrate(&Project{})
 }
 
 type Project struct {
