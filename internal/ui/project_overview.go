@@ -12,7 +12,6 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/davidkleiven/silent-score/internal/db"
-	"gorm.io/gorm"
 )
 
 type ProjectOverviewMode int
@@ -24,7 +23,7 @@ const (
 )
 
 type ProjectOverviewModel struct {
-	db             *gorm.DB
+	db             db.CreateReadUpdateDeleter
 	projects       list.Model
 	status         *Status
 	newProjectName textinput.Model
@@ -185,6 +184,7 @@ func (p *ProjectOverviewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				p.toDeleteConfirmation()
 			case "enter":
 				p.status.Set(fmt.Sprintf("Selected project %s", p.projects.SelectedItem().FilterValue()), nil)
+				return &ProjectWorkspace{database: p.db, projectId: p.projects.SelectedItem().(*db.Project).Id}, nil
 			}
 		}
 		p.projects, cmd = p.projects.Update(msg)
