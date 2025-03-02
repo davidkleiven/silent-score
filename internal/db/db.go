@@ -1,8 +1,12 @@
 package db
 
 import (
+	"cmp"
+	"errors"
+	"slices"
 	"time"
 
+	"github.com/davidkleiven/silent-score/internal/utils"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -10,7 +14,13 @@ import (
 )
 
 func GormConnection(name string) (*gorm.DB, error) {
-	return gorm.Open(sqlite.Open(name), &gorm.Config{Logger: logger.Default.LogMode(logger.Silent)})
+	db, err := gorm.Open(sqlite.Open(name), &gorm.Config{Logger: logger.Default.LogMode(logger.Silent)})
+	if err != nil {
+		return db, err
+	}
+
+	tx := db.Exec("PRAGMA foreign_keys = ON", nil)
+	return db, tx.Error
 }
 
 func InMemoryGormConnection() (*gorm.DB, error) {
@@ -18,7 +28,10 @@ func InMemoryGormConnection() (*gorm.DB, error) {
 }
 
 func AutoMigrate(con *gorm.DB) error {
-	return con.AutoMigrate(&Project{})
+	return utils.ReturnFirstError(
+		func() error { return con.AutoMigrate(&Project{}) },
+		func() error { return con.AutoMigrate(&ProjectContentRecord{}) },
+	)
 }
 
 type Project struct {
@@ -56,4 +69,76 @@ func DeleteProject(db *gorm.DB, id int) error {
 	var project Project
 	tx := db.Delete(&project, id)
 	return tx.Error
+}
+
+func SaveProjectRecords(db *gorm.DB, records []ProjectContentRecord) error {
+	tx := db.Clauses(
+		clause.OnConflict{
+			Columns:   []clause.Column{{Name: "project_id"}, {Name: "scene"}},
+			UpdateAll: true,
+		},
+	).Create(records)
+	return tx.Error
+}
+
+func uniqueProjectId(records []ProjectContentRecord) (uint, error) {
+	projId := uint(0)
+	isFirst := true
+	for _, record := range records {
+		if isFirst {
+			projId = record.ProjectID
+			isFirst = false
+		} else if record.ProjectID != projId {
+			return projId, errors.New("records can only be inserted for one project at the time")
+		}
+	}
+	return projId, nil
+}
+
+func updateRecords(newRecords []ProjectContentRecord, oldRecords []ProjectContentRecord) []ProjectContentRecord {
+	var records []ProjectContentRecord
+	records = append(records, newRecords...)
+	records = append(records, oldRecords...)
+
+	// Sort stable such that equal elements are preserved
+	slices.SortStableFunc(records, func(a, b ProjectContentRecord) int {
+		return cmp.Compare(a.Scene, b.Scene)
+	})
+
+	// Update scene number
+	diff := uint(0)
+	for i := 1; i < len(records); i++ {
+		records[i].Scene += diff
+		if records[i].Scene == records[i-1].Scene {
+			diff += 1
+			records[i].Scene += 1
+		}
+	}
+	return records
+}
+
+func InsertRecords(db *gorm.DB, newRecords []ProjectContentRecord) error {
+	projId, err := uniqueProjectId(newRecords)
+	if err != nil {
+		return err
+	}
+
+	var existingRecords []ProjectContentRecord
+	tx := db.Find(&existingRecords, "project_id = ?", projId)
+	if tx.Error != nil {
+		return tx.Error
+	}
+	toUpdate := updateRecords(newRecords, existingRecords)
+	return SaveProjectRecords(db, toUpdate)
+}
+
+type ProjectContentRecord struct {
+	Project   *Project `gorm:"not null;default:null"`
+	ProjectID uint     `gorm:"primaryKey;autoIncrement:false"`
+	Scene     uint     `gorm:"primaryKey;autoIncrement:false"`
+	SceneDesc string   `gorm:"default:''"`
+	Start     time.Time
+	Keywords  string `gorm:"default:''"`
+	Tempo     uint   `gorm:"default:0"`
+	Theme     uint   `gorm:"default:0"`
 }
