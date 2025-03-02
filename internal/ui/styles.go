@@ -13,4 +13,5 @@ var (
 	errorColor        = lipgloss.Color("1")
 	okColor           = lipgloss.Color("2")
 	headerStyle       = lipgloss.NewStyle().PaddingLeft(2).Background(lipgloss.Color("4")).Bold(true)
+	helpStyle         = lipgloss.NewStyle().PaddingLeft(2).Foreground(lipgloss.Color("8"))
 )
