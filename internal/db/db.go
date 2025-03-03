@@ -20,9 +20,18 @@ type Storer interface {
 	Clauses(conds ...clause.Expression) *gorm.DB
 }
 
-type DataManager interface {
+type Deleter interface {
+	Delete(dest interface{}, conds ...interface{}) *gorm.DB
+}
+
+type CreateReadUpdater interface {
 	Finder
 	Storer
+}
+
+type CreateReadUpdateDeleter interface {
+	CreateReadUpdater
+	Deleter
 }
 
 func GormConnection(name string) (*gorm.DB, error) {
@@ -61,7 +70,7 @@ func NewProject(name string) *Project {
 	}
 }
 
-func SaveProject(db *gorm.DB, p *Project) error {
+func SaveProject(db Storer, p *Project) error {
 	p.UpdatedAt = time.Now()
 	tx := db.Clauses(
 		clause.OnConflict{
@@ -72,7 +81,7 @@ func SaveProject(db *gorm.DB, p *Project) error {
 	return tx.Error
 }
 
-func DeleteProject(db *gorm.DB, id int) error {
+func DeleteProject(db Deleter, id int) error {
 	var project Project
 	tx := db.Delete(&project, id)
 	return tx.Error
@@ -124,7 +133,7 @@ func updateRecords(newRecords []ProjectContentRecord, oldRecords []ProjectConten
 	return records
 }
 
-func InsertRecords(db DataManager, newRecords []ProjectContentRecord) error {
+func InsertRecords(db CreateReadUpdater, newRecords []ProjectContentRecord) error {
 	projId, err := uniqueProjectId(newRecords)
 	if err != nil {
 		return err
