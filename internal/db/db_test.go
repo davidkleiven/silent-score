@@ -2,11 +2,13 @@ package db
 
 import (
 	"cmp"
+	"errors"
 	"slices"
 	"testing"
 	"time"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 func inMemoryDbPanicOnError() *gorm.DB {
@@ -405,5 +407,38 @@ func TestInsertNewRecords(t *testing.T) {
 			t.Errorf("Pos %d: wanted %v got%v\n", i, record, allRecords[i])
 		}
 	}
+}
 
+func TestInsertErrorOnNonUniqueProjectIDs(t *testing.T) {
+	database := inMemoryDbPanicOnError()
+	records := []ProjectContentRecord{
+		{
+			ProjectID: 1,
+		},
+		{
+			ProjectID: 2,
+		},
+	}
+	if err := InsertRecords(database, records); !errors.Is(err, ErrProjectIdsNotUnique) {
+		t.Errorf("Got %v wanted %v", err, ErrProjectIdsNotUnique)
+	}
+}
+
+var errFind = errors.New("find error")
+
+type failingDatastore struct{}
+
+func (f failingDatastore) Clauses(clauses ...clause.Expression) *gorm.DB { return &gorm.DB{} }
+func (f failingDatastore) Find(dest interface{}, conds ...interface{}) *gorm.DB {
+	return &gorm.DB{Error: errFind}
+}
+
+func TestTransactionError(t *testing.T) {
+	store := failingDatastore{}
+	records := []ProjectContentRecord{}
+	err := InsertRecords(&store, records)
+
+	if !errors.Is(err, errFind) {
+		t.Errorf("Wanted %v got %v", err, errFind)
+	}
 }

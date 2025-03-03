@@ -2,7 +2,6 @@ package db
 
 import (
 	"cmp"
-	"errors"
 	"slices"
 	"time"
 
@@ -13,14 +12,21 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-func GormConnection(name string) (*gorm.DB, error) {
-	db, err := gorm.Open(sqlite.Open(name), &gorm.Config{Logger: logger.Default.LogMode(logger.Silent)})
-	if err != nil {
-		return db, err
-	}
+type Finder interface {
+	Find(dest interface{}, conds ...interface{}) *gorm.DB
+}
 
-	tx := db.Exec("PRAGMA foreign_keys = ON", nil)
-	return db, tx.Error
+type Storer interface {
+	Clauses(conds ...clause.Expression) *gorm.DB
+}
+
+type DataManager interface {
+	Finder
+	Storer
+}
+
+func GormConnection(name string) (*gorm.DB, error) {
+	return gorm.Open(sqlite.Open(name), &gorm.Config{Logger: logger.Default.LogMode(logger.Silent)})
 }
 
 func InMemoryGormConnection() (*gorm.DB, error) {
@@ -29,6 +35,7 @@ func InMemoryGormConnection() (*gorm.DB, error) {
 
 func AutoMigrate(con *gorm.DB) error {
 	return utils.ReturnFirstError(
+		func() error { return con.Exec("PRAGMA foreign_keys = ON", nil).Error },
 		func() error { return con.AutoMigrate(&Project{}) },
 		func() error { return con.AutoMigrate(&ProjectContentRecord{}) },
 	)
@@ -71,7 +78,7 @@ func DeleteProject(db *gorm.DB, id int) error {
 	return tx.Error
 }
 
-func SaveProjectRecords(db *gorm.DB, records []ProjectContentRecord) error {
+func SaveProjectRecords(db Storer, records []ProjectContentRecord) error {
 	tx := db.Clauses(
 		clause.OnConflict{
 			Columns:   []clause.Column{{Name: "project_id"}, {Name: "scene"}},
@@ -89,7 +96,7 @@ func uniqueProjectId(records []ProjectContentRecord) (uint, error) {
 			projId = record.ProjectID
 			isFirst = false
 		} else if record.ProjectID != projId {
-			return projId, errors.New("records can only be inserted for one project at the time")
+			return projId, ErrProjectIdsNotUnique
 		}
 	}
 	return projId, nil
@@ -117,7 +124,7 @@ func updateRecords(newRecords []ProjectContentRecord, oldRecords []ProjectConten
 	return records
 }
 
-func InsertRecords(db *gorm.DB, newRecords []ProjectContentRecord) error {
+func InsertRecords(db DataManager, newRecords []ProjectContentRecord) error {
 	projId, err := uniqueProjectId(newRecords)
 	if err != nil {
 		return err
