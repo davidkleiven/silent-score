@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/charmbracelet/bubbles/key"
-	"github.com/charmbracelet/bubbles/table"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -33,12 +31,24 @@ func NewTiRow(opts ...tiOpt) tiRow {
 		startTi     = textinput.New()
 	)
 
-	sceneTi.CharLimit = 4
-	sceneDescTi.CharLimit = 64
-	tempoTi.CharLimit = 3
+	sceneTi.Width = 6
+	sceneTi.Prompt = ""
+
+	sceneDescTi.Width = 64
+	sceneDescTi.Prompt = ""
+
+	tempoTi.Width = 6
+	tempoTi.Prompt = ""
+
 	keywordsTi.Width = 120
-	themeTi.CharLimit = 1
-	startTi.CharLimit = 8
+	keywordsTi.Prompt = ""
+
+	themeTi.Width = 6
+	themeTi.Prompt = ""
+
+	startTi.Width = 8
+	startTi.Prompt = ""
+	startTi.Placeholder = "HH:MM:SS"
 
 	row := []textinput.Model{sceneTi, sceneDescTi, tempoTi, keywordsTi, themeTi, startTi}
 
@@ -80,12 +90,18 @@ func (t tiRow) Scene() *textinput.Model {
 	return &t[0]
 }
 
-func (t tiRow) Content() table.Row {
+func (t tiRow) View() string {
 	data := make([]string, len(t))
 	for i, item := range t {
-		data[i] = item.Value()
+		data[i] = item.View()
 	}
-	return data
+	return lipgloss.JoinHorizontal(lipgloss.Top, data...)
+}
+
+func (t tiRow) Update(msg tea.Msg) {
+	for _, item := range t {
+		item.Update(msg)
+	}
 }
 
 type tiOpt func(row tiRow)
@@ -97,41 +113,28 @@ func WithScene(scene uint) tiOpt {
 }
 
 type InteractiveTable struct {
-	iRows []tiRow
-	table table.Model
+	iRows  []tiRow
+	cursor int
 }
 
 func NewInteractiveTable() *InteractiveTable {
-	columns := []table.Column{
-		{
-			Title: "Scene",
-			Width: 5,
-		},
-		{
-			Title: "Scene description",
-			Width: 18,
-		},
-		{
-			Title: "Tempo",
-			Width: 5,
-		},
-		{
-			Title: "Piece keywords",
-			Width: 80,
-		},
-		{
-			Title: "Theme",
-			Width: 5,
-		},
-		{
-			Title: "Start time",
-			Width: 10,
-		},
+	return &InteractiveTable{}
+}
+
+func (it *InteractiveTable) Header() string {
+	style := lipgloss.NewStyle()
+
+	names := []string{"Scene", "Scene desc", "Tempo", "Keywords", "Theme", "Time"}
+	header := make([]string, len(names))
+	for i, name := range names {
+		width := 20
+		if len(it.iRows) > 0 {
+			width = it.iRows[0][i].Width + it.iRows[0][i].TextStyle.GetPaddingLeft() + it.iRows[0][i].TextStyle.GetPaddingRight()
+		}
+		header[i] = style.Width(width + 1).Render(name)
 	}
 
-	return &InteractiveTable{
-		table: table.New(table.WithColumns(columns), table.WithFocused(true)),
-	}
+	return lipgloss.JoinHorizontal(lipgloss.Top, header...)
 }
 
 func (it *InteractiveTable) Init() tea.Cmd {
@@ -139,12 +142,17 @@ func (it *InteractiveTable) Init() tea.Cmd {
 }
 
 func (it *InteractiveTable) View() string {
-	return it.table.View()
+	rows := make([]string, len(it.iRows))
+	for i, r := range it.iRows {
+		rows[i] = r.View()
+	}
+	rows = append([]string{it.Header()}, rows...)
+	return lipgloss.JoinVertical(lipgloss.Left, rows...)
 }
 
 func (it *InteractiveTable) activeTiRow() tiRow {
 	if len(it.iRows) > 0 {
-		return it.iRows[it.table.Cursor()]
+		return it.iRows[it.cursor]
 	}
 	return nil
 }
@@ -152,39 +160,43 @@ func (it *InteractiveTable) activeTiRow() tiRow {
 func (it *InteractiveTable) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		switch {
-		case key.Matches(msg, it.table.KeyMap.LineDown):
-			it.handleDown()
-		}
 
 		switch msg.String() {
+		case "down":
+			it.handleDown()
+			it.blurActiveRow()
+			it.cursor = confine(it.cursor+1, 0, len(it.iRows)-1)
+			it.activateCurrentRow()
 		case "left":
 			if r := it.activeTiRow(); r != nil {
+				slog.Info("Switching active row left")
 				r.FocusLeft()
 			}
-		case "right":
+		case "right", "tab":
 			if r := it.activeTiRow(); r != nil {
+				slog.Info("Switching active row right")
 				r.FocusRight()
 			}
 		}
 	}
 
 	// Ensure correct row is activated
-	it.blurActiveRow()
-	_, cmd := it.table.Update(msg)
-	it.activateCurrentRow()
-	return it, cmd
+	if r := it.activeTiRow(); r != nil {
+		r.Update(msg)
+	}
+
+	return it, nil
 }
 
 func (it *InteractiveTable) blurActiveRow() {
 	if len(it.iRows) > 0 {
-		it.iRows[it.table.Cursor()].Blur()
+		it.iRows[it.cursor].Blur()
 	}
 }
 
 func (it *InteractiveTable) activateCurrentRow() {
 	if len(it.iRows) > 0 {
-		it.iRows[it.table.Cursor()][0].Focus()
+		it.iRows[it.cursor][0].Focus()
 	}
 }
 
@@ -193,17 +205,15 @@ func (it *InteractiveTable) handleDown() {
 		it.createNewRow(0)
 		return
 	}
-	if it.table.Cursor() == len(it.iRows)-1 {
-		it.createNewRow(it.table.Cursor() + 1)
+	if it.cursor == len(it.iRows)-1 {
+		it.createNewRow(it.cursor + 1)
 	}
-
 }
 
 func (it *InteractiveTable) createNewRow(scene int) {
 	slog.Info("Creating new row")
 	newRow := NewTiRow(WithScene(uint(scene)))
 	it.iRows = append(it.iRows, newRow)
-	it.table.SetRows(append(it.table.Rows(), newRow.Content()))
 }
 
 type ProjectWorkspace struct {
@@ -225,11 +235,6 @@ func (pw *ProjectWorkspace) Init() tea.Cmd {
 }
 
 func (pw *ProjectWorkspace) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	switch msg := msg.(type) {
-	case tea.WindowSizeMsg:
-		pw.iTable.table.SetWidth(msg.Width)
-		return pw, nil
-	}
 	pw.iTable.Update(msg)
 	return pw, nil
 }
