@@ -24,11 +24,16 @@ const (
 )
 
 type ProjectOverviewModel struct {
-	db             *gorm.DB
-	projects       list.Model
-	status         *Status
-	newProjectName textinput.Model
-	mode           ProjectOverviewMode
+	db              *gorm.DB
+	projects        list.Model
+	status          *Status
+	newProjectName  textinput.Model
+	mode            ProjectOverviewMode
+	nextProjectView AppView
+}
+
+func (p *ProjectOverviewModel) NextView() AppView {
+	return p.nextProjectView
 }
 
 type projectItemDelegate struct{}
@@ -185,6 +190,7 @@ func (p *ProjectOverviewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				p.toDeleteConfirmation()
 			case "enter":
 				p.status.Set(fmt.Sprintf("Selected project %s", p.projects.SelectedItem().FilterValue()), nil)
+				p.nextProjectView = AppViewProjectWorkspace
 			}
 		}
 		p.projects, cmd = p.projects.Update(msg)

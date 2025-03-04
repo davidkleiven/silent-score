@@ -90,6 +90,10 @@ func TestEvents(t *testing.T) {
 				if !strings.Contains(model.status.msg, "Selected project") {
 					t.Errorf("Expected status field to contain \"Selected project\"")
 				}
+
+				if model.NextView() != AppViewProjectWorkspace {
+					t.Errorf("Project view was not changed")
+				}
 			},
 			desc: "Check selected project is reported when enter is pressed",
 		},

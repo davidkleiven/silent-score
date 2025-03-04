@@ -11,19 +11,26 @@ import (
 type AppView uint
 
 const (
-	ProjectOverview = iota
+	AppViewProjectList AppView = iota
+	AppViewProjectWorkspace
 )
 
 type AppModel struct {
-	models       []tea.Model
+	models       []MultiViewModel
 	active       AppView
 	currentWidth int
 }
 
+type MultiViewModel interface {
+	tea.Model
+	NextView() AppView
+}
+
 func NewAppModel(db *gorm.DB) *AppModel {
 	return &AppModel{
-		models: []tea.Model{
-			&ProjectOverviewModel{db: db},
+		models: []MultiViewModel{
+			&ProjectOverviewModel{db: db, nextProjectView: AppViewProjectList},
+			&ProjectWorkspace{database: db, nextAppView: AppViewProjectWorkspace},
 		},
 	}
 }
@@ -36,8 +43,18 @@ func (a *AppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		a.currentWidth = msg.Width
+	case tea.KeyMsg:
+		switch msg.String() {
+		case "ctrl+c":
+			return a, tea.Quit
+		}
 	}
 	_, cmd := a.models[a.active].Update(msg)
+
+	if nextView := a.models[a.active].NextView(); nextView != a.active {
+		a.active = nextView
+		a.Init()
+	}
 	return a, cmd
 }
 
