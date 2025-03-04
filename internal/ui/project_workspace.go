@@ -12,6 +12,15 @@ import (
 	"github.com/davidkleiven/silent-score/internal/db"
 )
 
+func confine(num, lower, upper int) int {
+	if num < lower {
+		return lower
+	} else if num > upper {
+		return upper
+	}
+	return num
+}
+
 type tiRow []textinput.Model
 
 func NewTiRow(opts ...tiOpt) tiRow {
@@ -58,18 +67,13 @@ func (t tiRow) Active() int {
 func (t tiRow) FocusRight() {
 	active := t.Active()
 	t[active].Blur()
-	t[(active+1)%len(t)].Focus()
+	t[confine(active+1, 0, len(t)-1)].Focus()
 }
 
 func (t tiRow) FocusLeft() {
 	active := t.Active()
 	t[active].Blur()
-
-	toFocus := active - 1
-	if active < 0 {
-		toFocus += len(t)
-	}
-	t[toFocus].Focus()
+	t[confine(active-1, 0, len(t)-1)].Focus()
 }
 
 func (t tiRow) Scene() *textinput.Model {
@@ -130,20 +134,58 @@ func NewInteractiveTable() *InteractiveTable {
 	}
 }
 
-func (it *InteractiveTable) Render() string {
+func (it *InteractiveTable) Init() tea.Cmd {
+	return nil
+}
+
+func (it *InteractiveTable) View() string {
 	return it.table.View()
 }
 
-func (it *InteractiveTable) Update(msg tea.Msg) {
+func (it *InteractiveTable) activeTiRow() tiRow {
+	if len(it.iRows) > 0 {
+		return it.iRows[it.table.Cursor()]
+	}
+	return nil
+}
+
+func (it *InteractiveTable) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, it.table.KeyMap.LineDown):
 			it.handleDown()
 		}
+
+		switch msg.String() {
+		case "left":
+			if r := it.activeTiRow(); r != nil {
+				r.FocusLeft()
+			}
+		case "right":
+			if r := it.activeTiRow(); r != nil {
+				r.FocusRight()
+			}
+		}
 	}
-	it.table.Update(msg)
-	slog.Info(fmt.Sprintf("Cursor: %d %v %d", it.table.Cursor(), it.table.Focused(), len(it.table.Rows())))
+
+	// Ensure correct row is activated
+	it.blurActiveRow()
+	_, cmd := it.table.Update(msg)
+	it.activateCurrentRow()
+	return it, cmd
+}
+
+func (it *InteractiveTable) blurActiveRow() {
+	if len(it.iRows) > 0 {
+		it.iRows[it.table.Cursor()].Blur()
+	}
+}
+
+func (it *InteractiveTable) activateCurrentRow() {
+	if len(it.iRows) > 0 {
+		it.iRows[it.table.Cursor()][0].Focus()
+	}
 }
 
 func (it *InteractiveTable) handleDown() {
@@ -151,9 +193,7 @@ func (it *InteractiveTable) handleDown() {
 		it.createNewRow(0)
 		return
 	}
-	it.iRows[it.table.Cursor()].Blur()
-
-	if it.table.Cursor() == len(it.table.Rows())-1 {
+	if it.table.Cursor() == len(it.iRows)-1 {
 		it.createNewRow(it.table.Cursor() + 1)
 	}
 
@@ -161,8 +201,9 @@ func (it *InteractiveTable) handleDown() {
 
 func (it *InteractiveTable) createNewRow(scene int) {
 	slog.Info("Creating new row")
-	it.iRows = append(it.iRows, NewTiRow(WithScene(uint(scene))))
-	it.table.SetRows(append(it.table.Rows(), it.iRows[len(it.iRows)-1].Content()))
+	newRow := NewTiRow(WithScene(uint(scene)))
+	it.iRows = append(it.iRows, newRow)
+	it.table.SetRows(append(it.table.Rows(), newRow.Content()))
 }
 
 type ProjectWorkspace struct {
@@ -194,5 +235,5 @@ func (pw *ProjectWorkspace) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (pw *ProjectWorkspace) View() string {
-	return lipgloss.JoinVertical(lipgloss.Left, pw.iTable.Render(), pw.status.msg)
+	return lipgloss.JoinVertical(lipgloss.Left, pw.iTable.View(), pw.status.msg)
 }
