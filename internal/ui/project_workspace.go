@@ -170,7 +170,7 @@ type ProjectWorkspace struct {
 	projectId   uint
 	nextAppView AppView
 	status      *Status
-	table       *InteractiveTable
+	iTable      *InteractiveTable
 }
 
 func (pw *ProjectWorkspace) NextView() AppView {
@@ -179,20 +179,20 @@ func (pw *ProjectWorkspace) NextView() AppView {
 
 func (pw *ProjectWorkspace) Init() tea.Cmd {
 	pw.status = NewStatus()
-	pw.table = NewInteractiveTable()
+	pw.iTable = NewInteractiveTable()
 	return nil
 }
 
 func (pw *ProjectWorkspace) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		pw.table.table.SetWidth(msg.Width)
+		pw.iTable.table.SetWidth(msg.Width)
 		return pw, nil
 	}
-	pw.table.Update(msg)
+	pw.iTable.Update(msg)
 	return pw, nil
 }
 
 func (pw *ProjectWorkspace) View() string {
-	return lipgloss.JoinVertical(lipgloss.Left, pw.table.Render(), pw.status.msg)
+	return lipgloss.JoinVertical(lipgloss.Left, pw.iTable.Render(), pw.status.msg)
 }
