@@ -1,8 +1,9 @@
 package ui
 
 import (
-	"fmt"
 	"log/slog"
+	"regexp"
+	"strconv"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -23,16 +24,12 @@ type tiRow []textinput.Model
 
 func NewTiRow(opts ...tiOpt) tiRow {
 	var (
-		sceneTi     = textinput.New()
 		sceneDescTi = textinput.New()
 		tempoTi     = textinput.New()
 		keywordsTi  = textinput.New()
 		themeTi     = textinput.New()
 		startTi     = textinput.New()
 	)
-
-	sceneTi.Width = 6
-	sceneTi.Prompt = ""
 
 	sceneDescTi.Width = 64
 	sceneDescTi.Prompt = ""
@@ -50,7 +47,7 @@ func NewTiRow(opts ...tiOpt) tiRow {
 	startTi.Prompt = ""
 	startTi.Placeholder = "HH:MM:SS"
 
-	row := []textinput.Model{sceneTi, sceneDescTi, tempoTi, keywordsTi, themeTi, startTi}
+	row := []textinput.Model{sceneDescTi, tempoTi, keywordsTi, themeTi, startTi}
 
 	for _, fn := range opts {
 		fn(row)
@@ -86,10 +83,6 @@ func (t tiRow) FocusLeft() {
 	t[confine(active-1, 0, len(t)-1)].Focus()
 }
 
-func (t tiRow) Scene() *textinput.Model {
-	return &t[0]
-}
-
 func (t tiRow) View() string {
 	data := make([]string, len(t))
 	for i, item := range t {
@@ -99,16 +92,24 @@ func (t tiRow) View() string {
 }
 
 func (t tiRow) Update(msg tea.Msg) {
-	for _, item := range t {
-		item.Update(msg)
+	for i, item := range t {
+		t[i], _ = item.Update(msg)
 	}
+}
+
+func (t tiRow) Time() string {
+	return t[4].Value()
+}
+
+func (t tiRow) Tempo() string {
+	return t[1].Value()
 }
 
 type tiOpt func(row tiRow)
 
-func WithScene(scene uint) tiOpt {
-	return func(row tiRow) {
-		row.Scene().SetValue(fmt.Sprintf("%d", scene))
+func WithTime(start string) tiOpt {
+	return func(ti tiRow) {
+		ti[4].SetValue(start)
 	}
 }
 
@@ -124,7 +125,7 @@ func NewInteractiveTable() *InteractiveTable {
 func (it *InteractiveTable) Header() string {
 	style := lipgloss.NewStyle()
 
-	names := []string{"Scene", "Scene desc", "Tempo", "Keywords", "Theme", "Time"}
+	names := []string{"Scene desc", "Tempo", "Keywords", "Theme", "Time"}
 	header := make([]string, len(names))
 	for i, name := range names {
 		width := 20
@@ -178,13 +179,12 @@ func (it *InteractiveTable) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				r.FocusRight()
 			}
 		}
-	}
 
-	// Ensure correct row is activated
-	if r := it.activeTiRow(); r != nil {
-		r.Update(msg)
+		// Ensure correct row is activated
+		if r := it.activeTiRow(); r != nil {
+			r.Update(msg)
+		}
 	}
-
 	return it, nil
 }
 
@@ -205,6 +205,7 @@ func (it *InteractiveTable) handleDown() {
 		it.createNewRow(0)
 		return
 	}
+
 	if it.cursor == len(it.iRows)-1 {
 		it.createNewRow(it.cursor + 1)
 	}
@@ -212,7 +213,7 @@ func (it *InteractiveTable) handleDown() {
 
 func (it *InteractiveTable) createNewRow(scene int) {
 	slog.Info("Creating new row")
-	newRow := NewTiRow(WithScene(uint(scene)))
+	newRow := NewTiRow()
 	it.iRows = append(it.iRows, newRow)
 }
 
@@ -235,10 +236,52 @@ func (pw *ProjectWorkspace) Init() tea.Cmd {
 }
 
 func (pw *ProjectWorkspace) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch msg.String() {
+		case "enter":
+			pw.status.Set("OK", nil)
+			if err := pw.validate(); err != nil {
+				pw.status.Set("", err)
+			}
+		}
+	}
 	pw.iTable.Update(msg)
 	return pw, nil
 }
 
 func (pw *ProjectWorkspace) View() string {
 	return lipgloss.JoinVertical(lipgloss.Left, pw.iTable.View(), pw.status.msg)
+}
+
+func (pw *ProjectWorkspace) validate() error {
+	for _, item := range pw.iTable.iRows {
+		if err := validateTime(item.Time()); err != nil {
+			return err
+		} else if err := validateTempo(item.Tempo()); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func validateTime(initTime string) error {
+	hoursMinSec := regexp.MustCompile(`\d{2}:\d{2}:\d{2}`)
+
+	if !hoursMinSec.MatchString(initTime) {
+		return ErrWrongTimeFormat
+	}
+	return nil
+}
+
+func validateTempo(tempo string) error {
+	if tempo == "" {
+		return nil
+	}
+	_, err := strconv.Atoi(tempo)
+	if err != nil {
+		return ErrTempoMustBeInteger
+	}
+	return nil
 }
