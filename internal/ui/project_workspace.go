@@ -267,6 +267,9 @@ func (pw *ProjectWorkspace) validate() error {
 }
 
 func validateTime(initTime string) error {
+	if initTime == "" {
+		return nil
+	}
 	hoursMinSec := regexp.MustCompile(`\d{2}:\d{2}:\d{2}`)
 
 	if !hoursMinSec.MatchString(initTime) {
