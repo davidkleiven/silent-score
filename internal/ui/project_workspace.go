@@ -168,6 +168,10 @@ func (it *InteractiveTable) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			it.blurActiveRow()
 			it.cursor = confine(it.cursor+1, 0, len(it.iRows)-1)
 			it.activateCurrentRow()
+		case "up":
+			it.blurActiveRow()
+			it.cursor = confine(it.cursor-1, 0, len(it.iRows)-1)
+			it.activateCurrentRow()
 		case "left":
 			if r := it.activeTiRow(); r != nil {
 				slog.Info("Switching active row left")
@@ -252,7 +256,9 @@ func (pw *ProjectWorkspace) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (pw *ProjectWorkspace) View() string {
-	return lipgloss.JoinVertical(lipgloss.Left, pw.iTable.View(), pw.status.msg)
+
+	helpString := helpStyle.Render("\u2191/\u2193 up/down \u2022 \u2190/\u2192 left/right \u2022 ctrl+(\u2191/\u2193) move row up/down \u2022 ctrl+c: quit")
+	return lipgloss.JoinVertical(lipgloss.Left, pw.iTable.View(), helpString, pw.status.Render("Edit"))
 }
 
 func (pw *ProjectWorkspace) validate() error {
