@@ -442,3 +442,11 @@ func TestTransactionError(t *testing.T) {
 		t.Errorf("Wanted %v got %v", err, errFind)
 	}
 }
+
+func TestWriteEmptyProjectContent(t *testing.T) {
+	var records []ProjectContentRecord
+	db := inMemoryDbPanicOnError()
+	if err := SaveProjectRecords(db, records); err != nil {
+		t.Error(err)
+	}
+}

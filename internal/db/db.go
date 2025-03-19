@@ -88,6 +88,9 @@ func DeleteProject(db Deleter, id int) error {
 }
 
 func SaveProjectRecords(db Storer, records []ProjectContentRecord) error {
+	if len(records) == 0 {
+		return nil
+	}
 	tx := db.Clauses(
 		clause.OnConflict{
 			Columns:   []clause.Column{{Name: "project_id"}, {Name: "scene"}},
