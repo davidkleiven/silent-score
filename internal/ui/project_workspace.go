@@ -210,7 +210,7 @@ func (it *InteractiveTable) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 
 		switch msg.String() {
-		case "down":
+		case "down", "enter":
 			it.handleDown()
 			it.blurActiveRow()
 			it.cursor = confine(it.cursor+1, 0, len(it.iRows)-1)
