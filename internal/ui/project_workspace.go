@@ -364,7 +364,10 @@ func (pw *ProjectWorkspace) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if keyName == "esc" {
 				return &ProjectOverviewModel{db: pw.database}, nil
 			}
-
+		case "delete":
+			err := db.DeleteRecords(pw.database, pw.projectId, uint(pw.iTable.cursor))
+			pw.status.Set(fmt.Sprintf("Successfully deleted schene %d", pw.iTable.cursor), err)
+			pw.Init()
 		}
 	}
 	pw.iTable.Update(msg)
