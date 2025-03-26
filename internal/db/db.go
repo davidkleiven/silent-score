@@ -151,6 +151,12 @@ func InsertRecords(db CreateReadUpdater, newRecords []ProjectContentRecord) erro
 	return SaveProjectRecords(db, toUpdate)
 }
 
+func DeleteRecords(db Deleter, projectId uint, scene uint) error {
+	var record ProjectContentRecord
+	tx := db.Delete(&record, "project_id = ? AND scene = ?", projectId, scene)
+	return tx.Error
+}
+
 type ProjectContentRecord struct {
 	Project   *Project `gorm:"not null;default:null"`
 	ProjectID uint     `gorm:"primaryKey;autoIncrement:false"`

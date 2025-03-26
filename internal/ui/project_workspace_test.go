@@ -584,23 +584,14 @@ func TestToFromProjectRecordRoundTrip(t *testing.T) {
 
 func TestInitializedWithCorrectRows(t *testing.T) {
 	rapid.Check(t, func(t *rapid.T) {
-		database := mustConnectInMemDb()
 		records := test.GenerateCompleteProjectRecords(t)
-		if err := db.SaveProjectRecords(database, records); err != nil {
+		pw, err := initProjectFromWithRecords(records)
+		if err != nil {
 			t.Error(err)
-			return
 		}
-
-		loadId := uint(0)
-		if len(records) > 0 {
-			loadId = records[0].ProjectID
-		}
-		pw := ProjectWorkspace{database: database, projectId: loadId}
-		pw.Init()
-
 		numRows := 0
 		for _, item := range records {
-			if item.ProjectID == loadId {
+			if item.ProjectID == pw.projectId {
 				numRows += 1
 			}
 		}
@@ -609,4 +600,44 @@ func TestInitializedWithCorrectRows(t *testing.T) {
 			t.Errorf("Wanted %d rows got %d", numRows, len(pw.iTable.iRows))
 		}
 	})
+}
+
+func TestDeleteRecord(t *testing.T) {
+	rapid.Check(t, func(t *rapid.T) {
+		records := test.GenerateCompleteProjectRecords(t)
+		pw, err := initProjectFromWithRecords(records)
+		if err != nil {
+			t.Error(err)
+		}
+
+		origNumRows := len(pw.iTable.iRows)
+		maxCursor := 0
+		if origNumRows > 0 {
+			maxCursor = origNumRows - 1
+		}
+
+		toDelete := rapid.IntRange(0, maxCursor).Draw(t, "to-draw")
+		pw.iTable.cursor = toDelete
+		pw.Update(tea.KeyMsg{Type: tea.KeyDelete})
+		finalNumRows := len(pw.iTable.iRows)
+
+		if len(records) > 0 && finalNumRows != origNumRows-1 {
+			t.Errorf("Wanted number of rows to be %d got %d", origNumRows-1, finalNumRows)
+		}
+	})
+}
+
+func initProjectFromWithRecords(records []db.ProjectContentRecord) (ProjectWorkspace, error) {
+	database := mustConnectInMemDb()
+	if err := db.SaveProjectRecords(database, records); err != nil {
+		return ProjectWorkspace{}, err
+	}
+
+	loadId := uint(0)
+	if len(records) > 0 {
+		loadId = records[0].ProjectID
+	}
+	pw := ProjectWorkspace{database: database, projectId: loadId}
+	pw.Init()
+	return pw, nil
 }
