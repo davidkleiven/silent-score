@@ -353,21 +353,19 @@ func (pw *ProjectWorkspace) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				pw.status.Set("", err)
 			}
 		case "ctrl+s", "esc":
-			records, err := pw.iTable.toRecords(pw.projectId)
-			if err != nil {
-				pw.status.Set("", err)
-			} else {
-				err = db.SaveProjectRecords(pw.database, records)
-				pw.status.Set("Successfully stored project", err)
-			}
-
+			err := pw.save()
+			pw.status.Set("Successfully stored project", err)
 			if keyName == "esc" {
 				return &ProjectOverviewModel{db: pw.database}, nil
 			}
 		case "delete":
-			err := db.DeleteRecords(pw.database, pw.projectId, uint(pw.iTable.cursor))
-			pw.status.Set(fmt.Sprintf("Successfully deleted schene %d", pw.iTable.cursor), err)
-			pw.Init()
+			if err := pw.save(); err != nil {
+				pw.status.Set("", err)
+			} else {
+				err := db.DeleteRecords(pw.database, pw.projectId, uint(pw.iTable.cursor))
+				pw.status.Set(fmt.Sprintf("Successfully deleted schene %d", pw.iTable.cursor), err)
+				pw.Init()
+			}
 		}
 	}
 	pw.iTable.Update(msg)
@@ -393,6 +391,14 @@ func (pw *ProjectWorkspace) validate() error {
 
 	}
 	return nil
+}
+
+func (pw *ProjectWorkspace) save() error {
+	records, err := pw.iTable.toRecords(pw.projectId)
+	if err != nil {
+		return err
+	}
+	return db.SaveProjectRecords(pw.database, records)
 }
 
 func validateTime(initTime string) error {
