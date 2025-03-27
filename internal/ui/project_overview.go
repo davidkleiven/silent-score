@@ -23,7 +23,7 @@ const (
 )
 
 type ProjectOverviewModel struct {
-	db             db.CreateReadUpdateDeleter
+	store          db.ProjectStore
 	projects       list.Model
 	status         *Status
 	newProjectName textinput.Model
@@ -59,12 +59,14 @@ func (d projectItemDelegate) Render(w io.Writer, m list.Model, index int, listIt
 
 func (p *ProjectOverviewModel) loadProjectsFromDb() {
 	slog.Info("Loading projects from database")
-	var dbProjects []db.Project
-	p.db.Find(&dbProjects)
-	slog.Info(fmt.Sprintf("Loaded %d projects", len(dbProjects)))
+	projects, err := p.store.Load()
+	if err != nil {
+		panic(err)
+	}
+	slog.Info(fmt.Sprintf("Loaded %d projects", len(projects)))
 
 	var items []list.Item
-	for _, project := range dbProjects {
+	for _, project := range projects {
 		items = append(items, &project)
 	}
 	p.projects = list.New(items, projectItemDelegate{}, 20, 14)
@@ -117,7 +119,7 @@ func (p *ProjectOverviewModel) createNewProject() {
 		p.status.Set("", errors.New("project name can not be empty"))
 		return
 	}
-	err := db.SaveProject(p.db, db.NewProject(p.newProjectName.Value()))
+	err := p.store.Save(db.NewProject(db.WithName(p.newProjectName.Value())))
 	if err != nil {
 		p.status.Set("", err)
 	} else {
@@ -132,7 +134,7 @@ func (p *ProjectOverviewModel) deleteChosenProject() {
 		slog.Info("Could not convert into Project")
 		return
 	}
-	err := db.DeleteProject(p.db, int(project.Id))
+	err := p.store.Delete(project.Id)
 	p.status.Set(fmt.Sprintf("Successfully deleted %s", project.Name), err)
 	p.loadProjectsFromDb()
 }
@@ -184,7 +186,7 @@ func (p *ProjectOverviewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				p.toDeleteConfirmation()
 			case "enter":
 				p.status.Set(fmt.Sprintf("Selected project %s", p.projects.SelectedItem().FilterValue()), nil)
-				return &ProjectWorkspace{database: p.db, projectId: p.projects.SelectedItem().(*db.Project).Id}, nil
+				return &ProjectWorkspace{store: p.store, project: p.projects.SelectedItem().(*db.Project)}, nil
 			}
 		}
 		p.projects, cmd = p.projects.Update(msg)

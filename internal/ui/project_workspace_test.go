@@ -7,22 +7,11 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/davidkleiven/silent-score/internal/db"
 	"github.com/davidkleiven/silent-score/test"
-	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 	"pgregory.net/rapid"
 )
 
-func mustConnectInMemDb() *gorm.DB {
-	database, err := db.InMemoryGormConnection()
-	if err != nil {
-		panic(err)
-	}
-	db.AutoMigrate(database)
-	return database
-}
-
 func initializedPw() ProjectWorkspace {
-	pw := ProjectWorkspace{database: mustConnectInMemDb()}
+	pw := ProjectWorkspace{store: db.NewInMemoryStore(), project: db.NewProject(db.WithName("my-project"))}
 	pw.Init()
 	return pw
 }
@@ -509,19 +498,22 @@ func TestCtrlS(t *testing.T) {
 	} {
 		t.Run(test.desc, func(t *testing.T) {
 			pw := ProjectWorkspace{
-				database:  mustConnectInMemDb(),
-				projectId: 1,
-			}
-			if err := db.SaveProject(pw.database, db.NewProject("my-project")); err != nil {
-				t.Error(err)
+				store:   db.NewInMemoryStore(),
+				project: db.NewProject(db.WithName("my-project")),
 			}
 			pw.Init()
+
+			if err := pw.save(); err != nil {
+				t.Error(err)
+			}
 			pw.iTable.iRows = append(pw.iTable.iRows, test.row)
 			pw.Update(tea.KeyMsg{Type: tea.KeyCtrlS})
 
-			var items []db.ProjectContentRecord
-			pw.database.Find(&items)
-			if len(items) != test.wantRows {
+			items, err := pw.store.Load()
+			if err != nil {
+				t.Error(err)
+			}
+			if len(items[0].Records) != test.wantRows {
 				t.Errorf("Expected one record to be stored in the database")
 			}
 
@@ -534,7 +526,7 @@ func TestCtrlS(t *testing.T) {
 
 func TestEsc(t *testing.T) {
 	pw := initializedPw()
-	pw.database = mustConnectInMemDb()
+	pw.store = db.NewInMemoryStore()
 	model, _ := pw.Update(tea.KeyMsg{Type: tea.KeyEsc})
 
 	switch model.(type) {
@@ -546,7 +538,7 @@ func TestEsc(t *testing.T) {
 
 func TestToFromProjectRecordRoundTrip(t *testing.T) {
 	gen := rapid.Custom(func(t *rapid.T) db.ProjectContentRecord {
-		return test.GenerateProjectContentRecord(t)
+		return test.GenerateProjectContentRecord(t, 1)
 	})
 
 	projectId := uint(1)
@@ -586,17 +578,12 @@ func TestToFromProjectRecordRoundTrip(t *testing.T) {
 
 func TestInitializedWithCorrectRows(t *testing.T) {
 	rapid.Check(t, func(t *rapid.T) {
-		records := test.GenerateCompleteProjectRecords(t)
-		pw, err := initProjectFromWithRecords(records)
+		projects := test.GenerateProjects(t)
+		pw, err := initProjectFromWithRecords(projects)
 		if err != nil {
 			t.Error(err)
 		}
-		numRows := 0
-		for _, item := range records {
-			if item.ProjectID == pw.projectId {
-				numRows += 1
-			}
-		}
+		numRows := len(projects[0].Records)
 
 		if len(pw.iTable.iRows) != numRows {
 			t.Errorf("Wanted %d rows got %d", numRows, len(pw.iTable.iRows))
@@ -606,10 +593,11 @@ func TestInitializedWithCorrectRows(t *testing.T) {
 
 func TestDeleteRecord(t *testing.T) {
 	rapid.Check(t, func(t *rapid.T) {
-		records := test.GenerateCompleteProjectRecords(t)
-		pw, err := initProjectFromWithRecords(records)
+		projects := test.GenerateProjects(t)
+		pw, err := initProjectFromWithRecords(projects)
 		if err != nil {
 			t.Error(err)
+			return
 		}
 
 		origNumRows := len(pw.iTable.iRows)
@@ -623,41 +611,47 @@ func TestDeleteRecord(t *testing.T) {
 		pw.Update(tea.KeyMsg{Type: tea.KeyDelete})
 		finalNumRows := len(pw.iTable.iRows)
 
-		if len(records) > 0 && finalNumRows != origNumRows-1 {
+		if len(projects[0].Records) > 0 && finalNumRows != origNumRows-1 {
 			t.Errorf("Wanted number of rows to be %d got %d", origNumRows-1, finalNumRows)
 		}
 	})
 }
 
-var errSave = errors.New("save failed")
-
-type clausesFail struct{}
-
-func (c *clausesFail) Clauses(conds ...clause.Expression) *gorm.DB            { return &gorm.DB{Error: errSave} }
-func (c *clausesFail) Delete(dest interface{}, conds ...interface{}) *gorm.DB { return &gorm.DB{} }
-func (c *clausesFail) Find(dest interface{}, conds ...interface{}) *gorm.DB   { return &gorm.DB{} }
-
-func TestDeleteRecordSaveFails(t *testing.T) {
-	pw := ProjectWorkspace{database: &clausesFail{}}
+func TestSaveFailsDuringDelete(t *testing.T) {
+	pw := ProjectWorkspace{
+		store:   &failingSaver{},
+		project: db.NewProject(db.WithName("my-project")),
+	}
 	pw.Init()
-	pw.iTable.iRows = append(pw.iTable.iRows, NewTiRowFromRecord(&db.ProjectContentRecord{}))
 	pw.Update(tea.KeyMsg{Type: tea.KeyDelete})
 	if pw.status.kind != errorStatus {
-		t.Errorf("Wanted error status got %d", pw.status.kind)
+		t.Errorf("Should have been in error status")
 	}
 }
 
-func initProjectFromWithRecords(records []db.ProjectContentRecord) (ProjectWorkspace, error) {
-	database := mustConnectInMemDb()
-	if err := db.SaveProjectRecords(database, records); err != nil {
-		return ProjectWorkspace{}, err
+func initProjectFromWithRecords(projects []db.Project) (ProjectWorkspace, error) {
+	database := db.NewInMemoryStore()
+	for _, p := range projects {
+		if err := database.Save(&p); err != nil {
+			return ProjectWorkspace{}, err
+		}
 	}
 
-	loadId := uint(0)
-	if len(records) > 0 {
-		loadId = records[0].ProjectID
-	}
-	pw := ProjectWorkspace{database: database, projectId: loadId}
+	pw := ProjectWorkspace{store: database, project: &projects[0]}
 	pw.Init()
 	return pw, nil
+}
+
+type failingSaver struct{}
+
+func (fs *failingSaver) Save(project *db.Project) error {
+	return errors.New("saving failed")
+}
+
+func (fs *failingSaver) Load() ([]db.Project, error) {
+	return []db.Project{}, nil
+}
+
+func (fs *failingSaver) Delete(id uint) error {
+	return nil
 }

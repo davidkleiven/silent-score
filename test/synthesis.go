@@ -8,7 +8,7 @@ import (
 	"pgregory.net/rapid"
 )
 
-func GenerateProjectContentRecord(t *rapid.T) db.ProjectContentRecord {
+func GenerateProjectContentRecord(t *rapid.T, projectId uint) db.ProjectContentRecord {
 	hour := rapid.Int32Range(0, 20).Draw(t, "hour")
 	start, err := time.Parse(time.TimeOnly, fmt.Sprintf("%02d:%02d:%02d", hour, hour, hour))
 	if err != nil {
@@ -17,8 +17,7 @@ func GenerateProjectContentRecord(t *rapid.T) db.ProjectContentRecord {
 
 	stringSampler := rapid.StringMatching(`[a-zA-Z0-9 ]*`)
 	return db.ProjectContentRecord{
-		Project:   nil,
-		ProjectID: rapid.Uint().Draw(t, "id"),
+		ProjectID: projectId,
 		Scene:     rapid.Uint().Draw(t, "scene"),
 		SceneDesc: stringSampler.Draw(t, "text"),
 		Start:     start,
@@ -29,29 +28,22 @@ func GenerateProjectContentRecord(t *rapid.T) db.ProjectContentRecord {
 }
 
 // Generate a complete project records with a reference to a materialized project
-func GenerateCompleteProjectRecords(t *rapid.T) []db.ProjectContentRecord {
-	numProjects := rapid.IntRange(0, 3).Draw(t, "numProjects")
+func GenerateProjects(t *rapid.T) []db.Project {
+	numProjects := rapid.IntRange(1, 3).Draw(t, "numProjects")
 	stringSampler := rapid.StringMatching(`[a-zA-Z0-9]+`)
 	projectNames := rapid.SliceOfNDistinct(stringSampler, numProjects, numProjects, func(x string) string { return x }).Draw(t, "names")
 	numRecordsPerProject := rapid.SliceOfN(rapid.IntRange(0, 5), numProjects, numProjects).Draw(t, "numPerProject")
 
-	totNumRecords := 0
-	for _, n := range numRecordsPerProject {
-		totNumRecords += n
+	projects := make([]db.Project, numProjects)
+	for i := range numProjects {
+		id := uint(i + 1)
+		recordGen := rapid.Custom(func(t *rapid.T) db.ProjectContentRecord { return GenerateProjectContentRecord(t, id) })
+		projects[i] = db.Project{
+			Name:    projectNames[i],
+			Id:      id,
+			Records: rapid.SliceOfN(recordGen, numRecordsPerProject[i], numRecordsPerProject[i]).Draw(t, "records"),
+		}
 	}
 
-	recordGen := rapid.Custom(GenerateProjectContentRecord)
-	records := rapid.SliceOfN(recordGen, totNumRecords, totNumRecords).Draw(t, "records")
-	start := 0
-	for i := range numProjects {
-		project := db.Project{
-			Name: projectNames[i],
-		}
-		for j := range numRecordsPerProject[i] {
-			records[start+j].Project = &project
-			records[start+j].Scene = uint(j)
-		}
-		start += numRecordsPerProject[i]
-	}
-	return records
+	return projects
 }

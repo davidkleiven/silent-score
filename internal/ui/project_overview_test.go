@@ -1,44 +1,42 @@
 package ui
 
 import (
-	"slices"
 	"strings"
 	"testing"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/davidkleiven/silent-score/internal/db"
-	"gorm.io/gorm"
 )
 
-func initProjectDb() *gorm.DB {
-	database, err := db.InMemoryGormConnection()
-	if err != nil {
-		panic(err)
-	}
-	db.AutoMigrate(database)
+func initProjectDb() *db.InMemoryProjectStore {
+	store := db.NewInMemoryStore()
 
-	db.SaveProject(database, db.NewProject("project1"))
-	db.SaveProject(database, db.NewProject("project2"))
-	return database
+	store.Save(db.NewProject(db.WithName("project1")))
+	store.Save(db.NewProject(db.WithName("project2")))
+	return store
 }
 
 func TestProjectOverviewInit(t *testing.T) {
-	model := ProjectOverviewModel{db: initProjectDb()}
+	model := ProjectOverviewModel{store: initProjectDb()}
 	model.Init()
 
 	if model.mode != browseMode {
 		t.Errorf("Expected mode to be %d got %d", browseMode, model.mode)
 	}
 
-	names := []string{}
+	names := make(map[string]struct{})
 	for _, item := range model.projects.Items() {
-		names = append(names, item.FilterValue())
+		names[item.FilterValue()] = struct{}{}
 	}
 
 	want := []string{"project1", "project2"}
-	if slices.Compare(names, want) != 0 {
-		t.Errorf("Wanted %v got %v\n", want, names)
+	for _, name := range want {
+		if _, ok := names[name]; !ok {
+			t.Errorf("Wanted %v got %v\n", want, names)
+			return
+		}
 	}
+
 }
 
 func TestEvents(t *testing.T) {
@@ -143,7 +141,7 @@ func TestEvents(t *testing.T) {
 		},
 	} {
 		t.Run(test.desc, func(t *testing.T) {
-			model := ProjectOverviewModel{db: initProjectDb()}
+			model := ProjectOverviewModel{store: initProjectDb()}
 			model.Init()
 			switch test.mode {
 			case deleteConfirmationMode:
@@ -182,14 +180,14 @@ type filterString string
 func (f filterString) FilterValue() string { return "" }
 
 func TestProjectItemDelegatorNoCrashOnWrongType(t *testing.T) {
-	model := ProjectOverviewModel{db: initProjectDb()}
+	model := ProjectOverviewModel{store: initProjectDb()}
 	model.Init()
 	model.projects.SetItem(0, filterString("whatever"))
 	model.projects.View()
 }
 
 func TestSaveProjectSuccessfully(t *testing.T) {
-	model := ProjectOverviewModel{db: initProjectDb()}
+	model := ProjectOverviewModel{store: initProjectDb()}
 	model.Init()
 	model.newProjectName.SetValue("awesomeProject")
 	origNumProjects := len(model.projects.Items())
@@ -205,7 +203,7 @@ func TestSaveProjectSuccessfully(t *testing.T) {
 }
 
 func TestSaveProjectWithRepeatedName(t *testing.T) {
-	model := ProjectOverviewModel{db: initProjectDb()}
+	model := ProjectOverviewModel{store: initProjectDb()}
 	model.Init()
 	model.toTextInputMode("")
 	model.newProjectName.SetValue(model.projects.SelectedItem().FilterValue())
