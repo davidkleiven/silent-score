@@ -96,7 +96,13 @@ func SaveProjectRecords(db Storer, records []ProjectContentRecord) error {
 			Columns:   []clause.Column{{Name: "project_id"}, {Name: "scene"}},
 			UpdateAll: true,
 		},
-	).Create(records)
+	)
+
+	if tx.Error != nil {
+		return tx.Error
+	}
+
+	tx = tx.Create(records)
 	return tx.Error
 }
 

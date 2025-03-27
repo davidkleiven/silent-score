@@ -1,12 +1,14 @@
 package ui
 
 import (
+	"errors"
 	"testing"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/davidkleiven/silent-score/internal/db"
 	"github.com/davidkleiven/silent-score/test"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	"pgregory.net/rapid"
 )
 
@@ -625,6 +627,24 @@ func TestDeleteRecord(t *testing.T) {
 			t.Errorf("Wanted number of rows to be %d got %d", origNumRows-1, finalNumRows)
 		}
 	})
+}
+
+var errSave = errors.New("save failed")
+
+type clausesFail struct{}
+
+func (c *clausesFail) Clauses(conds ...clause.Expression) *gorm.DB            { return &gorm.DB{Error: errSave} }
+func (c *clausesFail) Delete(dest interface{}, conds ...interface{}) *gorm.DB { return &gorm.DB{} }
+func (c *clausesFail) Find(dest interface{}, conds ...interface{}) *gorm.DB   { return &gorm.DB{} }
+
+func TestDeleteRecordSaveFails(t *testing.T) {
+	pw := ProjectWorkspace{database: &clausesFail{}}
+	pw.Init()
+	pw.iTable.iRows = append(pw.iTable.iRows, NewTiRowFromRecord(&db.ProjectContentRecord{}))
+	pw.Update(tea.KeyMsg{Type: tea.KeyDelete})
+	if pw.status.kind != errorStatus {
+		t.Errorf("Wanted error status got %d", pw.status.kind)
+	}
 }
 
 func initProjectFromWithRecords(records []db.ProjectContentRecord) (ProjectWorkspace, error) {

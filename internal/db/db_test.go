@@ -450,3 +450,46 @@ func TestWriteEmptyProjectContent(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestDeleteRecord(t *testing.T) {
+	db := inMemoryDbPanicOnError()
+	AutoMigrate(db)
+	project := Project{}
+	record := ProjectContentRecord{Project: &project}
+	if err := SaveProjectRecords(db, []ProjectContentRecord{record}); err != nil {
+		t.Error(err)
+	}
+
+	var storedRecords []ProjectContentRecord
+	tx := db.Find(&storedRecords)
+	if tx.Error != nil {
+		t.Error(tx.Error)
+	}
+	if len(storedRecords) != 1 {
+		t.Errorf("Expected 1 record to be stored. Got %d", len(storedRecords))
+	}
+	if err := DeleteRecords(db, 1, 0); err != nil {
+		t.Error(err)
+	}
+
+	db.Find(&storedRecords)
+	if len(storedRecords) != 0 {
+		t.Errorf("Expected 0 records got %d", len(storedRecords))
+	}
+}
+
+var errSave = errors.New("failed to save")
+
+type failingClauseStorer struct{}
+
+func (fcs *failingClauseStorer) Clauses(conds ...clause.Expression) *gorm.DB {
+	return &gorm.DB{Error: errSave}
+}
+
+func TestReturnSaveErrorWhenClausesReturnTransactionWithFailure(t *testing.T) {
+	storer := failingClauseStorer{}
+	records := []ProjectContentRecord{{}}
+	if err := SaveProjectRecords(&storer, records); !errors.Is(err, errSave) {
+		t.Errorf("Wanted %s got %s", errSave, err)
+	}
+}
