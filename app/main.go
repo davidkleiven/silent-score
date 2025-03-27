@@ -26,7 +26,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	model := ui.NewAppModel(programDb)
+	model := ui.NewAppModel(&db.GormStore{Database: programDb})
 	program := tea.NewProgram(model)
 
 	if _, err := program.Run(); err != nil {

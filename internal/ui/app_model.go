@@ -6,7 +6,7 @@ import (
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"gorm.io/gorm"
+	"github.com/davidkleiven/silent-score/internal/db"
 )
 
 type AppModel struct {
@@ -14,10 +14,10 @@ type AppModel struct {
 	current tea.Model
 }
 
-func NewAppModel(db *gorm.DB) *AppModel {
+func NewAppModel(store db.ProjectStore) *AppModel {
 	vp := viewport.New(120, 32)
 	return &AppModel{
-		current: &ProjectOverviewModel{db: db},
+		current: &ProjectOverviewModel{store: store},
 		view:    vp,
 	}
 }

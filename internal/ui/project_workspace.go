@@ -205,6 +205,16 @@ func (it *InteractiveTable) activeTiRow() tiRow {
 	return nil
 }
 
+func (it *InteractiveTable) deleteActiveRow() {
+	if it.cursor < len(it.iRows)-1 {
+		it.iRows = append(it.iRows[:it.cursor], it.iRows[it.cursor+1:]...)
+	} else {
+		it.iRows = it.iRows[:it.cursor]
+	}
+
+	it.cursor = confine(it.cursor-1, 0, len(it.iRows))
+}
+
 func (it *InteractiveTable) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
@@ -318,22 +328,17 @@ func (it *InteractiveTable) toRecords(projectId uint) ([]db.ProjectContentRecord
 }
 
 type ProjectWorkspace struct {
-	database  db.CreateReadUpdateDeleter
-	projectId uint
-	status    *Status
-	iTable    *InteractiveTable
+	store   db.ProjectStore
+	project *db.Project
+	status  *Status
+	iTable  *InteractiveTable
 }
 
 func (pw *ProjectWorkspace) Init() tea.Cmd {
 	pw.status = NewStatus()
 	pw.iTable = NewInteractiveTable()
 
-	var records []db.ProjectContentRecord
-	tx := pw.database.Find(&records, "project_id = ?", pw.projectId)
-	if tx.Error != nil {
-		panic(tx.Error)
-	}
-	for _, record := range records {
+	for _, record := range pw.project.Records {
 		row := NewTiRowFromRecord(&record)
 		row.Blur()
 		pw.iTable.iRows = append(pw.iTable.iRows, row)
@@ -356,15 +361,15 @@ func (pw *ProjectWorkspace) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			err := pw.save()
 			pw.status.Set("Successfully stored project", err)
 			if keyName == "esc" {
-				return &ProjectOverviewModel{db: pw.database}, nil
+				return &ProjectOverviewModel{store: pw.store}, nil
 			}
 		case "delete":
+			pw.iTable.deleteActiveRow()
+
 			if err := pw.save(); err != nil {
 				pw.status.Set("", err)
 			} else {
-				err := db.DeleteRecords(pw.database, pw.projectId, uint(pw.iTable.cursor))
 				pw.status.Set(fmt.Sprintf("Successfully deleted schene %d", pw.iTable.cursor), err)
-				pw.Init()
 			}
 		}
 	}
@@ -394,11 +399,12 @@ func (pw *ProjectWorkspace) validate() error {
 }
 
 func (pw *ProjectWorkspace) save() error {
-	records, err := pw.iTable.toRecords(pw.projectId)
+	records, err := pw.iTable.toRecords(pw.project.Id)
 	if err != nil {
 		return err
 	}
-	return db.SaveProjectRecords(pw.database, records)
+	pw.project.Records = records
+	return pw.store.Save(pw.project)
 }
 
 func validateTime(initTime string) error {
