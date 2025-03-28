@@ -36,3 +36,4 @@ exclude:
   paths:
     - ^app/main.go$
     - ^scripts
+    - ^test
