@@ -214,12 +214,6 @@ type Valignimage string
 // Yesno is The yes-no type is used for boolean-like attributes. We cannot use W3C XML Schema booleans due to their restrictions on expression of boolean values.
 type Yesno string
 
-// Yesnonumber is The yes-no-number type is used for attributes that can be either boolean or numeric values.
-type Yesnonumber struct {
-	Decimal float64
-	Yesno   string
-}
-
 // Yyyymmdd is Calendar dates are represented yyyy-mm-dd format, following ISO 8601. This is a W3C XML Schema date type, but without the optional timezone data.
 type Yyyymmdd string
 
@@ -1916,9 +1910,9 @@ type Sound struct {
 	PizzicatoAttr      string            `xml:"pizzicato,attr,omitempty"`
 	PanAttr            float64           `xml:"pan,attr,omitempty"`
 	ElevationAttr      float64           `xml:"elevation,attr,omitempty"`
-	DamperpedalAttr    *Yesnonumber      `xml:"damper-pedal,attr,omitempty"`
-	SoftpedalAttr      *Yesnonumber      `xml:"soft-pedal,attr,omitempty"`
-	SostenutopedalAttr *Yesnonumber      `xml:"sostenuto-pedal,attr,omitempty"`
+	DamperpedalAttr    string            `xml:"damper-pedal,attr,omitempty"`
+	SoftpedalAttr      string            `xml:"soft-pedal,attr,omitempty"`
+	SostenutopedalAttr string            `xml:"sostenuto-pedal,attr,omitempty"`
 	Instrumentchange   *Instrumentchange `xml:"instrument-change"`
 	Mididevice         *Mididevice       `xml:"midi-device"`
 	Midiinstrument     *Midiinstrument   `xml:"midi-instrument"`
