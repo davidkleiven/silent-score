@@ -1,6 +1,10 @@
 package compose
 
-import "strings"
+import (
+	"cmp"
+	"slices"
+	"strings"
+)
 
 func normalize(data string) string {
 	return strings.ToLower(data)
@@ -41,10 +45,41 @@ func jaccard(data1 map[string]struct{}, data2 map[string]struct{}) float64 {
 	return float64(len(intersection)) / float64(len(union))
 }
 
+func numCommonElements(target map[string]struct{}, candidate map[string]struct{}) int {
+	numCommon := 0
+	for v := range candidate {
+		if _, ok := target[v]; ok {
+			numCommon += 1
+		}
+	}
+	return numCommon
+}
+
 func toSet(data []string) map[string]struct{} {
 	result := make(map[string]struct{})
 	for _, item := range data {
 		result[item] = struct{}{}
 	}
 	return result
+}
+
+type Score struct {
+	Similarity int
+	Index      int
+}
+
+func orderPieces(desc string, pieceText []string) []Score {
+	targetTokens := ngram(normalize(desc), 3)
+
+	similarity := make([]Score, len(pieceText))
+	for i, text := range pieceText {
+		similarity[i] = Score{
+			Similarity: numCommonElements(ngram(normalize(text), 3), targetTokens),
+			Index:      i,
+		}
+	}
+	slices.SortStableFunc(similarity, func(s1, s2 Score) int {
+		return -cmp.Compare(s1.Similarity, s2.Similarity)
+	})
+	return similarity
 }

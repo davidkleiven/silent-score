@@ -91,11 +91,6 @@ type Numberlevel int
 // Numberoflines is The number-of-lines type is used to specify the number of lines in text decoration attributes.
 type Numberoflines int
 
-// Numberornormal is The number-or-normal values can be either a decimal number or the string "normal". This is used by the line-height and letter-spacing attributes.
-type Numberornormal struct {
-	Decimal float64
-}
-
 // Numeralvalue is The numeral-value type represents a Roman numeral or Nashville number value as a positive integer from 1 to 7.
 type Numeralvalue int
 
@@ -614,7 +609,7 @@ type Justify struct {
 
 // Letterspacing is The letter-spacing attribute specifies text tracking. Values are either "normal" or a number representing the number of ems to add between each letter. The number may be negative in order to subtract space. The default is normal, which allows flexibility of letter-spacing for purposes of text justification.
 type Letterspacing struct {
-	LetterspacingAttr *Numberornormal `xml:"letter-spacing,attr,omitempty"`
+	LetterspacingAttr string `xml:"letter-spacing,attr,omitempty"`
 }
 
 // Leveldisplay is The level-display attribute group specifies three common ways to indicate editorial indications: putting parentheses or square brackets around a symbol, or making the symbol a different size. If not specified, they are left to application defaults. It is used by the level and accidental elements.
@@ -626,7 +621,7 @@ type Leveldisplay struct {
 
 // Lineheight is The line-height attribute specifies text leading. Values are either "normal" or a number representing the percentage of the current font height to use for leading. The default is "normal". The exact normal value is implementation-dependent, but values between 100 and 120 are recommended.
 type Lineheight struct {
-	LineheightAttr *Numberornormal `xml:"line-height,attr,omitempty"`
+	LineheightAttr string `xml:"line-height,attr,omitempty"`
 }
 
 // Optionaluniqueid is The optional-unique-id attribute group allows an element to optionally specify an ID that is unique to the entire document. This attribute group is not used for a required id attribute, or for an id attribute that specifies an id reference.

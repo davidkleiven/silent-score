@@ -76,3 +76,40 @@ func TestNormalize(t *testing.T) {
 		t.Errorf("Wanted %s got %s", want, normalized)
 	}
 }
+
+func TestNumOverlapping(t *testing.T) {
+	target := map[string]struct{}{
+		"a": {},
+		"b": {},
+	}
+	candidate := map[string]struct{}{
+		"b": {},
+		"d": {},
+		"e": {},
+	}
+
+	if r := numCommonElements(target, candidate); r != 1 {
+		t.Errorf("Wanted 1 overlapping god %d", r)
+	}
+
+}
+
+func TestOrderPiece(t *testing.T) {
+	desc := "agitato, shark in the water"
+	pieces := []string{
+		"fish water andante",
+		"water agitato",
+		"written by Cole Porter",
+	}
+
+	result := orderPieces(desc, pieces)
+	wantIndexes := []int{1, 0, 2}
+	gotIndex := make([]int, 3)
+	for i, v := range result {
+		gotIndex[i] = v.Index
+	}
+
+	if slices.Compare(gotIndex, wantIndexes) != 0 {
+		t.Errorf("Wanted %v got %v", wantIndexes, gotIndex)
+	}
+}
