@@ -61,13 +61,13 @@ func NewProject(opts ...ProjectOpts) *Project {
 }
 
 type ProjectContentRecord struct {
-	ProjectID uint
-	Scene     uint
-	SceneDesc string `gorm:"default:''"`
-	Start     time.Time
-	Keywords  string `gorm:"default:''"`
-	Tempo     uint   `gorm:"default:0"`
-	Theme     uint   `gorm:"default:0"`
+	ProjectID   uint
+	Scene       uint
+	SceneDesc   string `gorm:"default:''"`
+	DurationSec int    `gorm:"default:0"`
+	Keywords    string `gorm:"default:''"`
+	Tempo       uint   `gorm:"default:0"`
+	Theme       uint   `gorm:"default:0"`
 }
 
 type GormStore struct {

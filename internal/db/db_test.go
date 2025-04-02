@@ -4,7 +4,6 @@ import (
 	"os"
 	"slices"
 	"testing"
-	"time"
 )
 
 func namedGormStore(name string) *GormStore {
@@ -143,12 +142,11 @@ func TestProjectWithRecordsRoundTrip(t *testing.T) {
 
 			records := []ProjectContentRecord{
 				{
-					Scene: 1,
-					Start: time.Now(),
+					Scene:       1,
+					DurationSec: 1,
 				},
 				{
 					Scene: 2,
-					Start: time.Now(),
 				},
 			}
 
@@ -181,11 +179,9 @@ func TestUpdateRecords(t *testing.T) {
 			records := []ProjectContentRecord{
 				{
 					Scene: 1,
-					Start: time.Now(),
 				},
 				{
 					Scene: 2,
-					Start: time.Now(),
 				},
 			}
 			project := NewProject(WithName("my-project"), WithRecords(records))
@@ -237,7 +233,6 @@ func TestFilterValue(t *testing.T) {
 func TestGormCascadeDelete(t *testing.T) {
 	records := []ProjectContentRecord{
 		{
-			Start: time.Now(),
 			Scene: 1,
 		},
 	}

@@ -3,9 +3,7 @@ package ui
 import (
 	"fmt"
 	"log/slog"
-	"regexp"
 	"strconv"
-	"time"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -28,7 +26,7 @@ const (
 	tiTempo
 	tiKeywords
 	tiTheme
-	tiStart
+	tiDuration
 )
 
 type tiRow []textinput.Model
@@ -56,8 +54,6 @@ func NewTiRow(opts ...tiOpt) tiRow {
 
 	startTi.Width = 8
 	startTi.Prompt = ""
-	startTi.Placeholder = "HH:MM:SS"
-
 	row := []textinput.Model{sceneDescTi, tempoTi, keywordsTi, themeTi, startTi}
 
 	for _, fn := range opts {
@@ -77,9 +73,12 @@ func NewTiRowFromRecord(record *db.ProjectContentRecord) tiRow {
 		row[tiTheme].SetValue(fmt.Sprintf("%d", record.Theme))
 	}
 
+	if record.DurationSec > 0 {
+		row[tiDuration].SetValue(fmt.Sprintf("%d", record.DurationSec))
+	}
+
 	row[tiScene].SetValue(record.SceneDesc)
 	row[tiKeywords].SetValue(record.Keywords)
-	row[tiStart].SetValue(record.Start.Format(time.TimeOnly))
 	return row
 }
 
@@ -124,8 +123,8 @@ func (t tiRow) Update(msg tea.Msg) {
 	}
 }
 
-func (t tiRow) Time() string {
-	return t[tiStart].Value()
+func (t tiRow) Duration() string {
+	return t[tiDuration].Value()
 }
 
 func (t tiRow) Tempo() string {
@@ -140,11 +139,15 @@ func (t tiRow) ThemeOrDefault() (int, error) {
 	return intOrDefault(t[tiTheme].Value(), 0)
 }
 
+func (t tiRow) DurationOrDefault() (int, error) {
+	return intOrDefault(t[tiDuration].Value(), 0)
+}
+
 type tiOpt func(row tiRow)
 
-func WithTime(start string) tiOpt {
+func WithDuration(start string) tiOpt {
 	return func(ti tiRow) {
-		ti[tiStart].SetValue(start)
+		ti[tiDuration].SetValue(start)
 	}
 }
 
@@ -172,7 +175,7 @@ func NewInteractiveTable() *InteractiveTable {
 func (it *InteractiveTable) Header() string {
 	style := lipgloss.NewStyle()
 
-	names := []string{"Scene desc", "Tempo", "Keywords", "Theme", "Time"}
+	names := []string{"Scene desc", "Tempo", "Keywords", "Theme", "Duration (sec)"}
 	header := make([]string, len(names))
 	for i, name := range names {
 		width := 20
@@ -274,7 +277,6 @@ func (it *InteractiveTable) handleDown() {
 func (it *InteractiveTable) interchangeRows(current, target int) {
 	target = confine(target, 0, len(it.iRows)-1)
 	it.blurActiveRow()
-	it.iRows[current][tiStart].SetValue(it.iRows[target][tiStart].Value())
 	it.iRows[current], it.iRows[target] = it.iRows[target], it.iRows[current]
 	it.cursor = target
 	it.activateCurrentRow()
@@ -290,15 +292,15 @@ func (it *InteractiveTable) toRecords(projectId uint) ([]db.ProjectContentRecord
 	rows := make([]db.ProjectContentRecord, len(it.iRows))
 	for i, row := range it.iRows {
 		var (
-			startTime time.Time
-			tempo     int
-			theme     int
-			ierr      error
+			duration int
+			tempo    int
+			theme    int
+			ierr     error
 		)
 
 		err := utils.ReturnFirstError(
 			func() error {
-				startTime, ierr = time.Parse(time.TimeOnly, row[tiStart].Value())
+				duration, ierr = row.DurationOrDefault()
 				return ierr
 			},
 			func() error {
@@ -315,13 +317,13 @@ func (it *InteractiveTable) toRecords(projectId uint) ([]db.ProjectContentRecord
 		}
 
 		rows[i] = db.ProjectContentRecord{
-			ProjectID: projectId,
-			Scene:     uint(i),
-			SceneDesc: row[tiScene].Value(),
-			Start:     startTime,
-			Keywords:  row[tiKeywords].Value(),
-			Tempo:     uint(tempo),
-			Theme:     uint(theme),
+			ProjectID:   projectId,
+			Scene:       uint(i),
+			SceneDesc:   row[tiScene].Value(),
+			DurationSec: duration,
+			Keywords:    row[tiKeywords].Value(),
+			Tempo:       uint(tempo),
+			Theme:       uint(theme),
 		}
 	}
 	return rows, nil
@@ -386,7 +388,7 @@ func (pw *ProjectWorkspace) View() string {
 func (pw *ProjectWorkspace) validate() error {
 	for _, item := range pw.iTable.iRows {
 		err := utils.ReturnFirstError(
-			func() error { return validateTime(item.Time()) },
+			func() error { return validateDuration(item.Duration()) },
 			func() error { return validateTempo(item.Tempo()) },
 		)
 
@@ -407,14 +409,13 @@ func (pw *ProjectWorkspace) save() error {
 	return pw.store.Save(pw.project)
 }
 
-func validateTime(initTime string) error {
-	if initTime == "" {
+func validateDuration(duration string) error {
+	if duration == "" {
 		return nil
 	}
-	hoursMinSec := regexp.MustCompile(`\d{2}:\d{2}:\d{2}`)
-
-	if !hoursMinSec.MatchString(initTime) {
-		return ErrWrongTimeFormat
+	_, err := strconv.Atoi(duration)
+	if err != nil {
+		return ErrDurationMustBeInteger
 	}
 	return nil
 }

@@ -123,7 +123,7 @@ func TestValidateTime(t *testing.T) {
 		desc      string
 	}{
 		{
-			timestamp: "00:01:02",
+			timestamp: "0",
 			err:       nil,
 			desc:      "Valid timestamp only minutes",
 		},
@@ -134,17 +134,12 @@ func TestValidateTime(t *testing.T) {
 		},
 		{
 			timestamp: "02:02",
-			err:       ErrWrongTimeFormat,
-			desc:      "Hours missing",
-		},
-		{
-			timestamp: "1:02:02",
-			err:       ErrWrongTimeFormat,
-			desc:      "Only one digit in hour",
+			err:       ErrDurationMustBeInteger,
+			desc:      "It is a timestamp and not int",
 		},
 	} {
 		t.Run(test.desc, func(t *testing.T) {
-			if err := validateTime(test.timestamp); err != test.err {
+			if err := validateDuration(test.timestamp); err != test.err {
 				t.Errorf("Wanted %v got %v", test.err, err)
 			}
 		})
@@ -269,8 +264,8 @@ func TestFocusRL(t *testing.T) {
 }
 
 func TestTimeConstency(t *testing.T) {
-	row := NewTiRow(WithTime("20:00:00"))
-	if timefield := row.Time(); timefield != "20:00:00" {
+	row := NewTiRow(WithDuration("20:00:00"))
+	if timefield := row.Duration(); timefield != "20:00:00" {
 		t.Errorf("Wanted 20:00:00 got %s", timefield)
 	}
 }
@@ -288,11 +283,11 @@ func TestProjectWorkspaceEnterOk(t *testing.T) {
 func TestProjectWorkspaceEnterErr(t *testing.T) {
 	pw := initializedPw()
 	pw.iTable.createNewRow()
-	pw.iTable.iRows[0][tiStart].SetValue("01:00")
+	pw.iTable.iRows[0][tiDuration].SetValue("01:00")
 	pw.Update(tea.KeyMsg{Type: tea.KeyEnter})
 
-	if pw.status.msg != ErrWrongTimeFormat.Error() {
-		t.Errorf("Wanted %s got %s", ErrWrongTimeFormat.Error(), pw.status.msg)
+	if pw.status.msg != ErrDurationMustBeInteger.Error() {
+		t.Errorf("Wanted %s got %s", ErrDurationMustBeInteger.Error(), pw.status.msg)
 	}
 }
 
@@ -306,8 +301,8 @@ func TestValidate(t *testing.T) {
 			err: nil,
 		},
 		{
-			row: NewTiRow(WithTime("00:01")),
-			err: ErrWrongTimeFormat,
+			row: NewTiRow(WithDuration("00:01")),
+			err: ErrDurationMustBeInteger,
 		},
 		{
 			row: NewTiRow(WithTempo("andante")),
@@ -331,13 +326,13 @@ func TestInterchange(t *testing.T) {
 		desc    string
 	}{
 		{
-			want:    []string{"02:00", "02:00"},
+			want:    []string{"2", "1"},
 			current: 1,
 			target:  0,
 			desc:    "Move last row up",
 		},
 		{
-			want:    []string{"03:00", "03:00"},
+			want:    []string{"2", "1"},
 			current: 0,
 			target:  1,
 			desc:    "Move last row down",
@@ -345,12 +340,12 @@ func TestInterchange(t *testing.T) {
 	} {
 		t.Run(test.desc, func(t *testing.T) {
 			pw := initializedPw()
-			pw.iTable.iRows = append(pw.iTable.iRows, NewTiRow(WithTime("02:00")))
-			pw.iTable.iRows = append(pw.iTable.iRows, NewTiRow(WithTime("03:00")))
+			pw.iTable.iRows = append(pw.iTable.iRows, NewTiRow(WithDuration("1")))
+			pw.iTable.iRows = append(pw.iTable.iRows, NewTiRow(WithDuration("2")))
 			pw.iTable.interchangeRows(test.current, test.target)
 
 			for i, row := range pw.iTable.iRows {
-				if v := row[tiStart].Value(); v != test.want[i] {
+				if v := row[tiDuration].Value(); v != test.want[i] {
 					t.Errorf("Wanted %s got %s", test.want[i], v)
 				}
 			}
@@ -440,7 +435,7 @@ func TestToRecords(t *testing.T) {
 		want       []db.ProjectContentRecord
 	}{
 		{
-			rows:       []tiRow{NewTiRow(WithTime("00:12"))},
+			rows:       []tiRow{NewTiRow(WithDuration("12:00"))},
 			shouldFail: true,
 			desc:       "Wrong time",
 		},
@@ -455,7 +450,7 @@ func TestToRecords(t *testing.T) {
 			desc:       "Wrong tempo (should be integer)",
 		},
 		{
-			rows:       []tiRow{NewTiRow(WithTime("00:12:01"), WithTempo("88"), WithTheme("0"))},
+			rows:       []tiRow{NewTiRow(WithDuration("2"), WithTempo("88"), WithTheme("0"))},
 			shouldFail: false,
 			desc:       "Valid row",
 		},
@@ -484,13 +479,13 @@ func TestCtrlS(t *testing.T) {
 		wantStatusKind StatusKind
 	}{
 		{
-			row:            NewTiRow(WithTime("00:00:15")),
+			row:            NewTiRow(WithDuration("15")),
 			desc:           "One valid row",
 			wantRows:       1,
 			wantStatusKind: okStatus,
 		},
 		{
-			row:            NewTiRow(),
+			row:            NewTiRow(WithDuration("00:15")),
 			desc:           "One row with wrong time format",
 			wantRows:       0,
 			wantStatusKind: errorStatus,
