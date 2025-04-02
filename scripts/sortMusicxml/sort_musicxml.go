@@ -59,7 +59,7 @@ func performSortTask(doc *etree.Document, task SortTask) {
 			elem1, ok1 := e1.(*etree.Element)
 			elem2, ok2 := e2.(*etree.Element)
 			if !ok1 || !ok2 {
-				return -1
+				return 0
 			}
 			return cmp.Compare(order[elem1.Tag], order[elem2.Tag])
 		})
