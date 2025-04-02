@@ -1,6 +1,9 @@
 package musicxml
 
 import (
+	"encoding/xml"
+	"io"
+	"io/fs"
 	"log/slog"
 	"strconv"
 )
@@ -79,4 +82,31 @@ func DirectionFromMeasure(measure Measure) []MeasureTextResult {
 		}
 	}
 	return result
+}
+
+func ReadFromFile(reader io.Reader) (Scorepartwise, error) {
+	var score Scorepartwise
+	content, err := io.ReadAll(reader)
+	if err != nil {
+		return score, err
+	}
+
+	if err := xml.Unmarshal(content, &score); err != nil {
+		return score, err
+	}
+	return score, nil
+}
+
+func ReadFromFileName(fs fs.FS, name string) Scorepartwise {
+	file, err := fs.Open(name)
+	if err != nil {
+		slog.Error("Failed to open file", "file", name, "error", err)
+		return Scorepartwise{}
+	}
+	defer file.Close()
+	score, err := ReadFromFile(file)
+	if err != nil {
+		slog.Error("Failed to read score", "file", name, "error", err)
+	}
+	return score
 }

@@ -6,11 +6,11 @@
     <creator type="composer">Chas K. Herbert</creator>
     <encoding>
       <software>MuseScore 4.4.4</software>
-      <encoding-date>2025-04-02</encoding-date>
+      <encoding-date>2025-04-08</encoding-date>
       <supports element="accidental" type="yes"></supports>
       <supports element="beam" type="yes"></supports>
-      <supports attribute="new-page" element="print" type="no"></supports>
-      <supports attribute="new-system" element="print" type="no"></supports>
+      <supports attribute="new-page" element="print" type="yes" value="yes"></supports>
+      <supports attribute="new-system" element="print" type="yes" value="yes"></supports>
       <supports element="stem" type="yes"></supports>
     </encoding>
   </identification>
@@ -94,6 +94,44 @@
   </part-list>
   <part id="P1">
     <measure number="1" width="295.8">
+      <print>
+        <system-layout>
+          <system-margins>
+            <left-margin>50</left-margin>
+            <right-margin>0</right-margin>
+          </system-margins>
+          <top-system-distance>170</top-system-distance>
+        </system-layout>
+      </print>
+      <attributes>
+        <divisions>12</divisions>
+        <key>
+          <fifths>2</fifths>
+        </key>
+        <time>
+          <beats>3</beats>
+          <beat-type>4</beat-type>
+        </time>
+        <clef>
+          <sign>G</sign>
+          <line>2</line>
+        </clef>
+      </attributes>
+      <harmony print-frame="no">
+        <root>
+          <root-step>B</root-step>
+        </root>
+        <kind text="m">minor</kind>
+      </harmony>
+      <direction placement="above">
+        <direction-type>
+          <metronome default-x="-37.67" default-y="24.92" parentheses="no" relative-y="20">
+            <beat-unit>quarter</beat-unit>
+            <per-minute>80</per-minute>
+          </metronome>
+        </direction-type>
+        <sound tempo="80"></sound>
+      </direction>
       <note default-x="108.43" default-y="-20">
         <pitch>
           <step>B</step>
@@ -142,6 +180,12 @@
         <type>quarter</type>
         <stem>up</stem>
       </note>
+      <harmony print-frame="no">
+        <root>
+          <root-step>E</root-step>
+        </root>
+        <kind text="m">minor</kind>
+      </harmony>
       <note default-x="220.06" default-y="-40">
         <pitch>
           <step>E</step>
@@ -193,52 +237,14 @@
           <tuplet type="stop"></tuplet>
         </notations>
       </note>
-      <direction placement="above">
-        <direction-type>
-          <metronome default-x="-37.67" default-y="24.92" parentheses="no" relative-y="20">
-            <beat-unit>quarter</beat-unit>
-            <per-minute>80</per-minute>
-          </metronome>
-        </direction-type>
-        <sound tempo="80"></sound>
-      </direction>
-      <attributes>
-        <divisions>12</divisions>
-        <key>
-          <fifths>2</fifths>
-        </key>
-        <time>
-          <beats>3</beats>
-          <beat-type>4</beat-type>
-        </time>
-        <clef>
-          <sign>G</sign>
-          <line>2</line>
-        </clef>
-      </attributes>
+    </measure>
+    <measure number="2" width="199.87">
       <harmony print-frame="no">
         <root>
           <root-step>B</root-step>
         </root>
         <kind text="m">minor</kind>
       </harmony>
-      <harmony print-frame="no">
-        <root>
-          <root-step>E</root-step>
-        </root>
-        <kind text="m">minor</kind>
-      </harmony>
-      <print>
-        <system-layout>
-          <system-margins>
-            <left-margin>50</left-margin>
-            <right-margin>0</right-margin>
-          </system-margins>
-          <top-system-distance>170</top-system-distance>
-        </system-layout>
-      </print>
-    </measure>
-    <measure number="2" width="199.87">
       <note default-x="12.5" default-y="-20">
         <pitch>
           <step>B</step>
@@ -287,6 +293,12 @@
         <type>quarter</type>
         <stem>up</stem>
       </note>
+      <harmony print-frame="no">
+        <root>
+          <root-step>E</root-step>
+        </root>
+        <kind text="m">minor</kind>
+      </harmony>
       <note default-x="124.13" default-y="-40">
         <pitch>
           <step>E</step>
@@ -338,20 +350,14 @@
           <tuplet type="stop"></tuplet>
         </notations>
       </note>
+    </measure>
+    <measure number="3" width="189.03">
       <harmony print-frame="no">
         <root>
           <root-step>B</root-step>
         </root>
         <kind text="m">minor</kind>
       </harmony>
-      <harmony print-frame="no">
-        <root>
-          <root-step>E</root-step>
-        </root>
-        <kind text="m">minor</kind>
-      </harmony>
-    </measure>
-    <measure number="3" width="189.03">
       <note default-x="12.5" default-y="-35">
         <pitch>
           <step>F</step>
@@ -439,14 +445,14 @@
           <slur number="1" type="stop"></slur>
         </notations>
       </note>
-      <harmony print-frame="no">
-        <root>
-          <root-step>B</root-step>
-        </root>
-        <kind text="m">minor</kind>
-      </harmony>
     </measure>
     <measure number="4" width="147.78">
+      <harmony print-frame="no">
+        <root>
+          <root-step>G</root-step>
+        </root>
+        <kind text="7">dominant</kind>
+      </harmony>
       <note default-x="12.5" default-y="-10">
         <pitch>
           <step>D</step>
@@ -485,6 +491,13 @@
         <beam number="1">end</beam>
         <beam number="2">end</beam>
       </note>
+      <harmony print-frame="no">
+        <root>
+          <root-step>F</root-step>
+          <root-alter>1</root-alter>
+        </root>
+        <kind>major</kind>
+      </harmony>
       <note default-x="80.45" default-y="-15">
         <pitch>
           <step>C</step>
@@ -499,21 +512,19 @@
           <slur number="1" type="stop"></slur>
         </notations>
       </note>
-      <harmony print-frame="no">
-        <root>
-          <root-step>G</root-step>
-        </root>
-        <kind text="7">dominant</kind>
-      </harmony>
-      <harmony print-frame="no">
-        <root>
-          <root-step>F</root-step>
-          <root-alter>1</root-alter>
-        </root>
-        <kind>major</kind>
-      </harmony>
     </measure>
     <measure number="5" width="179.94">
+      <harmony print-frame="no">
+        <root>
+          <root-step>B</root-step>
+        </root>
+        <kind text="7">dominant</kind>
+        <degree>
+          <degree-value>9</degree-value>
+          <degree-alter>-1</degree-alter>
+          <degree-type>add</degree-type>
+        </degree>
+      </harmony>
       <note default-x="16.84" default-y="-15">
         <pitch>
           <step>C</step>
@@ -597,19 +608,23 @@
           <slur number="1" type="stop"></slur>
         </notations>
       </note>
-      <harmony print-frame="no">
-        <root>
-          <root-step>B</root-step>
-        </root>
-        <kind text="7">dominant</kind>
-        <degree>
-          <degree-value>9</degree-value>
-          <degree-alter>-1</degree-alter>
-          <degree-type>add</degree-type>
-        </degree>
-      </harmony>
     </measure>
     <measure number="6" width="397.35">
+      <print new-system="yes">
+        <system-layout>
+          <system-margins>
+            <left-margin>0</left-margin>
+            <right-margin>0</right-margin>
+          </system-margins>
+          <system-distance>103.17</system-distance>
+        </system-layout>
+      </print>
+      <harmony print-frame="no">
+        <root>
+          <root-step>E</root-step>
+        </root>
+        <kind text="m">minor</kind>
+      </harmony>
       <note default-x="86.31" default-y="-20">
         <pitch>
           <step>B</step>
@@ -690,14 +705,14 @@
           <slur number="1" type="stop"></slur>
         </notations>
       </note>
+    </measure>
+    <measure number="7" width="381.16">
       <harmony print-frame="no">
         <root>
-          <root-step>E</root-step>
+          <root-step>B</root-step>
         </root>
         <kind text="m">minor</kind>
       </harmony>
-    </measure>
-    <measure number="7" width="381.16">
       <note default-x="12.5" default-y="-35">
         <pitch>
           <step>F</step>
@@ -750,6 +765,12 @@
           <slur number="1" type="stop"></slur>
         </notations>
       </note>
+      <harmony print-frame="no">
+        <root>
+          <root-step>E</root-step>
+        </root>
+        <kind text="m">minor</kind>
+      </harmony>
       <note default-x="243" default-y="0">
         <pitch>
           <step>F</step>
@@ -804,20 +825,15 @@
           <slur number="1" type="stop"></slur>
         </notations>
       </note>
-      <harmony print-frame="no">
-        <root>
-          <root-step>B</root-step>
-        </root>
-        <kind text="m">minor</kind>
-      </harmony>
-      <harmony print-frame="no">
-        <root>
-          <root-step>E</root-step>
-        </root>
-        <kind text="m">minor</kind>
-      </harmony>
     </measure>
     <measure number="8" width="283.91">
+      <harmony print-frame="no">
+        <root>
+          <root-step>F</root-step>
+          <root-alter>1</root-alter>
+        </root>
+        <kind text="7">dominant</kind>
+      </harmony>
       <note default-x="12.5" default-y="-15">
         <pitch>
           <step>C</step>
@@ -861,6 +877,12 @@
           <slur number="1" type="stop"></slur>
         </notations>
       </note>
+      <harmony print-frame="no">
+        <root>
+          <root-step>B</root-step>
+        </root>
+        <kind text="m">minor</kind>
+      </harmony>
       <note default-x="146.96" default-y="-20">
         <pitch>
           <step>B</step>
@@ -871,24 +893,40 @@
         <type>half</type>
         <stem>down</stem>
       </note>
-      <harmony print-frame="no">
-        <root>
-          <root-step>F</root-step>
-          <root-alter>1</root-alter>
-        </root>
-        <kind text="7">dominant</kind>
-      </harmony>
-      <harmony print-frame="no">
-        <root>
-          <root-step>B</root-step>
-        </root>
-        <kind text="m">minor</kind>
-      </harmony>
       <barline location="right">
         <bar-style>light-light</bar-style>
       </barline>
     </measure>
     <measure number="9" width="223.51">
+      <print new-system="yes">
+        <system-layout>
+          <system-margins>
+            <left-margin>0</left-margin>
+            <right-margin>-0</right-margin>
+          </system-margins>
+          <system-distance>103.17</system-distance>
+        </system-layout>
+      </print>
+      <harmony print-frame="no">
+        <root>
+          <root-step>B</root-step>
+        </root>
+        <kind text="7">dominant</kind>
+        <bass>
+          <bass-step>D</bass-step>
+          <bass-alter>1</bass-alter>
+        </bass>
+        <degree>
+          <degree-value>9</degree-value>
+          <degree-alter>-1</degree-alter>
+          <degree-type>add</degree-type>
+        </degree>
+      </harmony>
+      <direction placement="above" system="only-top">
+        <direction-type>
+          <rehearsal default-x="-25" font-size="14" font-weight="bold" relative-y="30">A</rehearsal>
+        </direction-type>
+      </direction>
       <note default-x="86.31" default-y="-35">
         <pitch>
           <step>F</step>
@@ -954,26 +992,6 @@
           <slur number="1" type="stop"></slur>
         </notations>
       </note>
-      <direction placement="above" system="only-top">
-        <direction-type>
-          <rehearsal default-x="-25" font-size="14" font-weight="bold" relative-y="30">A</rehearsal>
-        </direction-type>
-      </direction>
-      <harmony print-frame="no">
-        <root>
-          <root-step>B</root-step>
-        </root>
-        <kind text="7">dominant</kind>
-        <bass>
-          <bass-step>D</bass-step>
-          <bass-alter>1</bass-alter>
-        </bass>
-        <degree>
-          <degree-value>9</degree-value>
-          <degree-alter>-1</degree-alter>
-          <degree-type>add</degree-type>
-        </degree>
-      </harmony>
     </measure>
     <measure number="10" width="142.92">
       <note default-x="12.5" default-y="-30">
@@ -1030,6 +1048,21 @@
       </note>
     </measure>
     <measure number="11" width="149.71">
+      <harmony print-frame="no">
+        <root>
+          <root-step>E</root-step>
+        </root>
+        <kind text="7">dominant</kind>
+        <bass>
+          <bass-step>G</bass-step>
+          <bass-alter>1</bass-alter>
+        </bass>
+        <degree>
+          <degree-value>9</degree-value>
+          <degree-alter>-1</degree-alter>
+          <degree-type>add</degree-type>
+        </degree>
+      </harmony>
       <note default-x="12.5" default-y="-20">
         <pitch>
           <step>B</step>
@@ -1094,21 +1127,6 @@
           <slur number="1" type="stop"></slur>
         </notations>
       </note>
-      <harmony print-frame="no">
-        <root>
-          <root-step>E</root-step>
-        </root>
-        <kind text="7">dominant</kind>
-        <bass>
-          <bass-step>G</bass-step>
-          <bass-alter>1</bass-alter>
-        </bass>
-        <degree>
-          <degree-value>9</degree-value>
-          <degree-alter>-1</degree-alter>
-          <degree-type>add</degree-type>
-        </degree>
-      </harmony>
     </measure>
     <measure number="12" width="142.92">
       <note default-x="12.5" default-y="-15">
@@ -1172,6 +1190,16 @@
       </direction>
     </measure>
     <measure number="13" width="208.3">
+      <harmony print-frame="no">
+        <root>
+          <root-step>B</root-step>
+        </root>
+        <kind text="m">minor</kind>
+        <bass>
+          <bass-step>F</bass-step>
+          <bass-alter>1</bass-alter>
+        </bass>
+      </harmony>
       <note default-x="12.5" default-y="-35">
         <pitch>
           <step>F</step>
@@ -1297,18 +1325,14 @@
           <tuplet type="stop"></tuplet>
         </notations>
       </note>
-      <harmony print-frame="no">
-        <root>
-          <root-step>B</root-step>
-        </root>
-        <kind text="m">minor</kind>
-        <bass>
-          <bass-step>F</bass-step>
-          <bass-alter>1</bass-alter>
-        </bass>
-      </harmony>
     </measure>
     <measure number="14" width="195.07">
+      <harmony print-frame="no">
+        <root>
+          <root-step>E</root-step>
+        </root>
+        <kind text="m9">minor-ninth</kind>
+      </harmony>
       <note default-x="12.5" default-y="0">
         <pitch>
           <step>F</step>
@@ -1433,14 +1457,27 @@
           <tuplet type="stop"></tuplet>
         </notations>
       </note>
-      <harmony print-frame="no">
-        <root>
-          <root-step>E</root-step>
-        </root>
-        <kind text="m9">minor-ninth</kind>
-      </harmony>
     </measure>
     <measure number="15" width="684.07">
+      <print new-system="yes">
+        <system-layout>
+          <system-margins>
+            <left-margin>0</left-margin>
+            <right-margin>-0</right-margin>
+          </system-margins>
+          <system-distance>103.17</system-distance>
+        </system-layout>
+      </print>
+      <harmony print-frame="no">
+        <root>
+          <root-step>B</root-step>
+        </root>
+        <kind text="m">minor</kind>
+        <bass>
+          <bass-step>F</bass-step>
+          <bass-alter>1</bass-alter>
+        </bass>
+      </harmony>
       <note default-x="86.31" default-y="-10">
         <pitch>
           <step>D</step>
@@ -1565,18 +1602,14 @@
           <slur number="1" type="stop"></slur>
         </notations>
       </note>
-      <harmony print-frame="no">
-        <root>
-          <root-step>B</root-step>
-        </root>
-        <kind text="m">minor</kind>
-        <bass>
-          <bass-step>F</bass-step>
-          <bass-alter>1</bass-alter>
-        </bass>
-      </harmony>
     </measure>
     <measure number="16" width="378.35">
+      <harmony print-frame="no">
+        <root>
+          <root-step>F</root-step>
+        </root>
+        <kind use-symbols="yes">diminished</kind>
+      </harmony>
       <note default-x="12.5" default-y="-10">
         <pitch>
           <step>D</step>
@@ -1587,6 +1620,13 @@
         <type>quarter</type>
         <stem>down</stem>
       </note>
+      <harmony print-frame="no">
+        <root>
+          <root-step>F</root-step>
+          <root-alter>1</root-alter>
+        </root>
+        <kind>major</kind>
+      </harmony>
       <note default-x="155.92" default-y="-15">
         <pitch>
           <step>C</step>
@@ -1598,24 +1638,31 @@
         <type>half</type>
         <stem>down</stem>
       </note>
-      <harmony print-frame="no">
-        <root>
-          <root-step>F</root-step>
-        </root>
-        <kind use-symbols="yes">diminished</kind>
-      </harmony>
-      <harmony print-frame="no">
-        <root>
-          <root-step>F</root-step>
-          <root-alter>1</root-alter>
-        </root>
-        <kind>major</kind>
-      </harmony>
       <barline location="right">
         <bar-style>light-light</bar-style>
       </barline>
     </measure>
     <measure number="17" width="255.87">
+      <print new-system="yes">
+        <system-layout>
+          <system-margins>
+            <left-margin>0</left-margin>
+            <right-margin>0</right-margin>
+          </system-margins>
+          <system-distance>103.17</system-distance>
+        </system-layout>
+      </print>
+      <harmony print-frame="no">
+        <root>
+          <root-step>B</root-step>
+        </root>
+        <kind text="m">minor</kind>
+      </harmony>
+      <direction placement="above" system="only-top">
+        <direction-type>
+          <rehearsal default-x="-25" font-size="14" font-weight="bold" relative-y="30">B</rehearsal>
+        </direction-type>
+      </direction>
       <note default-x="86.31" default-y="-20">
         <pitch>
           <step>B</step>
@@ -1664,6 +1711,12 @@
         <type>quarter</type>
         <stem>up</stem>
       </note>
+      <harmony print-frame="no">
+        <root>
+          <root-step>E</root-step>
+        </root>
+        <kind text="m">minor</kind>
+      </harmony>
       <note default-x="185.92" default-y="-40">
         <pitch>
           <step>E</step>
@@ -1715,25 +1768,14 @@
           <tuplet type="stop"></tuplet>
         </notations>
       </note>
-      <direction placement="above" system="only-top">
-        <direction-type>
-          <rehearsal default-x="-25" font-size="14" font-weight="bold" relative-y="30">B</rehearsal>
-        </direction-type>
-      </direction>
+    </measure>
+    <measure number="18" width="182.06">
       <harmony print-frame="no">
         <root>
           <root-step>B</root-step>
         </root>
         <kind text="m">minor</kind>
       </harmony>
-      <harmony print-frame="no">
-        <root>
-          <root-step>E</root-step>
-        </root>
-        <kind text="m">minor</kind>
-      </harmony>
-    </measure>
-    <measure number="18" width="182.06">
       <note default-x="12.5" default-y="-20">
         <pitch>
           <step>B</step>
@@ -1782,6 +1824,12 @@
         <type>quarter</type>
         <stem>up</stem>
       </note>
+      <harmony print-frame="no">
+        <root>
+          <root-step>E</root-step>
+        </root>
+        <kind text="m">minor</kind>
+      </harmony>
       <note default-x="112.11" default-y="-40">
         <pitch>
           <step>E</step>
@@ -1833,20 +1881,14 @@
           <tuplet type="stop"></tuplet>
         </notations>
       </note>
+    </measure>
+    <measure number="19" width="169.55">
       <harmony print-frame="no">
         <root>
           <root-step>B</root-step>
         </root>
         <kind text="m">minor</kind>
       </harmony>
-      <harmony print-frame="no">
-        <root>
-          <root-step>E</root-step>
-        </root>
-        <kind text="m">minor</kind>
-      </harmony>
-    </measure>
-    <measure number="19" width="169.55">
       <note default-x="12.5" default-y="-35">
         <pitch>
           <step>F</step>
@@ -1934,14 +1976,14 @@
           <slur number="1" type="stop"></slur>
         </notations>
       </note>
-      <harmony print-frame="no">
-        <root>
-          <root-step>B</root-step>
-        </root>
-        <kind text="m">minor</kind>
-      </harmony>
     </measure>
     <measure number="20" width="133">
+      <harmony print-frame="no">
+        <root>
+          <root-step>G</root-step>
+        </root>
+        <kind text="7">dominant</kind>
+      </harmony>
       <note default-x="12.5" default-y="-10">
         <pitch>
           <step>D</step>
@@ -1980,6 +2022,13 @@
         <beam number="1">end</beam>
         <beam number="2">end</beam>
       </note>
+      <harmony print-frame="no">
+        <root>
+          <root-step>F</root-step>
+          <root-alter>1</root-alter>
+        </root>
+        <kind>major</kind>
+      </harmony>
       <note default-x="73.94" default-y="-15">
         <pitch>
           <step>C</step>
@@ -1994,21 +2043,19 @@
           <slur number="1" type="stop"></slur>
         </notations>
       </note>
-      <harmony print-frame="no">
-        <root>
-          <root-step>G</root-step>
-        </root>
-        <kind text="7">dominant</kind>
-      </harmony>
-      <harmony print-frame="no">
-        <root>
-          <root-step>F</root-step>
-          <root-alter>1</root-alter>
-        </root>
-        <kind>major</kind>
-      </harmony>
     </measure>
     <measure number="21" width="163.14">
+      <harmony print-frame="no">
+        <root>
+          <root-step>B</root-step>
+        </root>
+        <kind text="7">dominant</kind>
+        <degree>
+          <degree-value>9</degree-value>
+          <degree-alter>-1</degree-alter>
+          <degree-type>add</degree-type>
+        </degree>
+      </harmony>
       <note default-x="16.84" default-y="-15">
         <pitch>
           <step>C</step>
@@ -2092,19 +2139,14 @@
           <slur number="1" type="stop"></slur>
         </notations>
       </note>
-      <harmony print-frame="no">
-        <root>
-          <root-step>B</root-step>
-        </root>
-        <kind text="7">dominant</kind>
-        <degree>
-          <degree-value>9</degree-value>
-          <degree-alter>-1</degree-alter>
-          <degree-type>add</degree-type>
-        </degree>
-      </harmony>
     </measure>
     <measure number="22" width="158.8">
+      <harmony print-frame="no">
+        <root>
+          <root-step>E</root-step>
+        </root>
+        <kind text="m">minor</kind>
+      </harmony>
       <note default-x="12.5" default-y="-20">
         <pitch>
           <step>B</step>
@@ -2185,14 +2227,23 @@
           <slur number="1" type="stop"></slur>
         </notations>
       </note>
+    </measure>
+    <measure number="23" width="643.09">
+      <print new-system="yes">
+        <system-layout>
+          <system-margins>
+            <left-margin>0</left-margin>
+            <right-margin>0</right-margin>
+          </system-margins>
+          <system-distance>103.17</system-distance>
+        </system-layout>
+      </print>
       <harmony print-frame="no">
         <root>
-          <root-step>E</root-step>
+          <root-step>B</root-step>
         </root>
         <kind text="m">minor</kind>
       </harmony>
-    </measure>
-    <measure number="23" width="643.09">
       <note default-x="86.31" default-y="-35">
         <pitch>
           <step>F</step>
@@ -2245,6 +2296,12 @@
           <slur number="1" type="stop"></slur>
         </notations>
       </note>
+      <harmony print-frame="no">
+        <root>
+          <root-step>E</root-step>
+        </root>
+        <kind text="m">minor</kind>
+      </harmony>
       <note default-x="434.99" default-y="0">
         <pitch>
           <step>F</step>
@@ -2299,20 +2356,15 @@
           <slur number="1" type="stop"></slur>
         </notations>
       </note>
-      <harmony print-frame="no">
-        <root>
-          <root-step>B</root-step>
-        </root>
-        <kind text="m">minor</kind>
-      </harmony>
-      <harmony print-frame="no">
-        <root>
-          <root-step>E</root-step>
-        </root>
-        <kind text="m">minor</kind>
-      </harmony>
     </measure>
     <measure number="24" width="419.33">
+      <harmony print-frame="no">
+        <root>
+          <root-step>F</root-step>
+          <root-alter>1</root-alter>
+        </root>
+        <kind text="7">dominant</kind>
+      </harmony>
       <note default-x="12.5" default-y="-15">
         <pitch>
           <step>C</step>
@@ -2356,6 +2408,12 @@
           <slur number="1" type="stop"></slur>
         </notations>
       </note>
+      <harmony print-frame="no">
+        <root>
+          <root-step>B</root-step>
+        </root>
+        <kind text="m">minor</kind>
+      </harmony>
       <note default-x="215.9" default-y="-20">
         <pitch>
           <step>B</step>
@@ -2366,24 +2424,32 @@
         <type>half</type>
         <stem>down</stem>
       </note>
-      <harmony print-frame="no">
-        <root>
-          <root-step>F</root-step>
-          <root-alter>1</root-alter>
-        </root>
-        <kind text="7">dominant</kind>
-      </harmony>
-      <harmony print-frame="no">
-        <root>
-          <root-step>B</root-step>
-        </root>
-        <kind text="m">minor</kind>
-      </harmony>
       <barline location="right">
         <bar-style>light-light</bar-style>
       </barline>
     </measure>
     <measure number="25" width="210.05">
+      <print new-system="yes">
+        <system-layout>
+          <system-margins>
+            <left-margin>0</left-margin>
+            <right-margin>0</right-margin>
+          </system-margins>
+          <system-distance>103.17</system-distance>
+        </system-layout>
+      </print>
+      <harmony print-frame="no">
+        <root>
+          <root-step>F</root-step>
+          <root-alter>1</root-alter>
+        </root>
+        <kind>major</kind>
+      </harmony>
+      <direction placement="above" system="only-top">
+        <direction-type>
+          <rehearsal default-x="-25" font-size="14" font-weight="bold" relative-y="30">C</rehearsal>
+        </direction-type>
+      </direction>
       <note default-x="86.31" default-y="-15">
         <pitch>
           <step>C</step>
@@ -2395,6 +2461,12 @@
         <type>half</type>
         <stem>down</stem>
       </note>
+      <harmony print-frame="no">
+        <root>
+          <root-step>B</root-step>
+        </root>
+        <kind text="m">minor</kind>
+      </harmony>
       <note default-x="141.53" default-y="-20">
         <pitch>
           <step>B</step>
@@ -2449,11 +2521,8 @@
           <slur number="1" type="stop"></slur>
         </notations>
       </note>
-      <direction placement="above" system="only-top">
-        <direction-type>
-          <rehearsal default-x="-25" font-size="14" font-weight="bold" relative-y="30">C</rehearsal>
-        </direction-type>
-      </direction>
+    </measure>
+    <measure number="26" width="136.25">
       <harmony print-frame="no">
         <root>
           <root-step>F</root-step>
@@ -2461,14 +2530,6 @@
         </root>
         <kind>major</kind>
       </harmony>
-      <harmony print-frame="no">
-        <root>
-          <root-step>B</root-step>
-        </root>
-        <kind text="m">minor</kind>
-      </harmony>
-    </measure>
-    <measure number="26" width="136.25">
       <note default-x="12.5" default-y="-15">
         <pitch>
           <step>C</step>
@@ -2480,6 +2541,12 @@
         <type>half</type>
         <stem>down</stem>
       </note>
+      <harmony print-frame="no">
+        <root>
+          <root-step>B</root-step>
+        </root>
+        <kind text="m">minor</kind>
+      </harmony>
       <note default-x="67.73" default-y="-20">
         <pitch>
           <step>B</step>
@@ -2534,6 +2601,8 @@
           <slur number="1" type="stop"></slur>
         </notations>
       </note>
+    </measure>
+    <measure number="27" width="166.24">
       <harmony print-frame="no">
         <root>
           <root-step>F</root-step>
@@ -2541,14 +2610,6 @@
         </root>
         <kind>major</kind>
       </harmony>
-      <harmony print-frame="no">
-        <root>
-          <root-step>B</root-step>
-        </root>
-        <kind text="m">minor</kind>
-      </harmony>
-    </measure>
-    <measure number="27" width="166.24">
       <note default-x="12.5" default-y="0">
         <pitch>
           <step>F</step>
@@ -2600,6 +2661,12 @@
         <type>quarter</type>
         <stem>down</stem>
       </note>
+      <harmony print-frame="no">
+        <root>
+          <root-step>B</root-step>
+        </root>
+        <kind text="m">minor</kind>
+      </harmony>
       <note default-x="97.72" default-y="-10">
         <pitch>
           <step>D</step>
@@ -2654,21 +2721,14 @@
           <slur number="1" type="stop"></slur>
         </notations>
       </note>
+    </measure>
+    <measure number="28" width="168.15">
       <harmony print-frame="no">
         <root>
-          <root-step>F</root-step>
-          <root-alter>1</root-alter>
-        </root>
-        <kind>major</kind>
-      </harmony>
-      <harmony print-frame="no">
-        <root>
-          <root-step>B</root-step>
+          <root-step>E</root-step>
         </root>
         <kind text="m">minor</kind>
       </harmony>
-    </measure>
-    <measure number="28" width="168.15">
       <note default-x="12.5" default-y="10">
         <pitch>
           <step>A</step>
@@ -2784,14 +2844,15 @@
           <slur number="1" type="stop"></slur>
         </notations>
       </note>
-      <harmony print-frame="no">
-        <root>
-          <root-step>E</root-step>
-        </root>
-        <kind text="m">minor</kind>
-      </harmony>
     </measure>
     <measure number="29" width="109.24">
+      <harmony print-frame="no">
+        <root>
+          <root-step>G</root-step>
+          <root-alter>1</root-alter>
+        </root>
+        <kind use-symbols="yes">diminished</kind>
+      </harmony>
       <note default-x="12.5" default-y="-10">
         <pitch>
           <step>D</step>
@@ -2802,6 +2863,13 @@
         <type>quarter</type>
         <stem>down</stem>
       </note>
+      <harmony print-frame="no">
+        <root>
+          <root-step>C</root-step>
+          <root-alter>1</root-alter>
+        </root>
+        <kind text="7">dominant</kind>
+      </harmony>
       <note default-x="52.21" default-y="-15">
         <pitch>
           <step>C</step>
@@ -2813,22 +2881,15 @@
         <type>half</type>
         <stem>down</stem>
       </note>
-      <harmony print-frame="no">
-        <root>
-          <root-step>G</root-step>
-          <root-alter>1</root-alter>
-        </root>
-        <kind use-symbols="yes">diminished</kind>
-      </harmony>
-      <harmony print-frame="no">
-        <root>
-          <root-step>C</root-step>
-          <root-alter>1</root-alter>
-        </root>
-        <kind text="7">dominant</kind>
-      </harmony>
     </measure>
     <measure number="30" width="136.25">
+      <harmony print-frame="no">
+        <root>
+          <root-step>F</root-step>
+          <root-alter>1</root-alter>
+        </root>
+        <kind>major</kind>
+      </harmony>
       <note default-x="12.5" default-y="-15">
         <pitch>
           <step>C</step>
@@ -2840,6 +2901,12 @@
         <type>half</type>
         <stem>down</stem>
       </note>
+      <harmony print-frame="no">
+        <root>
+          <root-step>B</root-step>
+        </root>
+        <kind text="m">minor</kind>
+      </harmony>
       <note default-x="67.73" default-y="-20">
         <pitch>
           <step>B</step>
@@ -2894,21 +2961,15 @@
           <slur number="1" type="stop"></slur>
         </notations>
       </note>
-      <harmony print-frame="no">
-        <root>
-          <root-step>F</root-step>
-          <root-alter>1</root-alter>
-        </root>
-        <kind>major</kind>
-      </harmony>
-      <harmony print-frame="no">
-        <root>
-          <root-step>B</root-step>
-        </root>
-        <kind text="m">minor</kind>
-      </harmony>
     </measure>
     <measure number="31" width="136.25">
+      <harmony print-frame="no">
+        <root>
+          <root-step>F</root-step>
+          <root-alter>1</root-alter>
+        </root>
+        <kind>major</kind>
+      </harmony>
       <note default-x="12.5" default-y="-15">
         <pitch>
           <step>C</step>
@@ -2920,6 +2981,12 @@
         <type>half</type>
         <stem>down</stem>
       </note>
+      <harmony print-frame="no">
+        <root>
+          <root-step>B</root-step>
+        </root>
+        <kind text="m">minor</kind>
+      </harmony>
       <note default-x="67.73" default-y="-20">
         <pitch>
           <step>B</step>
@@ -2974,21 +3041,23 @@
           <slur number="1" type="stop"></slur>
         </notations>
       </note>
+    </measure>
+    <measure number="32" width="257.31">
+      <print new-system="yes">
+        <system-layout>
+          <system-margins>
+            <left-margin>0</left-margin>
+            <right-margin>-0</right-margin>
+          </system-margins>
+          <system-distance>103.17</system-distance>
+        </system-layout>
+      </print>
       <harmony print-frame="no">
         <root>
-          <root-step>F</root-step>
-          <root-alter>1</root-alter>
-        </root>
-        <kind>major</kind>
-      </harmony>
-      <harmony print-frame="no">
-        <root>
-          <root-step>B</root-step>
+          <root-step>E</root-step>
         </root>
         <kind text="m">minor</kind>
       </harmony>
-    </measure>
-    <measure number="32" width="257.31">
       <note default-x="86.31" default-y="0">
         <pitch>
           <step>F</step>
@@ -3067,6 +3136,13 @@
           <slur number="1" type="stop"></slur>
         </notations>
       </note>
+      <harmony print-frame="no">
+        <root>
+          <root-step>C</root-step>
+          <root-alter>1</root-alter>
+        </root>
+        <kind text="7">dominant</kind>
+      </harmony>
       <note default-x="194.93" default-y="20">
         <pitch>
           <step>C</step>
@@ -3106,21 +3182,14 @@
           <slur number="1" type="stop"></slur>
         </notations>
       </note>
-      <harmony print-frame="no">
-        <root>
-          <root-step>E</root-step>
-        </root>
-        <kind text="m">minor</kind>
-      </harmony>
-      <harmony print-frame="no">
-        <root>
-          <root-step>C</root-step>
-          <root-alter>1</root-alter>
-        </root>
-        <kind text="7">dominant</kind>
-      </harmony>
     </measure>
     <measure number="33" width="117.58">
+      <harmony print-frame="no">
+        <root>
+          <root-step>F</root-step>
+        </root>
+        <kind use-symbols="yes">diminished</kind>
+      </harmony>
       <note default-x="12.5" default-y="25">
         <pitch>
           <step>D</step>
@@ -3131,6 +3200,13 @@
         <type>quarter</type>
         <stem>down</stem>
       </note>
+      <harmony print-frame="no">
+        <root>
+          <root-step>F</root-step>
+          <root-alter>1</root-alter>
+        </root>
+        <kind>major</kind>
+      </harmony>
       <note default-x="53.81" default-y="20">
         <pitch>
           <step>C</step>
@@ -3142,21 +3218,17 @@
         <type>half</type>
         <stem>down</stem>
       </note>
-      <harmony print-frame="no">
-        <root>
-          <root-step>F</root-step>
-        </root>
-        <kind use-symbols="yes">diminished</kind>
-      </harmony>
-      <harmony print-frame="no">
-        <root>
-          <root-step>F</root-step>
-          <root-alter>1</root-alter>
-        </root>
-        <kind>major</kind>
-      </harmony>
     </measure>
     <measure number="34" width="192.23">
+      <harmony print-frame="no">
+        <root>
+          <root-step>E</root-step>
+        </root>
+        <kind text="m">minor</kind>
+        <bass>
+          <bass-step>G</bass-step>
+        </bass>
+      </harmony>
       <note default-x="12.5" default-y="-5">
         <pitch>
           <step>E</step>
@@ -3270,17 +3342,14 @@
           <tuplet type="stop"></tuplet>
         </notations>
       </note>
-      <harmony print-frame="no">
-        <root>
-          <root-step>E</root-step>
-        </root>
-        <kind text="m">minor</kind>
-        <bass>
-          <bass-step>G</bass-step>
-        </bass>
-      </harmony>
     </measure>
     <measure number="35" width="192.23">
+      <harmony print-frame="no">
+        <root>
+          <root-step>B</root-step>
+        </root>
+        <kind text="m">minor</kind>
+      </harmony>
       <note default-x="12.5" default-y="0">
         <pitch>
           <step>F</step>
@@ -3402,14 +3471,14 @@
           <tuplet type="stop"></tuplet>
         </notations>
       </note>
+    </measure>
+    <measure number="36" width="180">
       <harmony print-frame="no">
         <root>
-          <root-step>B</root-step>
+          <root-step>E</root-step>
         </root>
         <kind text="m">minor</kind>
       </harmony>
-    </measure>
-    <measure number="36" width="180">
       <note default-x="12.5" default-y="-5">
         <pitch>
           <step>E</step>
@@ -3475,6 +3544,13 @@
           </articulations>
         </notations>
       </note>
+      <harmony print-frame="no">
+        <root>
+          <root-step>C</root-step>
+          <root-alter>1</root-alter>
+        </root>
+        <kind text="7">dominant</kind>
+      </harmony>
       <note default-x="122.66" default-y="-15">
         <pitch>
           <step>C</step>
@@ -3508,21 +3584,15 @@
           </articulations>
         </notations>
       </note>
+    </measure>
+    <measure number="37" width="123.08">
       <harmony print-frame="no">
         <root>
-          <root-step>E</root-step>
-        </root>
-        <kind text="m">minor</kind>
-      </harmony>
-      <harmony print-frame="no">
-        <root>
-          <root-step>C</root-step>
+          <root-step>F</root-step>
           <root-alter>1</root-alter>
         </root>
         <kind text="7">dominant</kind>
       </harmony>
-    </measure>
-    <measure number="37" width="123.08">
       <note default-x="12.5" default-y="-5">
         <pitch>
           <step>E</step>
@@ -3533,6 +3603,12 @@
         <type>half</type>
         <stem>down</stem>
       </note>
+      <harmony print-frame="no">
+        <root>
+          <root-step>B</root-step>
+        </root>
+        <kind text="m">minor</kind>
+      </harmony>
       <note default-x="74.47" default-y="-10">
         <pitch>
           <step>D</step>
@@ -3549,24 +3625,35 @@
         </direction-type>
         <sound dacapo="yes"></sound>
       </direction>
-      <harmony print-frame="no">
-        <root>
-          <root-step>F</root-step>
-          <root-alter>1</root-alter>
-        </root>
-        <kind text="7">dominant</kind>
-      </harmony>
-      <harmony print-frame="no">
-        <root>
-          <root-step>B</root-step>
-        </root>
-        <kind text="m">minor</kind>
-      </harmony>
       <barline location="right">
         <bar-style>light-light</bar-style>
       </barline>
     </measure>
     <measure number="38" width="310.75">
+      <print new-system="yes">
+        <system-layout>
+          <system-margins>
+            <left-margin>50</left-margin>
+            <right-margin>-0</right-margin>
+          </system-margins>
+          <system-distance>103.17</system-distance>
+        </system-layout>
+        <measure-layout>
+          <measure-distance>50</measure-distance>
+        </measure-layout>
+      </print>
+      <direction placement="above">
+        <direction-type>
+          <coda default-x="-13.91" default-y="21.13" relative-y="20"></coda>
+        </direction-type>
+        <sound coda="codab"></sound>
+      </direction>
+      <harmony print-frame="no">
+        <root>
+          <root-step>C</root-step>
+        </root>
+        <kind text="7" use-symbols="yes">major-seventh</kind>
+      </harmony>
       <note default-x="86.31" default-y="-30">
         <pitch>
           <step>G</step>
@@ -3620,6 +3707,12 @@
           <slur number="1" type="stop"></slur>
         </notations>
       </note>
+      <harmony print-frame="no">
+        <root>
+          <root-step>B</root-step>
+        </root>
+        <kind text="m">minor</kind>
+      </harmony>
       <note default-x="200.44" default-y="-35">
         <pitch>
           <step>F</step>
@@ -3631,31 +3724,19 @@
         <type>half</type>
         <stem>up</stem>
       </note>
-      <direction placement="above">
-        <direction-type>
-          <coda default-x="-13.91" default-y="21.13" relative-y="20"></coda>
-        </direction-type>
-        <sound coda="codab"></sound>
-      </direction>
-      <harmony print-frame="no">
-        <root>
-          <root-step>C</root-step>
-        </root>
-        <kind text="7" use-symbols="yes">major-seventh</kind>
-      </harmony>
-      <harmony print-frame="no">
-        <root>
-          <root-step>B</root-step>
-        </root>
-        <kind text="m">minor</kind>
-      </harmony>
-      <print>
-        <measure-layout>
-          <measure-distance>50</measure-distance>
-        </measure-layout>
-      </print>
     </measure>
     <measure number="39" width="236.94">
+      <harmony print-frame="no">
+        <root>
+          <root-step>F</root-step>
+          <root-alter>1</root-alter>
+        </root>
+        <kind>major</kind>
+        <bass>
+          <bass-step>A</bass-step>
+          <bass-alter>1</bass-alter>
+        </bass>
+      </harmony>
       <note default-x="12.5" default-y="-40">
         <pitch>
           <step>E</step>
@@ -3710,6 +3791,12 @@
           <slur number="1" type="stop"></slur>
         </notations>
       </note>
+      <harmony print-frame="no">
+        <root>
+          <root-step>B</root-step>
+        </root>
+        <kind text="m">minor</kind>
+      </harmony>
       <note default-x="126.63" default-y="-45">
         <pitch>
           <step>D</step>
@@ -3720,25 +3807,14 @@
         <type>half</type>
         <stem>up</stem>
       </note>
+    </measure>
+    <measure number="40" width="303.67">
       <harmony print-frame="no">
         <root>
-          <root-step>F</root-step>
-          <root-alter>1</root-alter>
-        </root>
-        <kind>major</kind>
-        <bass>
-          <bass-step>A</bass-step>
-          <bass-alter>1</bass-alter>
-        </bass>
-      </harmony>
-      <harmony print-frame="no">
-        <root>
-          <root-step>B</root-step>
+          <root-step>E</root-step>
         </root>
         <kind text="m">minor</kind>
       </harmony>
-    </measure>
-    <measure number="40" width="303.67">
       <note default-x="12.5" default-y="-50">
         <pitch>
           <step>C</step>
@@ -3796,6 +3872,13 @@
         <stem>up</stem>
         <beam number="1">begin</beam>
       </note>
+      <harmony print-frame="no">
+        <root>
+          <root-step>F</root-step>
+          <root-alter>1</root-alter>
+        </root>
+        <kind text="7">dominant</kind>
+      </harmony>
       <note default-x="253.64" default-y="-35">
         <pitch>
           <step>F</step>
@@ -3808,21 +3891,14 @@
         <stem>up</stem>
         <beam number="1">end</beam>
       </note>
+    </measure>
+    <measure number="41" width="161.06">
       <harmony print-frame="no">
         <root>
-          <root-step>E</root-step>
+          <root-step>B</root-step>
         </root>
         <kind text="m">minor</kind>
       </harmony>
-      <harmony print-frame="no">
-        <root>
-          <root-step>F</root-step>
-          <root-alter>1</root-alter>
-        </root>
-        <kind text="7">dominant</kind>
-      </harmony>
-    </measure>
-    <measure number="41" width="161.06">
       <note default-x="12.5" default-y="-20">
         <pitch>
           <step>B</step>
@@ -3834,12 +3910,6 @@
         <dot default-x="30.49" default-y="-15"></dot>
         <stem>down</stem>
       </note>
-      <harmony print-frame="no">
-        <root>
-          <root-step>B</root-step>
-        </root>
-        <kind text="m">minor</kind>
-      </harmony>
       <barline location="right">
         <bar-style>light-heavy</bar-style>
       </barline>
