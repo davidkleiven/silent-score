@@ -1,6 +1,8 @@
 package musicxml
 
 import (
+	"io/fs"
+	"os"
 	"testing"
 )
 
@@ -104,4 +106,41 @@ func TestMeasureText(t *testing.T) {
 		}
 	}
 
+}
+
+type openFailFs struct{}
+
+func (o *openFailFs) Open(name string) (fs.File, error) {
+	return nil, os.ErrNotExist
+}
+func TestReadFromFileNameOpenFails(t *testing.T) {
+	score := ReadFromFileName(&openFailFs{}, "file.xml")
+	if score.Work != nil {
+		t.Errorf("Expected empty score, got %v", score)
+	}
+}
+
+type nonXmlFile struct{}
+
+func (n *nonXmlFile) Stat() (fs.FileInfo, error) {
+	return nil, os.ErrNotExist
+}
+func (n *nonXmlFile) Read(b []byte) (int, error) {
+	return 0, os.ErrNotExist
+}
+func (n *nonXmlFile) Close() error {
+	return nil
+}
+
+type nonXmlFileFs struct{}
+
+func (n *nonXmlFileFs) Open(name string) (fs.File, error) {
+	return &nonXmlFile{}, nil
+}
+
+func TestReadFromFileNameNonXmlFile(t *testing.T) {
+	score := ReadFromFileName(&nonXmlFileFs{}, "file.xml")
+	if score.Work != nil {
+		t.Errorf("Expected empty score, got %v", score)
+	}
 }

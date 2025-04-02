@@ -74,3 +74,45 @@ func TestCompose(t *testing.T) {
 		}
 	})
 }
+
+func TestStandardLibrary(t *testing.T) {
+	sl := NewStandardLibrary()
+	names := sl.readNames()
+	if len(names) == 0 {
+		t.Errorf("Expected non-empty names, got %v", names)
+	}
+}
+
+func TestStandardLibraryBestMatch(t *testing.T) {
+	sl := NewStandardLibrary()
+	desc := "Andante Doloroso, No. 70"
+	score := sl.BestMatch(desc)
+	if score.Work.Worktitle != desc {
+		t.Errorf("Expected work title %s, got %s", desc, score.Work.Worktitle)
+	}
+}
+
+func TestStandardLibraryErrorOnOpen(t *testing.T) {
+	sl := StandardLibrary{directory: "invalid/path"}
+	names := sl.readNames()
+	if len(names) != 0 {
+		t.Errorf("Expected empty names, got %v", names)
+	}
+}
+
+func TestBeatsPerMinute(t *testing.T) {
+	for _, test := range []struct {
+		tempo    string
+		expected int
+	}{
+		{tempo: "76", expected: 76},
+		{tempo: "Allegro", expected: defaultBpm},
+	} {
+		t.Run(test.tempo, func(t *testing.T) {
+			result := beatsPerMinutes(test.tempo)
+			if result != test.expected {
+				t.Errorf("Expected %d, got %d", test.expected, result)
+			}
+		})
+	}
+}

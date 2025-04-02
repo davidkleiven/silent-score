@@ -1,10 +1,14 @@
 package compose
 
 import (
+	"embed"
+	"iter"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
 
+	_ "embed"
 	"log/slog"
 
 	"github.com/davidkleiven/silent-score/internal/db"
@@ -20,22 +24,75 @@ type Library interface {
 	BestMatch(desc string) *musicxml.Scorepartwise
 }
 
+//go:embed assets/*.musicxml
+var standardLib embed.FS
+
+type StandardLibrary struct {
+	directory string
+}
+
+func NewStandardLibrary() *StandardLibrary {
+	return &StandardLibrary{directory: "assets"}
+}
+
+func (sl *StandardLibrary) readNames() []string {
+	entries, err := standardLib.ReadDir(sl.directory)
+	if err != nil {
+		slog.Error("Failed to read standard library directory", "error", err)
+		return []string{}
+	}
+	names := make([]string, len(entries))
+	for i, entry := range entries {
+		names[i] = entry.Name()
+	}
+	return names
+}
+
+func (sl *StandardLibrary) scores() iter.Seq[*musicxml.Scorepartwise] {
+	names := sl.readNames()
+	return func(yield func(item *musicxml.Scorepartwise) bool) {
+		for _, name := range names {
+			score := musicxml.ReadFromFileName(standardLib, sl.directory+"/"+name)
+			if !yield(&score) {
+				break
+			}
+		}
+	}
+}
+
+func (sl *StandardLibrary) BestMatch(desc string) *musicxml.Scorepartwise {
+	texts := collectTextFields(sl.scores())
+	bestMatch := bestMatchForDesc(desc, texts)
+	name := sl.readNames()[bestMatch]
+	score := musicxml.ReadFromFileName(standardLib, sl.directory+"/"+name)
+	return &score
+}
+
 type InMemoryLibrary struct {
 	scores []*musicxml.Scorepartwise
 }
 
 func (l *InMemoryLibrary) BestMatch(desc string) *musicxml.Scorepartwise {
-	texts := make([]string, 0, len(l.scores))
-	for _, score := range l.scores {
+	texts := collectTextFields(slices.Values(l.scores))
+	return l.scores[bestMatchForDesc(desc, texts)]
+}
+
+func collectTextFields(scoreIter iter.Seq[*musicxml.Scorepartwise]) []string {
+	var texts []string
+	for score := range scoreIter {
 		texts = append(texts, strings.Join(musicxml.TextFields(*score), " "))
 	}
+	return texts
+}
+
+func bestMatchForDesc(desc string, texts []string) int {
 	normalizedDesc := normalize(desc)
 	normalizedTexts := make([]string, len(texts))
 	for i, text := range texts {
 		normalizedTexts[i] = normalize(text)
 	}
 	bestMatch := orderPieces(normalizedDesc, normalizedTexts)
-	return l.scores[bestMatch[0].Index]
+	return bestMatch[0].Index
 }
 
 func tempoIfGiven(tempo int, measures []*musicxml.Measure) int {
@@ -148,11 +205,7 @@ func pickMeasures(library Library, records []db.ProjectContentRecord) selection 
 			if len(piece.Part) > 0 {
 				sections := pieceSections(piece.Part[0].Measure)
 				timeSignature := beatsPerMeasure(piece.Part[0].Measure)
-				beatsInTimeSig, err := strconv.Atoi(timeSignature.Beats)
-				if err != nil {
-					slog.Warn("Using default of 4 when picking tempo.", "error", err)
-					beatsInTimeSig = defaultBpm
-				}
+				beatsInTimeSig := beatsPerMinutes(timeSignature.Beats)
 				tempo := tempoIfGiven(int(record.Tempo), piece.Part[0].Measure)
 				sceneSection := sectionForScene(time.Duration(record.DurationSec)*time.Second, float64(tempo), beatsInTimeSig, sections)
 				measuresForScene := measuresForScene(piece.Part[0].Measure, sceneSection)
@@ -189,4 +242,13 @@ func CreateComposition(library Library, project *db.Project) *musicxml.Scorepart
 		},
 	}
 	return &composition
+}
+
+func beatsPerMinutes(beats string) int {
+	beatsInTimeSig, err := strconv.Atoi(beats)
+	if err != nil {
+		slog.Warn("Using default of 4 when picking tempo.", "error", err)
+		beatsInTimeSig = defaultBpm
+	}
+	return beatsInTimeSig
 }
