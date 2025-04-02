@@ -1,29 +1,20 @@
 package test
 
 import (
-	"fmt"
-	"time"
-
 	"github.com/davidkleiven/silent-score/internal/db"
 	"pgregory.net/rapid"
 )
 
 func GenerateProjectContentRecord(t *rapid.T, projectId uint) db.ProjectContentRecord {
-	hour := rapid.Int32Range(0, 20).Draw(t, "hour")
-	start, err := time.Parse(time.TimeOnly, fmt.Sprintf("%02d:%02d:%02d", hour, hour, hour))
-	if err != nil {
-		panic(err)
-	}
-
 	stringSampler := rapid.StringMatching(`[a-zA-Z0-9 ]*`)
 	return db.ProjectContentRecord{
-		ProjectID: projectId,
-		Scene:     rapid.Uint().Draw(t, "scene"),
-		SceneDesc: stringSampler.Draw(t, "text"),
-		Start:     start,
-		Keywords:  stringSampler.Draw(t, "keywords"),
-		Tempo:     rapid.UintMax(200).Draw(t, "tempo"),
-		Theme:     rapid.UintMax(20).Draw(t, "theme"),
+		ProjectID:   projectId,
+		Scene:       rapid.Uint().Draw(t, "scene"),
+		SceneDesc:   stringSampler.Draw(t, "text"),
+		DurationSec: rapid.IntRange(0, 100).Draw(t, "duration"),
+		Keywords:    stringSampler.Draw(t, "keywords"),
+		Tempo:       rapid.UintMax(200).Draw(t, "tempo"),
+		Theme:       rapid.UintMax(20).Draw(t, "theme"),
 	}
 }
 
