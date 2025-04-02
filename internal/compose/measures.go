@@ -70,7 +70,7 @@ func sectionForScene(duration time.Duration, targetTempo float64, beatsPerMeasur
 func measuresForScene(measures []*musicxml.Measure, section sceneSection) []*musicxml.Measure {
 	numToAdd := section.end - section.start
 	result := make([]*musicxml.Measure, 0, numToAdd)
-	if len(measures) == 0 {
+	if len(measures) == 0 || numToAdd == 0 {
 		return result
 	}
 	chunks := [][]*musicxml.Measure{measures[section.start:], measures[:section.start]}
