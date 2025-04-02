@@ -20,13 +20,10 @@ func testScoreBytes() ([]byte, error) {
 
 func testScore() (Scorepartwise, error) {
 	data, err := testScoreBytes()
-	var document Scorepartwise
 	if err != nil {
-		return document, err
+		return Scorepartwise{}, err
 	}
-
-	err = xml.Unmarshal(data, &document)
-	return document, err
+	return ReadFromFile(bytes.NewReader(data))
 }
 
 func TestRead(t *testing.T) {
