@@ -216,3 +216,40 @@ func TestWriteScoreToFileWithFileCreator(t *testing.T) {
 		t.Errorf("Expected\n%s\ngot\n%s", expected, string(fileContent))
 	}
 }
+
+func TestFileNameFromScore(t *testing.T) {
+	for _, test := range []struct {
+		score    Scorepartwise
+		expected string
+	}{
+		{
+			Scorepartwise{
+				Scoreheader: Scoreheader{
+					Work: &Work{
+						Worktitle: "Test title",
+					},
+				},
+			},
+			"Test_title.musicxml",
+		},
+		{
+			Scorepartwise{},
+			"silent-score.musicxml",
+		},
+		{
+			Scorepartwise{
+				Scoreheader: Scoreheader{
+					Work: &Work{
+						Worktitle: "",
+					},
+				},
+			},
+			"silent-score.musicxml",
+		},
+	} {
+		result := FileNameFromScore(&test.score)
+		if result != test.expected {
+			t.Errorf("Expected %s, got %s", test.expected, result)
+		}
+	}
+}

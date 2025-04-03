@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"os"
 	"strconv"
+	"strings"
 )
 
 // TextFields extracts all fields in the document that should be
@@ -144,4 +145,11 @@ func WriteScoreToFile(creator Creator, name string, score *Scorepartwise) error 
 	defer file.Close()
 
 	return WriteScore(file, score)
+}
+
+func FileNameFromScore(score *Scorepartwise) string {
+	if score.Scoreheader.Work != nil && score.Scoreheader.Work.Worktitle != "" {
+		return strings.ReplaceAll(score.Scoreheader.Work.Worktitle, " ", "_") + ".musicxml"
+	}
+	return "silent-score.musicxml"
 }
