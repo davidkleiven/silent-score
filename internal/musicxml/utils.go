@@ -5,6 +5,7 @@ import (
 	"io"
 	"io/fs"
 	"log/slog"
+	"os"
 	"strconv"
 )
 
@@ -109,4 +110,38 @@ func ReadFromFileName(fs fs.FS, name string) Scorepartwise {
 		slog.Error("Failed to read score", "file", name, "error", err)
 	}
 	return score
+}
+
+func WriteScore(writer io.Writer, score *Scorepartwise) error {
+	encoder := xml.NewEncoder(writer)
+	encoder.Indent("", "  ")
+	if err := encoder.Encode(score); err != nil {
+		return err
+	}
+	return encoder.Flush()
+}
+
+type Creator interface {
+	Create(name string) (WriterCloser, error)
+}
+
+type WriterCloser interface {
+	io.Writer
+	io.Closer
+}
+
+type FileCreator struct{}
+
+func (fc *FileCreator) Create(name string) (WriterCloser, error) {
+	return os.Create(name)
+}
+
+func WriteScoreToFile(creator Creator, name string, score *Scorepartwise) error {
+	file, err := creator.Create(name)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	return WriteScore(file, score)
 }

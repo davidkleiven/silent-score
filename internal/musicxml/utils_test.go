@@ -1,6 +1,8 @@
 package musicxml
 
 import (
+	"bytes"
+	"errors"
 	"io/fs"
 	"os"
 	"testing"
@@ -142,5 +144,75 @@ func TestReadFromFileNameNonXmlFile(t *testing.T) {
 	score := ReadFromFileName(&nonXmlFileFs{}, "file.xml")
 	if score.Work != nil {
 		t.Errorf("Expected empty score, got %v", score)
+	}
+}
+
+func TestWriteScore(t *testing.T) {
+	var buf bytes.Buffer
+	score := Scorepartwise{
+		Scoreheader: Scoreheader{
+			Work: &Work{
+				Worktitle: "Test",
+			},
+		},
+	}
+	err := WriteScore(&buf, &score)
+	if err != nil {
+		t.Errorf("Error writing score: %v", err)
+		return
+	}
+
+	expected := `<score-partwise>
+  <work>
+    <work-title>Test</work-title>
+  </work>
+</score-partwise>`
+
+	if buf.String() != expected {
+		t.Errorf("Expected\n%s\ngot\n%s", expected, buf.String())
+	}
+}
+
+type failingCreator struct{}
+
+func (f *failingCreator) Create(name string) (WriterCloser, error) {
+	return nil, os.ErrNotExist
+}
+
+func TestWriteScoreToFile(t *testing.T) {
+	score := Scorepartwise{}
+	err := WriteScoreToFile(&failingCreator{}, "score.xml", &score)
+	if !errors.Is(err, os.ErrNotExist) {
+		t.Errorf("Expected error writing score, got nil")
+	}
+}
+
+func TestWriteScoreToFileWithFileCreator(t *testing.T) {
+	score := Scorepartwise{
+		Scoreheader: Scoreheader{
+			Work: &Work{
+				Worktitle: "Test",
+			},
+		},
+	}
+
+	filename := t.TempDir() + "/score.xml"
+	err := WriteScoreToFile(&FileCreator{}, filename, &score)
+	if err != nil {
+		t.Errorf("Error writing score: %v", err)
+		return
+	}
+
+	expected := `<score-partwise>
+  <work>
+    <work-title>Test</work-title>
+  </work>
+</score-partwise>`
+	fileContent, err := os.ReadFile(filename)
+	if err != nil {
+		t.Error(err)
+	}
+	if string(fileContent) != expected {
+		t.Errorf("Expected\n%s\ngot\n%s", expected, string(fileContent))
 	}
 }
