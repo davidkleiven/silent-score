@@ -8,7 +8,9 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/davidkleiven/silent-score/internal/compose"
 	"github.com/davidkleiven/silent-score/internal/db"
+	"github.com/davidkleiven/silent-score/internal/musicxml"
 	"github.com/davidkleiven/silent-score/internal/utils"
 )
 
@@ -334,6 +336,7 @@ type ProjectWorkspace struct {
 	project *db.Project
 	status  *Status
 	iTable  *InteractiveTable
+	library compose.Library
 }
 
 func (pw *ProjectWorkspace) Init() tea.Cmd {
@@ -373,6 +376,16 @@ func (pw *ProjectWorkspace) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			} else {
 				pw.status.Set(fmt.Sprintf("Successfully deleted schene %d", pw.iTable.cursor), err)
 			}
+		case "ctrl+m":
+			if err := pw.save(); err != nil {
+				pw.status.Set("", err)
+				break
+			}
+
+			score := compose.CreateComposition(pw.library, pw.project)
+			fname := musicxml.FileNameFromScore(score)
+			err := musicxml.WriteScoreToFile(&musicxml.FileCreator{}, fname, score)
+			pw.status.Set(fmt.Sprintf("Successfully stored compiled score to %s", fname), err)
 		}
 	}
 	pw.iTable.Update(msg)
