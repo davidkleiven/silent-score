@@ -2,10 +2,14 @@ package ui
 
 import (
 	"errors"
+	"os"
+	"strings"
 	"testing"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/davidkleiven/silent-score/internal/compose"
 	"github.com/davidkleiven/silent-score/internal/db"
+	"github.com/davidkleiven/silent-score/internal/musicxml"
 	"github.com/davidkleiven/silent-score/test"
 	"pgregory.net/rapid"
 )
@@ -613,14 +617,16 @@ func TestDeleteRecord(t *testing.T) {
 }
 
 func TestSaveFailsDuringDelete(t *testing.T) {
-	pw := ProjectWorkspace{
-		store:   &failingSaver{},
-		project: db.NewProject(db.WithName("my-project")),
-	}
-	pw.Init()
-	pw.Update(tea.KeyMsg{Type: tea.KeyDelete})
-	if pw.status.kind != errorStatus {
-		t.Errorf("Should have been in error status")
+	for i, keyType := range []tea.KeyType{tea.KeyDelete, tea.KeyCtrlG} {
+		pw := ProjectWorkspace{
+			store:   &failingSaver{},
+			project: db.NewProject(db.WithName("my-project")),
+		}
+		pw.Init()
+		pw.Update(tea.KeyMsg{Type: keyType})
+		if pw.status.kind != errorStatus {
+			t.Errorf("Test #%d: Should have been in error status", i)
+		}
 	}
 }
 
@@ -649,4 +655,35 @@ func (fs *failingSaver) Load() ([]db.Project, error) {
 
 func (fs *failingSaver) Delete(id uint) error {
 	return nil
+}
+
+type customFileCreator struct {
+	name string
+}
+
+func (c *customFileCreator) Create(name string) (musicxml.WriterCloser, error) {
+	_ = name
+	return os.Create(c.name)
+}
+
+func TestGenerateScore(t *testing.T) {
+	tmpFile := t.TempDir() + "/test.xml"
+	pw := ProjectWorkspace{
+		store:   db.NewInMemoryStore(),
+		project: db.NewProject(db.WithName("my-project")),
+		library: compose.NewStandardLibrary(),
+		creator: &customFileCreator{name: tmpFile},
+	}
+	pw.Init()
+
+	pw.Update(tea.KeyMsg{Type: tea.KeyCtrlG})
+
+	content, err := os.ReadFile(tmpFile)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	if !strings.Contains(string(content), "<score-partwise>") {
+		t.Errorf("Wanted to find <score-piecewise> in file %s", string(content))
+	}
 }

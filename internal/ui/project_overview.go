@@ -11,7 +11,9 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/davidkleiven/silent-score/internal/compose"
 	"github.com/davidkleiven/silent-score/internal/db"
+	"github.com/davidkleiven/silent-score/internal/musicxml"
 )
 
 type ProjectOverviewMode int
@@ -186,7 +188,7 @@ func (p *ProjectOverviewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				p.toDeleteConfirmation()
 			case "enter":
 				p.status.Set(fmt.Sprintf("Selected project %s", p.projects.SelectedItem().FilterValue()), nil)
-				return &ProjectWorkspace{store: p.store, project: p.projects.SelectedItem().(*db.Project)}, nil
+				return &ProjectWorkspace{store: p.store, project: p.projects.SelectedItem().(*db.Project), library: compose.NewStandardLibrary(), creator: &musicxml.FileCreator{}}, nil
 			}
 		}
 		p.projects, cmd = p.projects.Update(msg)
