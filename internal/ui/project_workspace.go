@@ -337,6 +337,7 @@ type ProjectWorkspace struct {
 	status  *Status
 	iTable  *InteractiveTable
 	library compose.Library
+	creator musicxml.Creator
 }
 
 func (pw *ProjectWorkspace) Init() tea.Cmd {
@@ -376,7 +377,7 @@ func (pw *ProjectWorkspace) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			} else {
 				pw.status.Set(fmt.Sprintf("Successfully deleted schene %d", pw.iTable.cursor), err)
 			}
-		case "ctrl+m":
+		case "ctrl+g":
 			if err := pw.save(); err != nil {
 				pw.status.Set("", err)
 				break
@@ -384,7 +385,7 @@ func (pw *ProjectWorkspace) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			score := compose.CreateComposition(pw.library, pw.project)
 			fname := musicxml.FileNameFromScore(score)
-			err := musicxml.WriteScoreToFile(&musicxml.FileCreator{}, fname, score)
+			err := musicxml.WriteScoreToFile(pw.creator, fname, score)
 			pw.status.Set(fmt.Sprintf("Successfully stored compiled score to %s", fname), err)
 		}
 	}
@@ -394,7 +395,7 @@ func (pw *ProjectWorkspace) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (pw *ProjectWorkspace) View() string {
 
-	helpString := helpStyle.Render("\u2191/\u2193 up/down \u2022 \u2190/\u2192 left/right \u2022 shift+(\u2191/\u2193) move row up/down \u2022 ctrl+c: quit")
+	helpString := helpStyle.Render("\u2191/\u2193 up/down \u2022 \u2190/\u2192 left/right \u2022 shift+(\u2191/\u2193) move row up/down \u2022 ctrl+g: generate score \u2022 ctrl+c: quit")
 	return lipgloss.JoinVertical(lipgloss.Left, pw.iTable.View(), helpString, pw.status.Render("Edit"))
 }
 
