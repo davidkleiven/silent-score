@@ -45,6 +45,7 @@ func (sl *StandardLibrary) readNames() []string {
 	for i, entry := range entries {
 		names[i] = entry.Name()
 	}
+	slog.Info("Standard library loaded", "count", len(names))
 	return names
 }
 
@@ -197,10 +198,18 @@ type selection struct {
 	measures []*musicxml.Measure
 }
 
+func title(score *musicxml.Scorepartwise) string {
+	if score != nil && score.Scoreheader.Work != nil {
+		return score.Scoreheader.Work.Worktitle
+	}
+	return ""
+}
+
 func pickMeasures(library Library, records []db.ProjectContentRecord) selection {
 	var measures []*musicxml.Measure
 	for _, record := range records {
 		piece := library.BestMatch(record.Keywords)
+		slog.Info("Picking piece", "keywords", record.Keywords, "sceneDesc", record.SceneDesc, "title", title(piece))
 		if piece != nil {
 			if len(piece.Part) > 0 {
 				sections := pieceSections(piece.Part[0].Measure)
@@ -226,6 +235,7 @@ func pickMeasures(library Library, records []db.ProjectContentRecord) selection 
 
 func CreateComposition(library Library, project *db.Project) *musicxml.Scorepartwise {
 	result := pickMeasures(library, project.Records)
+	slog.Info("Creating composition", "projectName", project.Name, "measuresCount", len(result.measures))
 	composition := musicxml.Scorepartwise{
 		Part: []*musicxml.Part{
 			{
