@@ -2,6 +2,7 @@ package compose
 
 import (
 	"embed"
+	"fmt"
 	"iter"
 	"slices"
 	"strconv"
@@ -209,7 +210,6 @@ func pickMeasures(library Library, records []db.ProjectContentRecord) selection 
 	var measures []*musicxml.Measure
 	for _, record := range records {
 		piece := library.BestMatch(record.Keywords)
-		slog.Info("Picking piece", "keywords", record.Keywords, "sceneDesc", record.SceneDesc, "title", title(piece))
 		if piece != nil {
 			if len(piece.Part) > 0 {
 				sections := pieceSections(piece.Part[0].Measure)
@@ -226,6 +226,13 @@ func pickMeasures(library Library, records []db.ProjectContentRecord) selection 
 					addTempo(measuresForScene[0], int(sceneSection.tempo))
 				}
 				measures = append(measures, measuresForScene...)
+				slog.Info("Picking piece",
+					"keywords", record.Keywords,
+					"sceneDesc", record.SceneDesc,
+					"title", title(piece),
+					"timeSignature", fmt.Sprintf("%s/%s", timeSignature.Beats, timeSignature.Beattype),
+					"tempo", tempo,
+				)
 			}
 		}
 	}
@@ -237,6 +244,9 @@ func CreateComposition(library Library, project *db.Project) *musicxml.Scorepart
 	result := pickMeasures(library, project.Records)
 	slog.Info("Creating composition", "projectName", project.Name, "measuresCount", len(result.measures))
 	composition := musicxml.Scorepartwise{
+		Documentattributes: musicxml.Documentattributes{
+			VersionAttr: "4.0",
+		},
 		Part: []*musicxml.Part{
 			{
 				Partattributes: musicxml.Partattributes{
@@ -248,6 +258,13 @@ func CreateComposition(library Library, project *db.Project) *musicxml.Scorepart
 		Scoreheader: musicxml.Scoreheader{
 			Work: &musicxml.Work{
 				Worktitle: project.Name,
+			},
+			Partlist: &musicxml.Partlist{
+				Scorepart: &musicxml.Scorepart{
+					IdAttr:           "P1",
+					Partname:         &musicxml.Partname{Value: "Piano"},
+					Partabbreviation: &musicxml.Partname{Value: "Pno."},
+				},
 			},
 		},
 	}
