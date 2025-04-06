@@ -683,7 +683,7 @@ func TestGenerateScore(t *testing.T) {
 		t.Error(err)
 		return
 	}
-	if !strings.Contains(string(content), "<score-partwise>") {
+	if !strings.Contains(string(content), "<score-partwise") {
 		t.Errorf("Wanted to find <score-piecewise> in file %s", string(content))
 	}
 }
