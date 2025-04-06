@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"log/slog"
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -10,6 +11,7 @@ import (
 )
 
 func main() {
+
 	config := ui.NewConfig()
 	os.Remove(config.LogFile)
 	f, err := tea.LogToFile(config.LogFile, "")
@@ -17,6 +19,8 @@ func main() {
 		log.Fatal(err)
 	}
 	defer f.Close()
+	logger := slog.New(slog.NewTextHandler(f, nil))
+	slog.SetDefault(logger)
 
 	programDb, err := db.GormConnection(config.DbName)
 	if err != nil {
