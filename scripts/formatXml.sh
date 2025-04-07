@@ -4,8 +4,7 @@ tmpfile2=$(mktemp)
 echo "Using temp file $tmpfile"
 while read -r file; do
     echo "Proceccing file $file"
-    go run scripts/sortMusicxml/sort_musicxml.go $file $tmpfile
-    xmllint --dropdtd $tmpfile --output $tmpfile
+    xmllint --dropdtd $file --output $tmpfile
     xmllint --format $tmpfile --output $tmpfile
     xmllint --exc-c14n $tmpfile > $tmpfile2
     sed -i -e '$a\' $tmpfile2
