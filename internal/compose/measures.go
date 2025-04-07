@@ -11,9 +11,9 @@ type section struct {
 	end   int
 }
 
-func hasRehersalMark(directions []*musicxml.Direction) bool {
-	for _, direction := range directions {
-		if direction != nil {
+func hasRehersalMark(elements []musicxml.MusicDataElement) bool {
+	for _, element := range elements {
+		if direction := element.Direction; direction != nil {
 			for _, dirType := range direction.Directiontype {
 				if dirType != nil {
 					if len(dirType.Rehearsal) > 0 {
@@ -31,7 +31,7 @@ func pieceSections(measures []*musicxml.Measure) []section {
 	start := 0
 	for i, measure := range measures {
 		if measure != nil {
-			if hasRehersalMark(measure.Direction) && i > 0 {
+			if hasRehersalMark(measure.MusicDataElements) && i > 0 {
 				sections = append(sections, section{start: start, end: i})
 				start = i
 			}
@@ -84,6 +84,6 @@ func measuresForScene(measures []*musicxml.Measure, section sceneSection) []*mus
 		counter += 1
 	}
 
-	result[0].Direction = append(result[0].Direction, musicxml.NewDirection(musicxml.WithTempo(int(section.tempo))))
+	musicxml.SetTempoAtBeginning(result[0], int(section.tempo))
 	return result
 }

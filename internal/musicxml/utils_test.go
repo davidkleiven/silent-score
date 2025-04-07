@@ -2,16 +2,19 @@ package musicxml
 
 import (
 	"bytes"
+	"encoding/xml"
 	"errors"
 	"io/fs"
 	"os"
+	"strconv"
 	"testing"
 )
 
 func newMeasure(measureNo string, dirType *Directiontype) Measure {
+	direction := Direction{Directiontype: []*Directiontype{dirType}}
 	return Measure{
 		Measureattributes: Measureattributes{NumberAttr: measureNo},
-		Musicdata:         Musicdata{Direction: []*Direction{{Directiontype: []*Directiontype{dirType}}}},
+		MusicDataElements: []MusicDataElement{{Direction: &direction, XMLName: xml.Name{Local: "Direction"}}},
 	}
 }
 
@@ -29,7 +32,7 @@ func TestDirectionFromMeasure(t *testing.T) {
 		desc    string
 	}{
 		{
-			Measure{Musicdata: Musicdata{Direction: []*Direction{nil}}},
+			newMeasure("1", nil),
 			[]MeasureTextResult{},
 			"Direction type nil",
 		},
@@ -251,5 +254,244 @@ func TestFileNameFromScore(t *testing.T) {
 		if result != test.expected {
 			t.Errorf("Expected %s, got %s", test.expected, result)
 		}
+	}
+}
+
+func TestTempoAtBeginning(t *testing.T) {
+	for _, test := range []struct {
+		tempo   int
+		measure *Measure
+		desc    string
+	}{
+		{
+			tempo:   92,
+			measure: &Measure{},
+			desc:    "Bar without elements",
+		},
+		{
+			tempo: 92,
+			measure: &Measure{
+				MusicDataElements: []MusicDataElement{
+					{XMLName: xml.Name{Local: "direction"}},
+				},
+			},
+			desc: "Has one element with direction field",
+		},
+		{
+			tempo: 92,
+			measure: &Measure{
+				MusicDataElements: []MusicDataElement{
+					{XMLName: xml.Name{Local: "note"}, Note: &Note{}},
+					{XMLName: xml.Name{Local: "direction"}},
+				},
+			},
+			desc: "Has one element with direction after a note",
+		},
+		{
+			tempo: 92,
+			measure: &Measure{
+				MusicDataElements: []MusicDataElement{
+					{XMLName: xml.Name{Local: "direction"}},
+					{XMLName: xml.Name{Local: "note"}, Note: &Note{}},
+				},
+			},
+			desc: "Has one element with direction before a note",
+		},
+	} {
+		t.Run(test.desc, func(t *testing.T) {
+			SetTempoAtBeginning(test.measure, test.tempo)
+			hasTempo := false
+			for _, element := range test.measure.MusicDataElements {
+				if element.Note != nil {
+					break
+				}
+				if element.Direction != nil {
+					for _, dirType := range element.Direction.Directiontype {
+						if dirType.Metronome != nil && dirType.Metronome.Perminute != nil {
+							if dirType.Metronome.Perminute.Value == strconv.Itoa(test.tempo) {
+								hasTempo = true
+							}
+						}
+					}
+				}
+			}
+
+			if !hasTempo {
+				t.Errorf("No musical elements had a tempot")
+			}
+		})
+	}
+}
+
+func TestEnsureMetronome(t *testing.T) {
+	for _, test := range []struct {
+		direction []*Directiontype
+		desc      string
+	}{
+		{
+			direction: []*Directiontype{},
+			desc:      "Empty direction",
+		},
+		{
+			direction: []*Directiontype{{Metronome: &Metronome{Perminute: &Perminute{Value: "120"}}}},
+			desc:      "Direction with metronome",
+		},
+		{
+			direction: []*Directiontype{{}},
+			desc:      "Direction with empty metronome",
+		},
+	} {
+		t.Run("", func(t *testing.T) {
+			result := ensureMetronome(test.direction)
+			hasMetronome := false
+			for _, dirType := range result {
+				if dirType.Metronome != nil {
+					hasMetronome = true
+					break
+				}
+			}
+			if !hasMetronome {
+				t.Errorf("Expected metronome, got nil")
+			}
+		})
+	}
+}
+
+func TestSetSystemTextAtBeginning(t *testing.T) {
+	for _, test := range []struct {
+		text    string
+		measure *Measure
+		desc    string
+	}{
+		{
+			text:    "Test",
+			measure: &Measure{},
+			desc:    "Bar without elements",
+		},
+		{
+			text: "Test",
+			measure: &Measure{
+				MusicDataElements: []MusicDataElement{
+					{XMLName: xml.Name{Local: "direction"}},
+				},
+			},
+			desc: "Has one element with direction field",
+		},
+	} {
+		t.Run(test.desc, func(t *testing.T) {
+			SetSystemTextAtBeginning(test.measure, test.text)
+			hasText := false
+			for _, element := range test.measure.MusicDataElements {
+				if element.Note != nil {
+					break
+				}
+				if element.Direction != nil {
+					for _, dirType := range element.Direction.Directiontype {
+						if len(dirType.Words) > 0 && dirType.Words[0] != nil && dirType.Words[0].Value == test.text {
+							hasText = true
+						}
+					}
+				}
+			}
+
+			if !hasText {
+				t.Errorf("No musical elements had a system text")
+			}
+		})
+	}
+}
+
+func TestSetTimeSignatureAtBeginning(t *testing.T) {
+	for _, test := range []struct {
+		timeSignature *Timesignature
+		measure       *Measure
+		desc          string
+	}{
+		{
+			timeSignature: &Timesignature{Beats: "4", Beattype: "4"},
+			measure:       &Measure{},
+			desc:          "Bar without elements",
+		},
+		{
+			timeSignature: &Timesignature{Beats: "4", Beattype: "4"},
+			measure: &Measure{
+				MusicDataElements: []MusicDataElement{
+					{XMLName: xml.Name{Local: "attributes"}},
+				},
+			},
+			desc: "Has one element with attributes field",
+		},
+	} {
+		t.Run(test.desc, func(t *testing.T) {
+			SetTimeSignatureAtBeginning(test.measure, test.timeSignature)
+			hasTimeSig := false
+			for _, element := range test.measure.MusicDataElements {
+				if element.Attributes != nil && len(element.Attributes.Time) > 0 {
+					if element.Attributes.Time[0].Beats == test.timeSignature.Beats &&
+						element.Attributes.Time[0].Beattype == test.timeSignature.Beattype {
+						hasTimeSig = true
+					}
+				}
+			}
+
+			if !hasTimeSig {
+				t.Errorf("No musical elements had a time signature")
+			}
+		})
+	}
+}
+
+func TestApplyBeforeFirstNote(t *testing.T) {
+	newName := "element-was-modified"
+	fn := func(m *MusicDataElement) { m.XMLName.Local = newName }
+
+	for _, test := range []struct {
+		name    string
+		measure *Measure
+		desc    string
+	}{
+		{
+			name: "direction",
+			measure: &Measure{
+				MusicDataElements: []MusicDataElement{
+					{XMLName: xml.Name{Local: "note"}, Note: &Note{}},
+					{XMLName: xml.Name{Local: "direction"}},
+				},
+			},
+			desc: "Has one element with direction after a note",
+		},
+		{
+			name:    "direction",
+			measure: &Measure{},
+			desc:    "Bar without elements",
+		},
+		{
+			name: "direction",
+			desc: "One note at end",
+			measure: &Measure{
+				MusicDataElements: []MusicDataElement{
+					{XMLName: xml.Name{Local: "direction"}},
+					{XMLName: xml.Name{Local: "note"}, Note: &Note{}},
+				},
+			},
+		},
+	} {
+		t.Run(test.desc, func(t *testing.T) {
+			applyBeforeFirstNote(test.measure, test.name, fn)
+			hasApplied := false
+			for _, element := range test.measure.MusicDataElements {
+				if element.Note != nil {
+					break
+				}
+				if element.XMLName.Local == newName {
+					hasApplied = true
+					break
+				}
+			}
+
+			if !hasApplied {
+				t.Errorf("No musical elements had the applied function")
+			}
+		})
 	}
 }

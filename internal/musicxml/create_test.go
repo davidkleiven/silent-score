@@ -5,7 +5,7 @@ import "testing"
 func TestWithRehersalMark(t *testing.T) {
 	measure := NewMeasure(WithRehersalMark("A"))
 
-	if measure.Direction[0].Directiontype[0].Rehearsal[0].Value != "A" {
+	if measure.MusicDataElements[0].Direction.Directiontype[0].Rehearsal[0].Value != "A" {
 		t.Errorf("Did not find a rehersal mark")
 	}
 }
