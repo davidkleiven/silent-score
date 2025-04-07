@@ -103,8 +103,8 @@ func tempoIfGiven(tempo int, measures []*musicxml.Measure) int {
 	}
 	for _, measure := range measures {
 		if measure != nil {
-			for _, direction := range measure.Direction {
-				if direction != nil {
+			for _, element := range measure.MusicDataElements {
+				if direction := element.Direction; direction != nil {
 					for _, dirType := range direction.Directiontype {
 						if dirType != nil && dirType.Metronome != nil {
 							if perminute, err := strconv.Atoi(dirType.Metronome.Perminute.Value); err != nil {
@@ -122,8 +122,8 @@ func tempoIfGiven(tempo int, measures []*musicxml.Measure) int {
 func beatsPerMeasure(measures []*musicxml.Measure) *musicxml.Timesignature {
 	for _, measure := range measures {
 		if measure != nil {
-			for _, attr := range measure.Attributes {
-				if attr != nil && attr.Time != nil {
+			for _, element := range measure.MusicDataElements {
+				if attr := element.Attributes; attr != nil && attr.Time != nil {
 					for _, timesig := range attr.Time {
 						if timesig != nil {
 							return timesig
@@ -139,51 +139,19 @@ func beatsPerMeasure(measures []*musicxml.Measure) *musicxml.Timesignature {
 	}
 }
 
-func addSystemText(measure *musicxml.Measure, text string) {
-	if measure != nil {
-		measure.Direction = append(measure.Direction, &musicxml.Direction{
-			Directiontype: []*musicxml.Directiontype{
-				{Words: []*musicxml.Formattedtextid{{Value: text}}},
-			},
-		})
-	}
-}
-
-func addTimeSignature(measure *musicxml.Measure, timeSignature *musicxml.Timesignature) {
-	if measure != nil {
-		measure.Attributes = append(measure.Attributes, &musicxml.Attributes{
-			Time: []*musicxml.Timesignature{timeSignature},
-		})
-	}
-}
-
 func clearTempoMarkings(measures []*musicxml.Measure) {
 	for _, measure := range measures {
 		if measure != nil {
-			for i, direction := range measure.Direction {
-				if direction != nil {
+			for i, element := range measure.MusicDataElements {
+				if direction := element.Direction; direction != nil {
 					for j, dirType := range direction.Directiontype {
 						if dirType != nil && dirType.Metronome != nil {
-							measure.Direction[i].Directiontype[j].Metronome = nil
+							measure.MusicDataElements[i].Direction.Directiontype[j].Metronome = nil
 						}
 					}
 				}
 			}
 		}
-	}
-}
-
-func addTempo(measure *musicxml.Measure, tempo int) {
-	if measure != nil {
-		measure.Direction = append(measure.Direction, &musicxml.Direction{
-			Directiontype: []*musicxml.Directiontype{
-				{Metronome: &musicxml.Metronome{
-					Perminute: &musicxml.Perminute{
-						Value: strconv.Itoa(tempo),
-					},
-				}},
-			},
-		})
 	}
 }
 
@@ -221,9 +189,9 @@ func pickMeasures(library Library, records []db.ProjectContentRecord) selection 
 				clearTempoMarkings(measuresForScene)
 
 				if len(measuresForScene) > 0 {
-					addSystemText(measuresForScene[0], record.SceneDesc)
-					addTimeSignature(measuresForScene[0], timeSignature)
-					addTempo(measuresForScene[0], int(sceneSection.tempo))
+					musicxml.SetSystemTextAtBeginning(measuresForScene[0], record.SceneDesc)
+					musicxml.SetTimeSignatureAtBeginning(measuresForScene[0], timeSignature)
+					musicxml.SetTempoAtBeginning(measuresForScene[0], int(sceneSection.tempo))
 				}
 				measures = append(measures, measuresForScene...)
 				slog.Info("Picking piece",

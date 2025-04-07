@@ -1,6 +1,7 @@
 package musicxml
 
 import (
+	"encoding/xml"
 	"strconv"
 
 	"pgregory.net/rapid"
@@ -25,14 +26,19 @@ func generateRandomPart() *rapid.Generator[*Part] {
 
 func generateRandomMeasure() *rapid.Generator[*Measure] {
 	return rapid.Custom(func(t *rapid.T) *Measure {
+		attributes := rapid.SliceOfN(generateRandomMusicDataElement(), 0, 4).Draw(t, "MusicDataElements")
+		attributeValues := make([]MusicDataElement, len(attributes))
+		for i, attr := range attributes {
+			if attr != nil {
+				attributeValues[i] = *attr
+			}
+		}
+
 		return &Measure{
 			Measureattributes: Measureattributes{
 				NumberAttr: strconv.Itoa(rapid.IntRange(1, 100).Draw(t, "NumberAttr")),
 			},
-			Musicdata: Musicdata{
-				Direction:  rapid.SliceOfN(generateRandomDirection(), 0, 2).Draw(t, "Direction"),
-				Attributes: rapid.SliceOfN(generateRandomAttributes(), 0, 2).Draw(t, "Attributes"),
-			},
+			MusicDataElements: attributeValues,
 		}
 	})
 }
@@ -91,4 +97,28 @@ func generateRandomMetronome() *rapid.Generator[*Metronome] {
 
 	var nilMetronome *Metronome
 	return rapid.OneOf(metronome, rapid.Just(nilMetronome))
+}
+
+func generateRandomMusicDataElement() *rapid.Generator[*MusicDataElement] {
+	names := []string{"Direction", "Attributes"}
+	return rapid.Custom(func(t *rapid.T) *MusicDataElement {
+		name := rapid.SampledFrom(names).Draw(t, "Name")
+		switch name {
+		case "Direction":
+			return &MusicDataElement{
+				XMLName:   xml.Name{Local: "Direction"},
+				Direction: generateRandomDirection().Draw(t, "Direction"),
+			}
+		case "Attributes":
+			return &MusicDataElement{
+				XMLName:    xml.Name{Local: "Attributes"},
+				Attributes: generateRandomAttributes().Draw(t, "Attributes"),
+			}
+
+		default:
+			return &MusicDataElement{
+				XMLName: xml.Name{Local: name},
+			}
+		}
+	})
 }

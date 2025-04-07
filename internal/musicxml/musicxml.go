@@ -3103,22 +3103,85 @@ type Fullnote struct {
 	Rest      *Rest      `xml:"rest,omitempty"`
 }
 
-// Musicdata ...
-type Musicdata struct {
-	Note        []*Note        `xml:"note"`
-	Backup      []*Backup      `xml:"backup"`
-	Forward     []*Forward     `xml:"forward"`
-	Direction   []*Direction   `xml:"direction"`
-	Attributes  []*Attributes  `xml:"attributes"`
-	Harmony     []*Harmony     `xml:"harmony"`
-	Figuredbass []*Figuredbass `xml:"figured-bass"`
-	Print       []*Print       `xml:"print"`
-	Sound       []*Sound       `xml:"sound"`
-	Listening   []*Listening   `xml:"listening"`
-	Barline     []*Barline     `xml:"barline"`
-	Grouping    []*Grouping    `xml:"grouping"`
-	Link        []*Link        `xml:"link"`
-	Bookmark    []*Bookmark    `xml:"bookmark"`
+type MusicDataElement struct {
+	XMLName     xml.Name
+	Note        *Note        `xml:"-"`
+	Backup      *Backup      `xml:"-"`
+	Forward     *Forward     `xml:"-"`
+	Direction   *Direction   `xml:"-"`
+	Attributes  *Attributes  `xml:"-"`
+	Harmony     *Harmony     `xml:"-"`
+	Figuredbass *Figuredbass `xml:"-"`
+	Print       *Print       `xml:"-"`
+	Sound       *Sound       `xml:"-"`
+	Listening   *Listening   `xml:"-"`
+	Barline     *Barline     `xml:"-"`
+	Grouping    *Grouping    `xml:"-"`
+	Link        *Link        `xml:"-"`
+	Bookmark    *Bookmark    `xml:"-"`
+}
+
+func (m *MusicDataElement) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
+	m.XMLName = start.Name
+
+	// Map of XML element names to pointers of struct fields
+	elementMap := map[string]interface{}{
+		"note":         &m.Note,
+		"backup":       &m.Backup,
+		"forward":      &m.Forward,
+		"direction":    &m.Direction,
+		"attributes":   &m.Attributes,
+		"harmony":      &m.Harmony,
+		"figured-bass": &m.Figuredbass,
+		"print":        &m.Print,
+		"sound":        &m.Sound,
+		"listening":    &m.Listening,
+		"barline":      &m.Barline,
+		"grouping":     &m.Grouping,
+		"link":         &m.Link,
+		"bookmark":     &m.Bookmark,
+	}
+
+	// Check if the element name exists in the map
+	if target, ok := elementMap[start.Name.Local]; ok {
+		// Decode the element into the corresponding field
+		return d.DecodeElement(target, &start)
+	}
+
+	// If the element name is not recognized, skip it
+	return d.Skip()
+}
+
+func (m *MusicDataElement) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+	// Map of XML element names to struct fields
+	elementMap := map[string]interface{}{
+		"note":         m.Note,
+		"backup":       m.Backup,
+		"forward":      m.Forward,
+		"direction":    m.Direction,
+		"attributes":   m.Attributes,
+		"harmony":      m.Harmony,
+		"figured-bass": m.Figuredbass,
+		"print":        m.Print,
+		"sound":        m.Sound,
+		"listening":    m.Listening,
+		"barline":      m.Barline,
+		"grouping":     m.Grouping,
+		"link":         m.Link,
+		"bookmark":     m.Bookmark,
+	}
+
+	// Iterate over the map and encode non-nil fields
+	for name, field := range elementMap {
+		if field != nil {
+			if err := e.EncodeElement(field, xml.StartElement{Name: xml.Name{Local: name}}); err != nil {
+				return err
+			}
+		}
+	}
+
+	// Close the element
+	return nil
 }
 
 // Scoreheader ...
@@ -3135,7 +3198,7 @@ type Scoreheader struct {
 // Measure ...
 type Measure struct {
 	Measureattributes
-	Musicdata
+	MusicDataElements []MusicDataElement `xml:",any"`
 }
 
 // Part ...

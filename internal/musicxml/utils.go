@@ -54,8 +54,8 @@ func DirectionFromMeasure(measure Measure) []MeasureTextResult {
 		return result
 	}
 
-	for _, direction := range measure.Direction {
-		if direction != nil {
+	for _, element := range measure.MusicDataElements {
+		if direction := element.Direction; direction != nil {
 			for _, dirType := range direction.Directiontype {
 				if dirType != nil {
 					dirText := ""
@@ -152,4 +152,80 @@ func FileNameFromScore(score *Scorepartwise) string {
 		return strings.ReplaceAll(score.Scoreheader.Work.Worktitle, " ", "_") + ".musicxml"
 	}
 	return "silent-score.musicxml"
+}
+
+func setTempo(element *MusicDataElement, tempo int) {
+	ensureDirection(element)
+	element.Direction.Directiontype = ensureMetronome(element.Direction.Directiontype)
+	for _, dirType := range element.Direction.Directiontype {
+		if dirType != nil && dirType.Metronome != nil {
+			dirType.Metronome.Perminute.Value = strconv.Itoa(tempo)
+		}
+	}
+}
+
+func ensureMetronome(d []*Directiontype) []*Directiontype {
+	if len(d) == 0 {
+		d = append(d, &Directiontype{Metronome: &Metronome{Perminute: &Perminute{}}})
+	}
+	for _, dirType := range d {
+		if dirType != nil && dirType.Metronome == nil {
+			dirType.Metronome = &Metronome{Perminute: &Perminute{}}
+		}
+	}
+	return d
+}
+
+func ensureDirection(m *MusicDataElement) {
+	if m != nil && m.Direction == nil {
+		m.Direction = &Direction{}
+	}
+}
+
+func ensureAttributes(m *MusicDataElement) {
+	if m != nil && m.Attributes == nil {
+		m.Attributes = &Attributes{}
+	}
+}
+
+func setSystemText(element *MusicDataElement, text string) {
+	ensureDirection(element)
+	element.Direction.Directiontype = append(element.Direction.Directiontype, &Directiontype{Words: []*Formattedtextid{{Value: text}}})
+}
+
+func SetTempoAtBeginning(measure *Measure, tempo int) {
+	applyBeforeFirstNote(measure, "direction", func(m *MusicDataElement) { setTempo(m, tempo) })
+}
+
+func SetSystemTextAtBeginning(measure *Measure, text string) {
+	applyBeforeFirstNote(measure, "direction", func(m *MusicDataElement) { setSystemText(m, text) })
+}
+
+func setTimeSignature(element *MusicDataElement, timeSignature *Timesignature) {
+	ensureAttributes(element)
+	element.Attributes.Time = []*Timesignature{timeSignature}
+}
+
+func SetTimeSignatureAtBeginning(measure *Measure, timeSignature *Timesignature) {
+	applyBeforeFirstNote(measure, "attributes", func(m *MusicDataElement) { setTimeSignature(m, timeSignature) })
+}
+
+func applyBeforeFirstNote(measure *Measure, name string, fn func(m *MusicDataElement)) {
+	for i, element := range measure.MusicDataElements {
+		if element.Note != nil {
+			newElement := MusicDataElement{XMLName: xml.Name{Local: name}}
+			fn(&newElement)
+			newElements := append(measure.MusicDataElements[:i], newElement)
+			measure.MusicDataElements = append(newElements, measure.MusicDataElements[i:]...)
+			return
+		}
+		if element.XMLName.Local == name {
+			fn(&measure.MusicDataElements[i])
+			return
+		}
+	}
+
+	newElement := MusicDataElement{XMLName: xml.Name{Local: name}}
+	fn(&newElement)
+	measure.MusicDataElements = append(measure.MusicDataElements, newElement)
 }

@@ -87,7 +87,7 @@ func TestMeasuresForScene(t *testing.T) {
 		t.Errorf("Wanted 28 bars got %d", len(measures))
 	}
 
-	if measures[0].Direction[0].Directiontype[0].Metronome.Perminute.Value != "92" {
+	if measures[0].MusicDataElements[0].Direction.Directiontype[0].Metronome.Perminute.Value != "92" {
 		t.Errorf("Tempo was not set on the first bar")
 	}
 }
