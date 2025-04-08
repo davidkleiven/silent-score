@@ -299,7 +299,8 @@ func TestTempoAtBeginning(t *testing.T) {
 		},
 	} {
 		t.Run(test.desc, func(t *testing.T) {
-			SetTempoAtBeginning(test.measure, test.tempo)
+			metronome := Metronome{Perminute: &Perminute{Value: strconv.Itoa(test.tempo)}}
+			SetTempoAtBeginning(test.measure, &metronome)
 			hasTempo := false
 			for _, element := range test.measure.MusicDataElements {
 				if element.Note != nil {
@@ -318,40 +319,6 @@ func TestTempoAtBeginning(t *testing.T) {
 
 			if !hasTempo {
 				t.Errorf("No musical elements had a tempot")
-			}
-		})
-	}
-}
-
-func TestEnsureMetronome(t *testing.T) {
-	for _, test := range []struct {
-		direction []*Directiontype
-		desc      string
-	}{
-		{
-			direction: []*Directiontype{},
-			desc:      "Empty direction",
-		},
-		{
-			direction: []*Directiontype{{Metronome: &Metronome{Perminute: &Perminute{Value: "120"}}}},
-			desc:      "Direction with metronome",
-		},
-		{
-			direction: []*Directiontype{{}},
-			desc:      "Direction with empty metronome",
-		},
-	} {
-		t.Run("", func(t *testing.T) {
-			result := ensureMetronome(test.direction)
-			hasMetronome := false
-			for _, dirType := range result {
-				if dirType.Metronome != nil {
-					hasMetronome = true
-					break
-				}
-			}
-			if !hasMetronome {
-				t.Errorf("Expected metronome, got nil")
 			}
 		})
 	}

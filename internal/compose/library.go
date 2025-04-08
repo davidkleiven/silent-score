@@ -97,26 +97,50 @@ func bestMatchForDesc(desc string, texts []string) int {
 	return bestMatch[0].Index
 }
 
-func tempoIfGiven(tempo int, measures []*musicxml.Measure) int {
-	if tempo > 0 {
-		return tempo
-	}
+func tempoIfGiven(tempo int, measures []*musicxml.Measure) *musicxml.Metronome {
+	var metronome *musicxml.Metronome
 	for _, measure := range measures {
 		if measure != nil {
 			for _, element := range measure.MusicDataElements {
 				if direction := element.Direction; direction != nil {
 					for _, dirType := range direction.Directiontype {
 						if dirType != nil && dirType.Metronome != nil {
-							if perminute, err := strconv.Atoi(dirType.Metronome.Perminute.Value); err != nil {
-								return perminute
-							}
+							metronome = dirType.Metronome
+							break
 						}
 					}
 				}
+
+				if metronome != nil {
+					break
+				}
 			}
 		}
+
+		if metronome != nil {
+			break
+		}
 	}
-	return defaultTempo
+
+	if metronome == nil {
+		metronome = defaultMetronome()
+	}
+
+	if tempo > 0 {
+		metronome.Perminute.Value = strconv.Itoa(tempo)
+	}
+	return metronome
+}
+
+func defaultMetronome() *musicxml.Metronome {
+	return &musicxml.Metronome{
+		Perminute: &musicxml.Perminute{
+			Value: "82",
+		},
+		Beatunit: &musicxml.Beatunit{
+			Beatunit: "quarter",
+		},
+	}
 }
 
 func beatsPerMeasure(measures []*musicxml.Measure) *musicxml.Timesignature {
@@ -183,15 +207,24 @@ func pickMeasures(library Library, records []db.ProjectContentRecord) selection 
 				sections := pieceSections(piece.Part[0].Measure)
 				timeSignature := beatsPerMeasure(piece.Part[0].Measure)
 				beatsInTimeSig := beatsPerMinutes(timeSignature.Beats)
-				tempo := tempoIfGiven(int(record.Tempo), piece.Part[0].Measure)
+				metronome := tempoIfGiven(int(record.Tempo), piece.Part[0].Measure)
+				tempo, err := strconv.Atoi(metronome.Perminute.Value)
+				if err != nil {
+					slog.Warn("Using default of 82 when picking tempo.", "error", err)
+					tempo = defaultTempo
+				}
+
 				sceneSection := sectionForScene(time.Duration(record.DurationSec)*time.Second, float64(tempo), beatsInTimeSig, sections)
+
+				// Update tempo with result from scence selection
+				metronome.Perminute.Value = strconv.Itoa(int(sceneSection.tempo))
 				measuresForScene := measuresForScene(piece.Part[0].Measure, sceneSection)
 				clearTempoMarkings(measuresForScene)
 
 				if len(measuresForScene) > 0 {
 					musicxml.SetSystemTextAtBeginning(measuresForScene[0], record.SceneDesc)
 					musicxml.SetTimeSignatureAtBeginning(measuresForScene[0], timeSignature)
-					musicxml.SetTempoAtBeginning(measuresForScene[0], int(sceneSection.tempo))
+					musicxml.SetTempoAtBeginning(measuresForScene[0], metronome)
 				}
 				measures = append(measures, measuresForScene...)
 				slog.Info("Picking piece",
