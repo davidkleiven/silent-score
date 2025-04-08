@@ -83,7 +83,5 @@ func measuresForScene(measures []*musicxml.Measure, section sceneSection) []*mus
 		}
 		counter += 1
 	}
-
-	musicxml.SetTempoAtBeginning(result[0], int(section.tempo))
 	return result
 }

@@ -154,26 +154,19 @@ func FileNameFromScore(score *Scorepartwise) string {
 	return "silent-score.musicxml"
 }
 
-func setTempo(element *MusicDataElement, tempo int) {
+func setTempo(element *MusicDataElement, metronome *Metronome) {
 	ensureDirection(element)
-	element.Direction.Directiontype = ensureMetronome(element.Direction.Directiontype)
+	metronomeIsSet := false
 	for _, dirType := range element.Direction.Directiontype {
 		if dirType != nil && dirType.Metronome != nil {
-			dirType.Metronome.Perminute.Value = strconv.Itoa(tempo)
+			dirType.Metronome = metronome
+			metronomeIsSet = true
 		}
 	}
-}
 
-func ensureMetronome(d []*Directiontype) []*Directiontype {
-	if len(d) == 0 {
-		d = append(d, &Directiontype{Metronome: &Metronome{Perminute: &Perminute{}}})
+	if !metronomeIsSet {
+		element.Direction.Directiontype = append(element.Direction.Directiontype, &Directiontype{Metronome: metronome})
 	}
-	for _, dirType := range d {
-		if dirType != nil && dirType.Metronome == nil {
-			dirType.Metronome = &Metronome{Perminute: &Perminute{}}
-		}
-	}
-	return d
 }
 
 func ensureDirection(m *MusicDataElement) {
@@ -193,8 +186,8 @@ func setSystemText(element *MusicDataElement, text string) {
 	element.Direction.Directiontype = append(element.Direction.Directiontype, &Directiontype{Words: []*Formattedtextid{{Value: text}}})
 }
 
-func SetTempoAtBeginning(measure *Measure, tempo int) {
-	applyBeforeFirstNote(measure, "direction", func(m *MusicDataElement) { setTempo(m, tempo) })
+func SetTempoAtBeginning(measure *Measure, metronome *Metronome) {
+	applyBeforeFirstNote(measure, "direction", func(m *MusicDataElement) { setTempo(m, metronome) })
 }
 
 func SetSystemTextAtBeginning(measure *Measure, text string) {
