@@ -854,7 +854,7 @@ type Accidentaltext struct {
 
 // Coda is The coda type is the visual indicator of a coda sign. The exact glyph can be specified with the smufl attribute. A sound element is also needed to guide playback applications reliably.
 type Coda struct {
-	Printstylealign *Printstylealign
+	Printstylealign
 	Optionaluniqueid
 	SmuflAttr string `xml:"smufl,attr,omitempty"`
 }
@@ -865,10 +865,10 @@ type Coda struct {
 //
 // The placement attribute is used when the dynamics are associated with a note. It is ignored when the dynamics are associated with a direction. In that case the direction element's placement attribute is used instead.
 type Dynamics struct {
-	Printstylealign *Printstylealign
-	Placement       *Placement
-	Textdecoration  *Textdecoration
-	Enclosure       *Enclosure
+	Printstylealign
+	Placement
+	Textdecoration *Textdecoration
+	Enclosure      *Enclosure
 	Optionaluniqueid
 	P             []*Empty     `xml:"p"`
 	Pp            []*Empty     `xml:"pp"`
@@ -904,57 +904,57 @@ type Empty struct{}
 
 // Emptyplacement is The empty-placement type represents an empty element with print-style and placement attributes.
 type Emptyplacement struct {
-	Printstyle *Printstyle
-	Placement  *Placement
+	Printstyle
+	Placement
 }
 
 // Emptyplacementsmufl is The empty-placement-smufl type represents an empty element with print-style, placement, and smufl attributes.
 type Emptyplacementsmufl struct {
-	Printstyle *Printstyle
-	Placement  *Placement
-	Smufl      *Smufl
+	Printstyle
+	Placement
+	Smufl *Smufl
 }
 
 // Emptyprintstyle is The empty-print-style type represents an empty element with print-style attribute group.
 type Emptyprintstyle struct {
-	Printstyle *Printstyle
+	Printstyle
 }
 
 // Emptyprintstylealign is The empty-print-style-align type represents an empty element with print-style-align attribute group.
 type Emptyprintstylealign struct {
-	Printstylealign *Printstylealign
+	Printstylealign
 }
 
 // Emptyprintstylealignid is The empty-print-style-align-id type represents an empty element with print-style-align and optional-unique-id attribute groups.
 type Emptyprintstylealignid struct {
-	Printstylealign *Printstylealign
+	Printstylealign
 	Optionaluniqueid
 }
 
 // Emptyprintobjectstylealign is The empty-print-style-align-object type represents an empty element with print-object and print-style-align attribute groups.
 type Emptyprintobjectstylealign struct {
-	Printobject     *Printobject
-	Printstylealign *Printstylealign
+	Printobject
+	Printstylealign
 }
 
 // Emptytrillsound is The empty-trill-sound type represents an empty element with print-style, placement, and trill-sound attributes.
 type Emptytrillsound struct {
-	Printstyle *Printstyle
-	Placement  *Placement
+	Printstyle
+	Placement
 	Trillsound *Trillsound
 }
 
 // Horizontalturn is The horizontal-turn type represents turn elements that are horizontal rather than vertical. These are empty elements with print-style, placement, trill-sound, and slash attributes. If the slash attribute is yes, then a vertical line is used to slash the turn. It is no if not specified.
 type Horizontalturn struct {
-	Printstyle *Printstyle
-	Placement  *Placement
+	Printstyle
+	Placement
 	Trillsound *Trillsound
 	SlashAttr  string `xml:"slash,attr,omitempty"`
 }
 
 // Fermata is The fermata text content represents the shape of the fermata sign. An empty fermata element represents a normal fermata. The fermata type is upright if not specified.
 type Fermata struct {
-	Printstyle *Printstyle
+	Printstyle
 	Optionaluniqueid
 	TypeAttr string `xml:"type,attr,omitempty"`
 	Value    string `xml:",chardata"`
@@ -962,8 +962,8 @@ type Fermata struct {
 
 // Fingering is Fingering is typically indicated 1,2,3,4,5. Multiple fingerings may be given, typically to substitute fingerings in the middle of a note. The substitution and alternate values are "no" if the attribute is not present. For guitar and other fretted instruments, the fingering element represents the fretting finger; the pluck element represents the plucking finger.
 type Fingering struct {
-	Printstyle       *Printstyle
-	Placement        *Placement
+	Printstyle
+	Placement
 	SubstitutionAttr string `xml:"substitution,attr,omitempty"`
 	AlternateAttr    string `xml:"alternate,attr,omitempty"`
 	Value            string `xml:",chardata"`
@@ -1036,7 +1036,7 @@ type Midiinstrument struct {
 
 // Namedisplay is The name-display type is used for exact formatting of multi-font text in part and group names to the left of the system. The print-object attribute can be used to determine what, if anything, is printed at the start of each system. Enclosure for the display-text element is none by default. Language for the display-text element is Italian ("it") by default.
 type Namedisplay struct {
-	Printobject    *Printobject
+	Printobject
 	Displaytext    []*Formattedtext  `xml:"display-text"`
 	Accidentaltext []*Accidentaltext `xml:"accidental-text"`
 }
@@ -1058,16 +1058,16 @@ type Play struct {
 
 // Segno is The segno type is the visual indicator of a segno sign. The exact glyph can be specified with the smufl attribute. A sound element is also needed to guide playback applications reliably.
 type Segno struct {
-	Printstylealign *Printstylealign
+	Printstylealign
 	Optionaluniqueid
 	SmuflAttr string `xml:"smufl,attr,omitempty"`
 }
 
 // String is The string type is used with tablature notation, regular notation (where it is often circled), and chord diagrams. String numbers start with 1 for the highest pitched full-length string.
 type String struct {
-	Printstyle *Printstyle
-	Placement  *Placement
-	Value      int `xml:",chardata"`
+	Printstyle
+	Placement
+	Value int `xml:",chardata"`
 }
 
 // Typedtext is The typed-text type represents a text element with a type attribute.
@@ -1078,8 +1078,8 @@ type Typedtext struct {
 
 // Wavyline is Wavy lines are one way to indicate trills and vibrato. When used with a barline element, they should always have type="continue" set. The smufl attribute specifies a particular wavy line glyph from the SMuFL Multi-segment lines range.
 type Wavyline struct {
-	Position   *Position
-	Placement  *Placement
+	Position *Position
+	Placement
 	ColorAttr  Color `xml:"color,attr,omitempty"`
 	Trillsound *Trillsound
 	TypeAttr   string `xml:"type,attr"`
@@ -1089,15 +1089,15 @@ type Wavyline struct {
 
 // Attributes is The for-part element is used in a concert score to indicate the transposition for a transposed part created from that score. It is only used in score files that contain a concert-score element in the defaults. This allows concert scores with transposed parts to be represented in a single uncompressed MusicXML file.
 type Attributes struct {
-	Editorial    *Editorial
-	Divisions    float64          `xml:"divisions"`
+	Editorial
+	Divisions    float64          `xml:"divisions,omitempty"`
 	Key          []*Key           `xml:"key"`
 	Time         []*Timesignature `xml:"time"`
 	Staves       int              `xml:"staves,omitempty"`
 	Partsymbol   *Partsymbol      `xml:"part-symbol"`
 	Instruments  int              `xml:"instruments,omitempty"`
 	Clef         []*Clef          `xml:"clef"`
-	Staffdetails []*Staffdetails  `xml:"staff-details"`
+	Staffdetails []Staffdetails   `xml:"staff-details"`
 	Transpose    []*Transpose     `xml:"transpose"`
 	Forpart      []*Forpart       `xml:"for-part"`
 	Directive    []*Directive     `xml:"directive"`
@@ -1130,8 +1130,8 @@ type Cancel struct {
 //
 // Clefs appear at the start of each system unless the print-object attribute has been set to "no" or the additional attribute has been set to "yes".
 type Clef struct {
-	Printstyle  *Printstyle
-	Printobject *Printobject
+	Printstyle
+	Printobject
 	Optionaluniqueid
 	NumberAttr       int    `xml:"number,attr,omitempty"`
 	AdditionalAttr   string `xml:"additional,attr,omitempty"`
@@ -1193,11 +1193,11 @@ type Keyoctave struct {
 
 // Linedetail is If the staff-lines element is present, the appearance of each line may be individually specified with a line-detail type. Staff lines are numbered from bottom to top. The print-object attribute allows lines to be hidden within a staff. This is used in special situations such as a widely-spaced percussion staff where a note placed below the higher line is distinct from a note placed above the lower line. Hidden staff lines are included when specifying clef lines and determining display-step / display-octave values, but are not counted as lines for the purposes of the system-layout and staff-layout elements.
 type Linedetail struct {
-	ColorAttr   Color `xml:"color,attr,omitempty"`
-	Linetype    string
-	Printobject *Printobject
-	LineAttr    int     `xml:"line,attr"`
-	WidthAttr   float64 `xml:"width,attr,omitempty"`
+	ColorAttr Color `xml:"color,attr,omitempty"`
+	Linetype  string
+	Printobject
+	LineAttr  int     `xml:"line,attr"`
+	WidthAttr float64 `xml:"width,attr,omitempty"`
 }
 
 // Measurerepeat is The measure-repeat type is used for both single and multiple measure repeats. The text of the element indicates the number of measures to be repeated in a single pattern. The slashes attribute specifies the number of slashes to use in the repeat sign. It is 1 if not specified. The text of the element is ignored when the type is stop.
@@ -1260,16 +1260,16 @@ type Slash struct {
 
 // Staffdetails is The capo element indicates at which fret a capo should be placed on a fretted instrument. This changes the open tuning of the strings specified by staff-tuning by the specified number of half-steps.
 type Staffdetails struct {
-	Printobject   *Printobject
+	Printobject
 	Printspacing  *Printspacing
-	NumberAttr    int            `xml:"number,attr,omitempty"`
-	ShowfretsAttr string         `xml:"show-frets,attr,omitempty"`
-	Stafftype     string         `xml:"staff-type"`
-	Stafflines    int            `xml:"staff-lines"`
-	Linedetail    []*Linedetail  `xml:"line-detail"`
-	Stafftuning   []*Stafftuning `xml:"staff-tuning"`
-	Capo          int            `xml:"capo"`
-	Staffsize     *Staffsize     `xml:"staff-size"`
+	NumberAttr    int           `xml:"number,attr,omitempty"`
+	ShowfretsAttr string        `xml:"show-frets,attr,omitempty"`
+	Stafftype     string        `xml:"staff-type"`
+	Stafflines    int           `xml:"staff-lines"`
+	Linedetail    []*Linedetail `xml:"line-detail"`
+	Stafftuning   []Stafftuning `xml:"staff-tuning"`
+	Capo          int           `xml:"capo"`
+	Staffsize     Staffsize     `xml:"staff-size"`
 }
 
 // Staffsize is The staff-size element indicates how large a staff space is on this staff, expressed as a percentage of the work's default scaling. Values less than 100 make the staff space smaller while values over 100 make the staff space larger. A staff-type of cue, ossia, or editorial implies a staff-size of less than 100, but the exact value is implementation-dependent unless specified here. Staff size affects staff height only, not the relationship of the staff to the left and right margins.
@@ -1288,8 +1288,8 @@ type Stafftuning struct {
 
 // Time is A senza-misura element explicitly indicates that no time signature is present. The optional element content indicates the symbol to be used, if any, such as an X. The time element's symbol attribute is not used when a senza-misura element is present.
 type Time struct {
-	Printstylealign *Printstylealign
-	Printobject     *Printobject
+	Printstylealign
+	Printobject
 	Optionaluniqueid
 	NumberAttr      int    `xml:"number,attr,omitempty"`
 	SymbolAttr      string `xml:"symbol,attr,omitempty"`
@@ -1321,14 +1321,14 @@ type Barline struct {
 	SegnoAttr     string  `xml:"segno,attr,omitempty"`
 	CodaAttr      string  `xml:"coda,attr,omitempty"`
 	DivisionsAttr float64 `xml:"divisions,attr,omitempty"`
-	Editorial     *Editorial
-	Barstyle      *Barstylecolor `xml:"bar-style"`
-	Wavyline      *Wavyline      `xml:"wavy-line"`
-	Segno         *Segno         `xml:"segno"`
-	Coda          *Coda          `xml:"coda"`
-	Fermata       []*Fermata     `xml:"fermata"`
-	Ending        *Ending        `xml:"ending"`
-	Repeat        *Repeat        `xml:"repeat"`
+	Editorial
+	Barstyle *Barstylecolor `xml:"bar-style"`
+	Wavyline *Wavyline      `xml:"wavy-line"`
+	Segno    *Segno         `xml:"segno"`
+	Coda     *Coda          `xml:"coda"`
+	Fermata  []*Fermata     `xml:"fermata"`
+	Ending   *Ending        `xml:"ending"`
+	Repeat   *Repeat        `xml:"repeat"`
 }
 
 // Ending is The ending type represents multiple (e.g. first and second) endings. Typically, the start type is associated with the left barline of the first measure in an ending. The stop and discontinue types are associated with the right barline of the last measure in an ending. Stop is used when the ending mark concludes with a downward jog, as is typical for first endings. Discontinue is used when there is no downward jog, as is typical for second endings that do not conclude a piece. The length of the jog can be specified using the end-length attribute. The text-x and text-y attributes are offsets that specify where the baseline of the start of the ending text appears, relative to the start of the ending line.
@@ -1362,7 +1362,7 @@ type Accord struct {
 
 // Accordionregistration is The accordion-low element indicates the presence of a dot in the low (16') section of the registration symbol. This element is omitted if no dot is present.
 type Accordionregistration struct {
-	Printstylealign *Printstylealign
+	Printstylealign
 	Optionaluniqueid
 	Accordionhigh   *Empty `xml:"accordion-high"`
 	Accordionmiddle int    `xml:"accordion-middle"`
@@ -1385,17 +1385,17 @@ type Bass struct {
 
 // Harmonyalter is The harmony-alter type represents the chromatic alteration of the root, numeral, or bass of the current harmony-chord group within the harmony element. In some chord styles, the text of the preceding element may include alteration information. In that case, the print-object attribute of this type can be set to no. The location attribute indicates whether the alteration should appear to the left or the right of the preceding element. Its default value varies by element.
 type Harmonyalter struct {
-	Printobject  *Printobject
-	Printstyle   *Printstyle
+	Printobject
+	Printstyle
 	LocationAttr string  `xml:"location,attr,omitempty"`
 	Value        float64 `xml:",chardata"`
 }
 
 // Bassstep is The bass-step type represents the pitch step of the bass of the current chord within the harmony element. The text attribute indicates how the bass should appear in a score if not using the element contents.
 type Bassstep struct {
-	Printstyle *Printstyle
-	TextAttr   string `xml:"text,attr,omitempty"`
-	Value      string `xml:",chardata"`
+	Printstyle
+	TextAttr string `xml:"text,attr,omitempty"`
+	Value    string `xml:",chardata"`
 }
 
 // Beater is The beater type represents pictograms for beaters, mallets, and sticks that do not have different materials represented in the pictogram.
@@ -1436,7 +1436,7 @@ type Dashes struct {
 //
 // A harmony of kind "other" can be spelled explicitly by using a series of degree elements together with a root.
 type Degree struct {
-	Printobject *Printobject
+	Printobject
 	Degreevalue *Degreevalue `xml:"degree-value"`
 	Degreealter *Degreealter `xml:"degree-alter"`
 	Degreetype  *Degreetype  `xml:"degree-type"`
@@ -1444,21 +1444,21 @@ type Degree struct {
 
 // Degreealter is The degree-alter type represents the chromatic alteration for the current degree. If the degree-type value is alter or subtract, the degree-alter value is relative to the degree already in the chord based on its kind element. If the degree-type value is add, the degree-alter is relative to a dominant chord (major and perfect intervals except for a minor seventh). The plus-minus attribute is used to indicate if plus and minus symbols should be used instead of sharp and flat symbols to display the degree alteration. It is no if not specified.
 type Degreealter struct {
-	Printstyle    *Printstyle
+	Printstyle
 	PlusminusAttr string  `xml:"plus-minus,attr,omitempty"`
 	Value         float64 `xml:",chardata"`
 }
 
 // Degreetype is The degree-type type indicates if this degree is an addition, alteration, or subtraction relative to the kind of the current chord. The value of the degree-type element affects the interpretation of the value of the degree-alter element. The text attribute specifies how the type of the degree should be displayed.
 type Degreetype struct {
-	Printstyle *Printstyle
-	TextAttr   string `xml:"text,attr,omitempty"`
-	Value      string `xml:",chardata"`
+	Printstyle
+	TextAttr string `xml:"text,attr,omitempty"`
+	Value    string `xml:",chardata"`
 }
 
 // Degreevalue is The content of the degree-value type is a number indicating the degree of the chord (1 for the root, 3 for third, etc). The text attribute specifies how the value of the degree should be displayed. The symbol attribute indicates that a symbol should be used in specifying the degree. If the symbol attribute is present, the value of the text attribute follows the symbol.
 type Degreevalue struct {
-	Printstyle *Printstyle
+	Printstyle
 	SymbolAttr string `xml:"symbol,attr,omitempty"`
 	TextAttr   string `xml:"text,attr,omitempty"`
 	Value      int    `xml:",chardata"`
@@ -1505,7 +1505,7 @@ type Directiontype struct {
 	Principalvoice        *Principalvoice         `xml:"principal-voice"`
 	Percussion            []*Percussion           `xml:"percussion"`
 	Accordionregistration *Accordionregistration  `xml:"accordion-registration"`
-	Staffdivide           *Staffdivide            `xml:"staff-divide"`
+	Staffdivide           *Staffdivide            `xml:"staff-divide,omitempty"`
 	Otherdirection        *Otherdirection         `xml:"other-direction"`
 }
 
@@ -1575,24 +1575,24 @@ type Grouping struct {
 //
 // The print-object attribute controls whether or not anything is printed due to the harmony element. The print-frame attribute controls printing of a frame or fretboard diagram. The print-style attribute group sets the default for the harmony, but individual elements can override this with their own print-style values. The arrangement attribute specifies how multiple harmony-chord groups are arranged relative to each other. Harmony-chords with vertical arrangement are separated by horizontal lines. Harmony-chords with diagonal or horizontal arrangement are separated by diagonal lines or slashes.
 type Harmony struct {
-	Printobject    *Printobject
-	Printstyle     *Printstyle
-	Placement      *Placement
+	Printobject
+	Printstyle
+	Placement
 	Systemrelation string `xml:"system-relation,omitempty"`
 	Optionaluniqueid
 	TypeAttr        string `xml:"type,attr,omitempty"`
 	PrintframeAttr  string `xml:"print-frame,attr,omitempty"`
 	ArrangementAttr string `xml:"arrangement,attr,omitempty"`
-	Harmonychord    []*Harmonychord
-	Editorial       *Editorial
-	Staff           *Staff
-	Frame           *Frame  `xml:"frame"`
-	Offset          *Offset `xml:"offset"`
+	Harmonychord           // According to the standard we can have multiple of these, but currently we only support one
+	Editorial
+	Staff
+	Frame  *Frame  `xml:"frame"`
+	Offset *Offset `xml:"offset"`
 }
 
 // Harppedals is The harp-pedals type is used to create harp pedal diagrams. The pedal-step and pedal-alter elements use the same values as the step and alter elements. For easiest reading, the pedal-tuning elements should follow standard harp pedal order, with pedal-step values of D, C, B, E, F, G, and A.
 type Harppedals struct {
-	Printstylealign *Printstylealign
+	Printstylealign
 	Optionaluniqueid
 	Pedaltuning []*Pedaltuning `xml:"pedal-tuning"`
 }
@@ -1611,9 +1611,9 @@ type Instrumentchange struct {
 
 // Inversion is The inversion type represents harmony inversions. The value is a number indicating which inversion is used: 0 for root position, 1 for first inversion, etc.  The text attribute indicates how the inversion should be displayed in a score.
 type Inversion struct {
-	Printstyle *Printstyle
-	TextAttr   string `xml:"text,attr,omitempty"`
-	Value      int    `xml:",chardata"`
+	Printstyle
+	TextAttr string `xml:"text,attr,omitempty"`
+	Value    int    `xml:",chardata"`
 }
 
 // Kind is Kind indicates the type of chord. Degree elements can then add, subtract, or alter from these starting points
@@ -1634,9 +1634,9 @@ type Inversion struct {
 //
 // The text attribute may use strings such as "13sus" that refer to both the kind and one or more degree elements. In this case, the corresponding degree elements should have the print-object attribute set to "no" to keep redundant alterations from being displayed.
 type Kind struct {
-	Printstyle             *Printstyle
-	Halign                 *Halign
-	Valign                 string
+	Printstyle
+	Halign
+	Valign                 string `xml:"valign,attr,omitempty"`
 	UsesymbolsAttr         string `xml:"use-symbols,attr,omitempty"`
 	TextAttr               string `xml:"text,attr,omitempty"`
 	StackdegreesAttr       string `xml:"stack-degrees,attr,omitempty"`
@@ -1682,8 +1682,8 @@ type Metal struct {
 
 // Metronome is The metronome-relation element describes the relationship symbol that goes between the two sets of metronome-note elements. The currently allowed value is equals, but this may expand in future versions. If the element is empty, the equals value is used.
 type Metronome struct {
-	Printstylealign   *Printstylealign
-	Printobject       *Printobject
+	Printstylealign
+	Printobject
 	Justify           *Justify
 	Optionaluniqueid  *Optionaluniqueid
 	ParenthesesAttr   string `xml:"parentheses,attr,omitempty"`
@@ -1732,22 +1732,22 @@ type Numeral struct {
 
 // Numeralkey is The numeral-key type is used when the key for the numeral is different than the key specified by the key signature. The numeral-fifths element specifies the key in the same way as the fifths element. The numeral-mode element specifies the mode similar to the mode element, but with a restricted set of values
 type Numeralkey struct {
-	Printobject   *Printobject
+	Printobject
 	Numeralfifths int    `xml:"numeral-fifths"`
 	Numeralmode   string `xml:"numeral-mode"`
 }
 
 // Numeralroot is The numeral-root type represents the Roman numeral or Nashville number as a positive integer from 1 to 7. The text attribute indicates how the numeral should appear in the score. A numeral-root value of 5 with a kind of major would have a text attribute of "V" if displayed as a Roman numeral, and "5" if displayed as a Nashville number. If the text attribute is not specified, the display is application-dependent.
 type Numeralroot struct {
-	Printstyle *Printstyle
-	TextAttr   string `xml:"text,attr,omitempty"`
-	Value      int    `xml:",chardata"`
+	Printstyle
+	TextAttr string `xml:"text,attr,omitempty"`
+	Value    int    `xml:",chardata"`
 }
 
 // Octaveshift is The octave shift type indicates where notes are shifted up or down from their true pitched values because of printing difficulty. Thus a treble clef line noted with 8va will be indicated with an octave-shift down from the pitch data indicated in the notes. A size of 8 indicates one octave; a size of 15 indicates two octaves.
 type Octaveshift struct {
 	Dashedformatting *Dashedformatting
-	Printstyle       *Printstyle
+	Printstyle
 	Optionaluniqueid
 	TypeAttr   string `xml:"type,attr"`
 	NumberAttr int    `xml:"number,attr,omitempty"`
@@ -1764,9 +1764,9 @@ type Offset struct {
 
 // Otherdirection is The other-direction type is used to define any direction symbols not yet in the MusicXML format. The smufl attribute can be used to specify a particular direction symbol, allowing application interoperability without requiring every SMuFL glyph to have a MusicXML element equivalent. Using the other-direction type without the smufl attribute allows for extended representation, though without application interoperability.
 type Otherdirection struct {
-	Printobject     *Printobject
-	Printstylealign *Printstylealign
-	Smufl           *Smufl
+	Printobject
+	Printstylealign
+	Smufl *Smufl
 	Optionaluniqueid
 	Value string `xml:",chardata"`
 }
@@ -1781,7 +1781,7 @@ type Otherlistening struct {
 
 // Pedal is The pedal type represents piano pedal marks, including damper and sostenuto pedal marks. The line attribute is yes if pedal lines are used. The sign attribute is yes if Ped, Sost, and * signs are used. For compatibility with older versions, the sign attribute is yes by default if the line attribute is no, and is no by default if the line attribute is yes. If the sign attribute is set to yes and the type is start or sostenuto, the abbreviated attribute is yes if the short P and S signs are used, and no if the full Ped and Sost signs are used. It is no by default. Otherwise the abbreviated attribute is ignored. The alignment attributes are ignored if the sign attribute is no.
 type Pedal struct {
-	Printstylealign *Printstylealign
+	Printstylealign
 	Optionaluniqueid
 	TypeAttr        string `xml:"type,attr"`
 	NumberAttr      int    `xml:"number,attr,omitempty"`
@@ -1804,8 +1804,8 @@ type Perminute struct {
 
 // Percussion is The other-percussion element represents percussion pictograms not defined elsewhere.
 type Percussion struct {
-	Printstylealign *Printstylealign
-	Enclosure       *Enclosure
+	Printstylealign
+	Enclosure *Enclosure
 	Optionaluniqueid
 	Glass           *Glass     `xml:"glass"`
 	Metal           *Metal     `xml:"metal"`
@@ -1828,7 +1828,7 @@ type Pitched struct {
 
 // Principalvoice is The principal-voice type represents principal and secondary voices in a score, either for analysis or for square bracket symbols that appear in a score. The element content is used for analysis and may be any text value. The symbol attribute indicates the type of symbol used. When used for analysis separate from any printed score markings, it should be set to none. Otherwise if the type is stop it should be set to plain.
 type Principalvoice struct {
-	Printstylealign *Printstylealign
+	Printstylealign
 	Optionaluniqueid
 	TypeAttr   string `xml:"type,attr"`
 	SymbolAttr string `xml:"symbol,attr"`
@@ -1856,9 +1856,9 @@ type Root struct {
 
 // Rootstep is The root-step type represents the pitch step of the root of the current chord within the harmony element. The text attribute indicates how the root should appear in a score if not using the element contents.
 type Rootstep struct {
-	Printstyle *Printstyle
-	TextAttr   string `xml:"text,attr,omitempty"`
-	Value      string `xml:",chardata"`
+	Printstyle
+	TextAttr string `xml:"text,attr,omitempty"`
+	Value    string `xml:",chardata"`
 }
 
 // Scordatura is Scordatura string tunings are represented by a series of accord elements, similar to the staff-tuning elements. Strings are numbered from high to low.
@@ -1923,7 +1923,7 @@ type Sound struct {
 
 // Staffdivide is The staff-divide element represents the staff division arrow symbols found at SMuFL code points U+E00B, U+E00C, and U+E00D.
 type Staffdivide struct {
-	Printstylealign *Printstylealign
+	Printstylealign
 	Optionaluniqueid
 	TypeAttr string `xml:"type,attr"`
 }
@@ -1939,7 +1939,7 @@ type Stick struct {
 
 // Stringmute is The string-mute type represents string mute on and mute off symbols.
 type Stringmute struct {
-	Printstylealign *Printstylealign
+	Printstylealign
 	Optionaluniqueid
 	TypeAttr string `xml:"type,attr"`
 }
@@ -2154,8 +2154,8 @@ type Link struct {
 
 // Accidental is The accidental type represents actual notated accidentals. Editorial and cautionary indications are indicated by attributes. Values for these attributes are "no" if not present. Specific graphic display such as parentheses, brackets, and size are controlled by the level-display attribute group.
 type Accidental struct {
-	Leveldisplay   *Leveldisplay
-	Printstyle     *Printstyle
+	Leveldisplay *Leveldisplay
+	Printstyle
 	CautionaryAttr string `xml:"cautionary,attr,omitempty"`
 	EditorialAttr  string `xml:"editorial,attr,omitempty"`
 	SmuflAttr      string `xml:"smufl,attr,omitempty"`
@@ -2165,8 +2165,8 @@ type Accidental struct {
 // Accidentalmark is An accidental-mark can be used as a separate notation or as part of an ornament. When used in an ornament, position and placement are relative to the ornament, not relative to the note.
 type Accidentalmark struct {
 	Leveldisplay *Leveldisplay
-	Printstyle   *Printstyle
-	Placement    *Placement
+	Printstyle
+	Placement
 	Optionaluniqueid
 	SmuflAttr string `xml:"smufl,attr,omitempty"`
 	Value     string `xml:",chardata"`
@@ -2174,8 +2174,8 @@ type Accidentalmark struct {
 
 // Arpeggiate is The arpeggiate type indicates that this note is part of an arpeggiated chord. The number attribute can be used to distinguish between two simultaneous chords arpeggiated separately (different numbers) or together (same number). The direction attribute is used if there is an arrow on the arpeggio sign. By default, arpeggios go from the lowest to highest note.  The length of the sign can be determined from the position attributes for the arpeggiate elements used with the top and bottom notes of the arpeggiated chord. If the unbroken attribute is set to yes, it indicates that the arpeggio continues onto another staff within the part. This serves as a hint to applications and is not required for cross-staff arpeggios.
 type Arpeggiate struct {
-	Position  *Position
-	Placement *Placement
+	Position *Position
+	Placement
 	ColorAttr Color `xml:"color,attr,omitempty"`
 	Optionaluniqueid
 	NumberAttr    int    `xml:"number,attr,omitempty"`
@@ -2207,8 +2207,8 @@ type Articulations struct {
 
 // Arrow is The arrow element represents an arrow used for a musical technical indication. It can represent both Unicode and SMuFL arrows. The presence of an arrowhead element indicates that only the arrowhead is displayed, not the arrow stem. The smufl attribute distinguishes different SMuFL glyphs that have an arrow appearance such as arrowBlackUp, guitarStrumUp, or handbellsSwingUp. The specified glyph should match the descriptive representation.
 type Arrow struct {
-	Printstyle     *Printstyle
-	Placement      *Placement
+	Printstyle
+	Placement
 	Smufl          *Smufl
 	Arrowdirection string `xml:"arrow-direction"`
 	Arrowstyle     string `xml:"arrow-style"`
@@ -2225,8 +2225,8 @@ type Assess struct {
 
 // Backup is The backup and forward elements are required to coordinate multiple voices in one part, including music on multiple staves. The backup type is generally used to move between voices and staves. Thus the backup element does not include voice or staff elements. Duration values should always be positive, and should not cross measure boundaries or mid-measure changes in the divisions value.
 type Backup struct {
-	Duration  string
-	Editorial *Editorial
+	Duration string
+	Editorial
 }
 
 // Beam is Beam values include begin, continue, end, forward hook, and backward hook. Up to eight concurrent beams are available to cover up to 1024th notes. Each beam in a note is represented with a separate beam element, starting with the eighth note beam using a number attribute of 1.
@@ -2247,27 +2247,27 @@ type Beam struct {
 
 // Bend is The with-bar element indicates that the bend is to be done at the bridge with a whammy or vibrato bar. The content of the element indicates how this should be notated. Content values of "scoop" and "dip" refer to the SMuFL guitarVibratoBarScoop and guitarVibratoBarDip glyphs.
 type Bend struct {
-	Printstyle *Printstyle
-	Bendsound  *Bendsound
-	ShapeAttr  string         `xml:"shape,attr,omitempty"`
-	Bendalter  float64        `xml:"bend-alter"`
-	Prebend    *Empty         `xml:"pre-bend"`
-	Release    *Release       `xml:"release"`
-	Withbar    *Placementtext `xml:"with-bar"`
+	Printstyle
+	Bendsound *Bendsound
+	ShapeAttr string         `xml:"shape,attr,omitempty"`
+	Bendalter float64        `xml:"bend-alter"`
+	Prebend   *Empty         `xml:"pre-bend"`
+	Release   *Release       `xml:"release"`
+	Withbar   *Placementtext `xml:"with-bar"`
 }
 
 // Breathmark is The breath-mark element indicates a place to take a breath.
 type Breathmark struct {
-	Printstyle *Printstyle
-	Placement  *Placement
-	Value      string `xml:",chardata"`
+	Printstyle
+	Placement
+	Value string `xml:",chardata"`
 }
 
 // Caesura is The caesura element indicates a slight pause. It is notated using a "railroad tracks" symbol or other variations specified in the element content.
 type Caesura struct {
-	Printstyle *Printstyle
-	Placement  *Placement
-	Value      string `xml:",chardata"`
+	Printstyle
+	Placement
+	Value string `xml:",chardata"`
 }
 
 // Elision is The elision type represents an elision between lyric syllables. The text content specifies the symbol used to display the elision. Common values are a no-break space (Unicode 00A0), an underscore (Unicode 005F), or an undertie (Unicode 203F). If the text content is empty, the smufl attribute is used to specify the symbol to use. Its value is a SMuFL canonical glyph name that starts with lyrics. The SMuFL attribute is ignored if the elision glyph is already specified by the text content. If neither text content nor a smufl attribute are present, the elision glyph is application-specific.
@@ -2284,8 +2284,8 @@ type Emptyline struct {
 	Linetype         string
 	Linelength       string
 	Dashedformatting *Dashedformatting
-	Printstyle       *Printstyle
-	Placement        *Placement
+	Printstyle
+	Placement
 }
 
 // Extend is The extend type represents lyric word extension / melisma lines as well as figured bass extensions. The optional type and position attributes are added in Version 3.0 to provide better formatting control.
@@ -2297,7 +2297,7 @@ type Extend struct {
 
 // Figure is Values for the suffix element include plus and the accidental values sharp, flat, natural, double-sharp, flat-flat, and sharp-sharp. Suffixes include both symbols that come after the figure number and those that overstrike the figure number. The suffix values slash, back-slash, and vertical are used for slashed numbers indicating chromatic alteration. The orientation and display of the slash usually depends on the figure number. The suffix element may contain additional values for symbols specific to particular figured bass styles.
 type Figure struct {
-	Editorial    *Editorial
+	Editorial
 	Prefix       *Styletext `xml:"prefix"`
 	Figurenumber *Styletext `xml:"figure-number"`
 	Suffix       *Styletext `xml:"suffix"`
@@ -2308,28 +2308,28 @@ type Figure struct {
 //
 // Figures are ordered from top to bottom. The value of parentheses is "no" if not present.
 type Figuredbass struct {
-	Printstylealign *Printstylealign
-	Placement       *Placement
-	Printout        *Printout
+	Printstylealign
+	Placement
+	Printout *Printout
 	Optionaluniqueid
 	ParenthesesAttr string `xml:"parentheses,attr,omitempty"`
 	Duration        string
-	Editorial       *Editorial
-	Figure          []*Figure `xml:"figure"`
+	Editorial
+	Figure []*Figure `xml:"figure"`
 }
 
 // Forward is The backup and forward elements are required to coordinate multiple voices in one part, including music on multiple staves. The forward element is generally used within voices and staves. Duration values should always be positive, and should not cross measure boundaries or mid-measure changes in the divisions value.
 type Forward struct {
-	Duration       string
-	Editorialvoice *Editorialvoice
-	Staff          *Staff
+	Duration string
+	Editorialvoice
+	Staff
 }
 
 // Glissando is Glissando and slide types both indicate rapidly moving from one pitch to the other so that individual notes are not discerned. A glissando sounds the distinct notes in between the two pitches and defaults to a wavy line. The optional text is printed alongside the line.
 type Glissando struct {
 	Linetype         string
 	Dashedformatting *Dashedformatting
-	Printstyle       *Printstyle
+	Printstyle
 	Optionaluniqueid
 	TypeAttr   string `xml:"type,attr"`
 	NumberAttr int    `xml:"number,attr,omitempty"`
@@ -2346,8 +2346,8 @@ type Grace struct {
 
 // Hammeronpulloff is The hammer-on and pull-off elements are used in guitar and fretted instrument notation. Since a single slur can be marked over many notes, the hammer-on and pull-off elements are separate so the individual pair of notes can be specified. The element content can be used to specify how the hammer-on or pull-off should be notated. An empty element leaves this choice up to the application.
 type Hammeronpulloff struct {
-	Printstyle *Printstyle
-	Placement  *Placement
+	Printstyle
+	Placement
 	TypeAttr   string `xml:"type,attr"`
 	NumberAttr int    `xml:"number,attr,omitempty"`
 	Value      string `xml:",chardata"`
@@ -2355,9 +2355,9 @@ type Hammeronpulloff struct {
 
 // Handbell is The handbell element represents notation for various techniques used in handbell and handchime music.
 type Handbell struct {
-	Printstyle *Printstyle
-	Placement  *Placement
-	Value      string `xml:",chardata"`
+	Printstyle
+	Placement
+	Value string `xml:",chardata"`
 }
 
 // Harmonclosed is The harmon-closed type represents whether the harmon mute is closed, open, or half-open. The optional location attribute indicates which portion of the symbol is filled in when the element value is half.
@@ -2368,16 +2368,16 @@ type Harmonclosed struct {
 
 // Harmonmute is The harmon-mute type represents the symbols used for harmon mutes in brass notation.
 type Harmonmute struct {
-	Printstyle   *Printstyle
-	Placement    *Placement
+	Printstyle
+	Placement
 	Harmonclosed *Harmonclosed `xml:"harmon-closed"`
 }
 
 // Harmonic is The sounding-pitch is the pitch which is heard when playing the harmonic.
 type Harmonic struct {
-	Printobject   *Printobject
-	Printstyle    *Printstyle
-	Placement     *Placement
+	Printobject
+	Printstyle
+	Placement
 	Natural       *Empty `xml:"natural"`
 	Artificial    *Empty `xml:"artificial"`
 	Basepitch     *Empty `xml:"base-pitch"`
@@ -2393,8 +2393,8 @@ type Heeltoe struct {
 
 // Hole is The optional hole-shape element indicates the shape of the hole symbol; the default is a circle.
 type Hole struct {
-	Printstyle *Printstyle
-	Placement  *Placement
+	Printstyle
+	Placement
 	Holetype   string      `xml:"hole-type"`
 	Holeclosed *Holeclosed `xml:"hole-closed"`
 	Holeshape  string      `xml:"hole-shape"`
@@ -2420,16 +2420,16 @@ type Listen struct {
 
 // Lyric is The end-paragraph element comes from RP-017 for Standard MIDI File Lyric meta-events. It facilitates lyric display for Karaoke and similar applications.
 type Lyric struct {
-	Justify     *Justify
-	Position    *Position
-	Placement   *Placement
-	ColorAttr   Color `xml:"color,attr,omitempty"`
-	Printobject *Printobject
+	Justify  *Justify
+	Position *Position
+	Placement
+	ColorAttr Color `xml:"color,attr,omitempty"`
+	Printobject
 	Optionaluniqueid
 	NumberAttr   string `xml:"number,attr,omitempty"`
 	NameAttr     string `xml:"name,attr,omitempty"`
 	TimeonlyAttr string `xml:"time-only,attr,omitempty"`
-	Editorial    *Editorial
+	Editorial
 	Syllabic     string           `xml:"syllabic"`
 	Text         *Textelementdata `xml:"text"`
 	Elision      *Elision         `xml:"elision"`
@@ -2450,8 +2450,8 @@ type Mordent struct {
 
 // Nonarpeggiate is The non-arpeggiate type indicates that this note is at the top or bottom of a bracket indicating to not arpeggiate these notes. Since this does not involve playback, it is only used on the top or bottom notes, not on each note as for the arpeggiate type.
 type Nonarpeggiate struct {
-	Position  *Position
-	Placement *Placement
+	Position *Position
+	Placement
 	ColorAttr Color `xml:"color,attr,omitempty"`
 	Optionaluniqueid
 	TypeAttr   string `xml:"type,attr"`
@@ -2460,9 +2460,9 @@ type Nonarpeggiate struct {
 
 // Notations is Notations refer to musical notations, not XML notations. Multiple notations are allowed in order to represent multiple editorial levels. The print-object attribute, added in Version 3.0, allows notations to represent details of performance technique, such as fingerings, without having them appear in the score.
 type Notations struct {
-	Printobject *Printobject
+	Printobject
 	Optionaluniqueid
-	Editorial      *Editorial
+	Editorial
 	Tied           []*Tied           `xml:"tied"`
 	Slur           []*Slur           `xml:"slur"`
 	Tuplet         []*Tuplet         `xml:"tuplet"`
@@ -2566,10 +2566,10 @@ type Ornaments struct {
 
 // Othernotation is The other-notation type is used to define any notations not yet in the MusicXML format. It handles notations where more specific extension elements such as other-dynamics and other-technical are not appropriate. The smufl attribute can be used to specify a particular notation, allowing application interoperability without requiring every SMuFL glyph to have a MusicXML element equivalent. Using the other-notation type without the smufl attribute allows for extended representation, though without application interoperability.
 type Othernotation struct {
-	Printobject *Printobject
-	Printstyle  *Printstyle
-	Placement   *Placement
-	Smufl       *Smufl
+	Printobject
+	Printstyle
+	Placement
+	Smufl *Smufl
 	Optionaluniqueid
 	TypeAttr   string `xml:"type,attr"`
 	NumberAttr int    `xml:"number,attr,omitempty"`
@@ -2578,10 +2578,10 @@ type Othernotation struct {
 
 // Otherplacementtext is The other-placement-text type represents a text element with print-style, placement, and smufl attribute groups. This type is used by MusicXML notation extension elements to allow specification of specific SMuFL glyphs without needed to add every glyph as a MusicXML element.
 type Otherplacementtext struct {
-	Printstyle *Printstyle
-	Placement  *Placement
-	Smufl      *Smufl
-	Value      string `xml:",chardata"`
+	Printstyle
+	Placement
+	Smufl *Smufl
+	Value string `xml:",chardata"`
 }
 
 // Othertext is The other-text type represents a text element with a smufl attribute group. This type is used by MusicXML direction extension elements to allow specification of specific SMuFL glyphs without needed to add every glyph as a MusicXML element.
@@ -2599,9 +2599,9 @@ type Pitch struct {
 
 // Placementtext is The placement-text type represents a text element with print-style and placement attribute groups.
 type Placementtext struct {
-	Printstyle *Printstyle
-	Placement  *Placement
-	Value      string `xml:",chardata"`
+	Printstyle
+	Placement
+	Value string `xml:",chardata"`
 }
 
 // Release is The release type indicates that a bend is a release rather than a normal bend or pre-bend. The offset attribute specifies where the release starts in terms of divisions relative to the current note. The first-beat and last-beat attributes of the parent bend element are relative to the original note position, not this offset value.
@@ -2620,8 +2620,8 @@ type Rest struct {
 type Slide struct {
 	Linetype         string
 	Dashedformatting *Dashedformatting
-	Printstyle       *Printstyle
-	Bendsound        *Bendsound
+	Printstyle
+	Bendsound *Bendsound
 	Optionaluniqueid
 	TypeAttr   string `xml:"type,attr"`
 	NumberAttr int    `xml:"number,attr,omitempty"`
@@ -2633,10 +2633,10 @@ type Slur struct {
 	Linetype         string
 	Dashedformatting *Dashedformatting
 	Position         *Position
-	Placement        *Placement
-	Orientation      *Orientation
-	Bezier           *Bezier
-	ColorAttr        Color `xml:"color,attr,omitempty"`
+	Placement
+	Orientation *Orientation
+	Bezier      *Bezier
+	ColorAttr   Color `xml:"color,attr,omitempty"`
 	Optionaluniqueid
 	TypeAttr   string `xml:"type,attr"`
 	NumberAttr int    `xml:"number,attr,omitempty"`
@@ -2657,16 +2657,16 @@ type Strongaccent struct {
 
 // Styletext is The style-text type represents a text element with a print-style attribute group.
 type Styletext struct {
-	Printstyle *Printstyle
-	Value      string `xml:",chardata"`
+	Printstyle
+	Value string `xml:",chardata"`
 }
 
 // Tap is The tap type indicates a tap on the fretboard. The text content allows specification of the notation; + and T are common choices. If the element is empty, the hand attribute is used to specify the symbol to use. The hand attribute is ignored if the tap glyph is already specified by the text content. If neither text content nor the hand attribute are present, the display is application-specific.
 type Tap struct {
-	Printstyle *Printstyle
-	Placement  *Placement
-	HandAttr   string `xml:"hand,attr,omitempty"`
-	Value      string `xml:",chardata"`
+	Printstyle
+	Placement
+	HandAttr string `xml:"hand,attr,omitempty"`
+	Value    string `xml:",chardata"`
 }
 
 // Technical is The other-technical element is used to define any technical indications not yet in the MusicXML format. The smufl attribute can be used to specify a particular glyph, allowing application interoperability without requiring every SMuFL technical indication to have a MusicXML element equivalent. Using the other-technical element without the smufl attribute allows for extended representation, though without application interoperability.
@@ -2736,10 +2736,10 @@ type Tied struct {
 	Linetype         string
 	Dashedformatting *Dashedformatting
 	Position         *Position
-	Placement        *Placement
-	Orientation      *Orientation
-	Bezier           *Bezier
-	ColorAttr        Color `xml:"color,attr,omitempty"`
+	Placement
+	Orientation *Orientation
+	Bezier      *Bezier
+	ColorAttr   Color `xml:"color,attr,omitempty"`
 	Optionaluniqueid
 	TypeAttr   string `xml:"type,attr"`
 	NumberAttr int    `xml:"number,attr,omitempty"`
@@ -2761,18 +2761,18 @@ type Timemodification struct {
 //
 // Using repeater beams for indicating tremolos is deprecated as of MusicXML 3.0.
 type Tremolo struct {
-	Printstyle *Printstyle
-	Placement  *Placement
-	Smufl      *Smufl
-	TypeAttr   string `xml:"type,attr,omitempty"`
-	Value      int    `xml:",chardata"`
+	Printstyle
+	Placement
+	Smufl    *Smufl
+	TypeAttr string `xml:"type,attr,omitempty"`
+	Value    int    `xml:",chardata"`
 }
 
 // Tuplet is The tuplet-normal element provide optional full control over how the normal part of the tuplet is displayed, including number and note type (with dots). If any of these elements are absent, their values are based on the time-modification element.
 type Tuplet struct {
 	Lineshape string
 	Position  *Position
-	Placement *Placement
+	Placement
 	Optionaluniqueid
 	TypeAttr       string         `xml:"type,attr"`
 	NumberAttr     int            `xml:"number,attr,omitempty"`
@@ -2903,9 +2903,9 @@ type Opus struct {
 
 // Partgroup is The group-time element indicates that the displayed time signatures should stretch across all parts and staves in the group.
 type Partgroup struct {
-	TypeAttr                 string `xml:"type,attr"`
-	NumberAttr               string `xml:"number,attr,omitempty"`
-	Editorial                *Editorial
+	TypeAttr   string `xml:"type,attr"`
+	NumberAttr string `xml:"number,attr,omitempty"`
+	Editorial
 	Groupname                *Groupname    `xml:"group-name"`
 	Groupnamedisplay         *Namedisplay  `xml:"group-name-display"`
 	Groupabbreviation        *Groupname    `xml:"group-abbreviation"`
@@ -3055,13 +3055,13 @@ type Beatunit struct {
 
 // Harmonychord ...
 type Harmonychord struct {
-	Root      *Root
-	Numeral   *Numeral
-	Function  *Styletext
-	Kind      *Kind
-	Inversion *Inversion
-	Bass      *Bass
-	Degree    []*Degree
+	Root      *Root      `xml:"root,omitempty"`
+	Numeral   *Numeral   `xml:"numeral,omitempty"`
+	Function  *Styletext `xml:"function,omitempty"`
+	Kind      *Kind      `xml:"kind,omitempty"`
+	Inversion *Inversion `xml:"inversion,omitempty"`
+	Bass      *Bass      `xml:"bass,omitempty"`
+	Degree    []*Degree  `xml:"degree,omitempty"`
 }
 
 // Allmargins ...
@@ -3075,7 +3075,7 @@ type Allmargins struct {
 type Layout struct {
 	Pagelayout   *Pagelayout
 	Systemlayout *Systemlayout `xml:"system-layout,omitempty"`
-	Stafflayout  []*Stafflayout
+	Stafflayout  []Stafflayout
 }
 
 // Leftrightmargins ...
