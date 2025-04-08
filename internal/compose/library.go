@@ -137,7 +137,7 @@ func defaultMetronome() *musicxml.Metronome {
 		Perminute: &musicxml.Perminute{
 			Value: "82",
 		},
-		Beatunit: &musicxml.Beatunit{
+		Beatunit: musicxml.Beatunit{
 			Beatunit: "quarter",
 		},
 	}

@@ -1684,15 +1684,15 @@ type Metal struct {
 type Metronome struct {
 	Printstylealign
 	Printobject
-	Justify           *Justify
-	Optionaluniqueid  *Optionaluniqueid
-	ParenthesesAttr   string `xml:"parentheses,attr,omitempty"`
-	Beatunit          *Beatunit
+	Justify          *Justify
+	Optionaluniqueid *Optionaluniqueid
+	ParenthesesAttr  string `xml:"parentheses,attr,omitempty"`
+	Beatunit
 	Beatunittied      []*Beatunittied  `xml:"beat-unit-tied"`
 	Perminute         *Perminute       `xml:"per-minute"`
 	Metronomearrows   *Empty           `xml:"metronome-arrows"`
 	Metronomenote     []*Metronomenote `xml:"metronome-note"`
-	Metronomerelation string           `xml:"metronome-relation"`
+	Metronomerelation string           `xml:"metronome-relation,omitempty"`
 }
 
 // Metronomebeam is The metronome-beam type works like the beam type in defining metric relationships, but does not include all the attributes available in the beam type.
@@ -3049,8 +3049,8 @@ type Traditionalkey struct {
 
 // Beatunit ...
 type Beatunit struct {
-	Beatunit    string
-	Beatunitdot []*Empty
+	Beatunit    string   `xml:"beat-unit"`
+	Beatunitdot []*Empty `xml:"beat-unit-dot,omitempty"`
 }
 
 // Harmonychord ...
