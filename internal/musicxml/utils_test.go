@@ -444,7 +444,7 @@ func TestApplyBeforeFirstNote(t *testing.T) {
 		},
 	} {
 		t.Run(test.desc, func(t *testing.T) {
-			applyBeforeFirstNote(test.measure, test.name, fn)
+			applyBeforeFirstNote(test.measure, test.name, true, fn)
 			hasApplied := false
 			for _, element := range test.measure.MusicDataElements {
 				if element.Note != nil {

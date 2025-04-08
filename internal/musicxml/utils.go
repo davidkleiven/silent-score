@@ -187,11 +187,11 @@ func setSystemText(element *MusicDataElement, text string) {
 }
 
 func SetTempoAtBeginning(measure *Measure, metronome *Metronome) {
-	applyBeforeFirstNote(measure, "direction", func(m *MusicDataElement) { setTempo(m, metronome) })
+	applyBeforeFirstNote(measure, "direction", false, func(m *MusicDataElement) { setTempo(m, metronome) })
 }
 
 func SetSystemTextAtBeginning(measure *Measure, text string) {
-	applyBeforeFirstNote(measure, "direction", func(m *MusicDataElement) { setSystemText(m, text) })
+	applyBeforeFirstNote(measure, "direction", true, func(m *MusicDataElement) { setSystemText(m, text) })
 }
 
 func setTimeSignature(element *MusicDataElement, timeSignature *Timesignature) {
@@ -200,10 +200,10 @@ func setTimeSignature(element *MusicDataElement, timeSignature *Timesignature) {
 }
 
 func SetTimeSignatureAtBeginning(measure *Measure, timeSignature *Timesignature) {
-	applyBeforeFirstNote(measure, "attributes", func(m *MusicDataElement) { setTimeSignature(m, timeSignature) })
+	applyBeforeFirstNote(measure, "attributes", true, func(m *MusicDataElement) { setTimeSignature(m, timeSignature) })
 }
 
-func applyBeforeFirstNote(measure *Measure, name string, fn func(m *MusicDataElement)) {
+func applyBeforeFirstNote(measure *Measure, name string, reuseExisting bool, fn func(m *MusicDataElement)) {
 	for i, element := range measure.MusicDataElements {
 		if element.Note != nil {
 			newElement := MusicDataElement{XMLName: xml.Name{Local: name}}
@@ -212,7 +212,7 @@ func applyBeforeFirstNote(measure *Measure, name string, fn func(m *MusicDataEle
 			measure.MusicDataElements = append(newElements, measure.MusicDataElements[i:]...)
 			return
 		}
-		if element.XMLName.Local == name {
+		if element.XMLName.Local == name && reuseExisting {
 			fn(&measure.MusicDataElements[i])
 			return
 		}
