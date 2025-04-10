@@ -155,6 +155,23 @@ func FileNameFromScore(score *Scorepartwise) string {
 	return "silent-score.musicxml"
 }
 
+func SetTempoAtBeginning(measure *Measure, metronome *Metronome) {
+	applyBeforeFirstNote(measure, "direction", false, func(m *MusicDataElement) { setTempo(m, metronome) })
+}
+
+func SetSystemTextAtBeginning(measure *Measure, text string) {
+	applyBeforeFirstNote(measure, "direction", true, func(m *MusicDataElement) { setSystemText(m, text) })
+}
+
+func setTimeSignature(element *MusicDataElement, timeSignature *Timesignature) {
+	ensureAttributes(element)
+	element.Attributes.Time = []*Timesignature{timeSignature}
+}
+
+func SetTimeSignatureAtBeginning(measure *Measure, timeSignature *Timesignature) {
+	applyBeforeFirstNote(measure, "attributes", true, func(m *MusicDataElement) { setTimeSignature(m, timeSignature) })
+}
+
 func setTempo(element *MusicDataElement, metronome *Metronome) {
 	ensureDirection(element)
 	metronomeIsSet := false
@@ -185,23 +202,6 @@ func ensureAttributes(m *MusicDataElement) {
 func setSystemText(element *MusicDataElement, text string) {
 	ensureDirection(element)
 	element.Direction.Directiontype = append(element.Direction.Directiontype, &Directiontype{Words: []*Formattedtextid{{Value: text}}})
-}
-
-func SetTempoAtBeginning(measure *Measure, metronome *Metronome) {
-	applyBeforeFirstNote(measure, "direction", false, func(m *MusicDataElement) { setTempo(m, metronome) })
-}
-
-func SetSystemTextAtBeginning(measure *Measure, text string) {
-	applyBeforeFirstNote(measure, "direction", true, func(m *MusicDataElement) { setSystemText(m, text) })
-}
-
-func setTimeSignature(element *MusicDataElement, timeSignature *Timesignature) {
-	ensureAttributes(element)
-	element.Attributes.Time = []*Timesignature{timeSignature}
-}
-
-func SetTimeSignatureAtBeginning(measure *Measure, timeSignature *Timesignature) {
-	applyBeforeFirstNote(measure, "attributes", true, func(m *MusicDataElement) { setTimeSignature(m, timeSignature) })
 }
 
 func applyBeforeFirstNote(measure *Measure, name string, reuseExisting bool, fn func(m *MusicDataElement)) {
