@@ -80,8 +80,8 @@ func generateRandomAttributes() *rapid.Generator[*Attributes] {
 func generateRandomTimesignature() *rapid.Generator[*Timesignature] {
 	return rapid.Custom(func(t *rapid.T) *Timesignature {
 		return &Timesignature{
-			Beats:    strconv.Itoa(rapid.IntRange(1, 4).Draw(t, "BeatsAttr")),
-			Beattype: strconv.Itoa(rapid.IntRange(2, 8).Draw(t, "Beattype")),
+			Beats:    rapid.IntRange(1, 4).Draw(t, "BeatsAttr"),
+			Beattype: rapid.IntRange(2, 8).Draw(t, "Beattype"),
 		}
 	})
 }
@@ -90,7 +90,7 @@ func generateRandomMetronome() *rapid.Generator[*Metronome] {
 	metronome := rapid.Custom(func(t *rapid.T) *Metronome {
 		return &Metronome{
 			Perminute: &Perminute{
-				Value: strconv.Itoa(rapid.IntRange(40, 200).Draw(t, "PerminuteValue")),
+				Value: rapid.IntRange(40, 200).Draw(t, "PerminuteValue"),
 			},
 		}
 	})

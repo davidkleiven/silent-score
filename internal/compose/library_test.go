@@ -100,18 +100,43 @@ func TestStandardLibraryErrorOnOpen(t *testing.T) {
 	}
 }
 
-func TestBeatsPerMinute(t *testing.T) {
+func TestUnitPerBeat(t *testing.T) {
 	for _, test := range []struct {
-		tempo    string
-		expected int
+		metronome     *musicxml.Metronome
+		timesignature *musicxml.Timesignature
+		expectedUnit  int
+		expectedNum   int
+		desc          string
 	}{
-		{tempo: "76", expected: 76},
-		{tempo: "Allegro", expected: defaultBpm},
+		{
+			metronome:     &musicxml.Metronome{Beatunit: musicxml.Beatunit{Beatunit: "quarter"}},
+			timesignature: &musicxml.Timesignature{Beats: 4, Beattype: 4},
+			expectedUnit:  4,
+			expectedNum:   1,
+			desc:          "4/4 time with quarter note",
+		},
+		{
+			metronome:     &musicxml.Metronome{Beatunit: musicxml.Beatunit{Beatunit: "eighth"}},
+			timesignature: &musicxml.Timesignature{Beats: 12, Beattype: 8},
+			expectedUnit:  8,
+			expectedNum:   1,
+			desc:          "12/8 one beat per 8th note",
+		},
+		{
+			metronome:     &musicxml.Metronome{Beatunit: musicxml.Beatunit{Beatunit: "quarter", Beatunitdot: []*musicxml.Empty{{}}}},
+			timesignature: &musicxml.Timesignature{Beats: 12, Beattype: 8},
+			expectedUnit:  8,
+			expectedNum:   3,
+			desc:          "12/8 one beat per 8th note",
+		},
 	} {
-		t.Run(test.tempo, func(t *testing.T) {
-			result := beatsPerMinutes(test.tempo)
-			if result != test.expected {
-				t.Errorf("Expected %d, got %d", test.expected, result)
+		t.Run(test.desc, func(t *testing.T) {
+			unit, num := unitsPerBeat(test.metronome)
+			if unit != test.expectedUnit {
+				t.Errorf("Expected unit %d, got %d", test.expectedUnit, unit)
+			}
+			if num != test.expectedNum {
+				t.Errorf("Expected num %d, got %d", test.expectedNum, num)
 			}
 		})
 	}

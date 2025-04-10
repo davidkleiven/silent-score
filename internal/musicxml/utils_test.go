@@ -6,7 +6,6 @@ import (
 	"errors"
 	"io/fs"
 	"os"
-	"strconv"
 	"testing"
 )
 
@@ -299,7 +298,7 @@ func TestTempoAtBeginning(t *testing.T) {
 		},
 	} {
 		t.Run(test.desc, func(t *testing.T) {
-			metronome := Metronome{Perminute: &Perminute{Value: strconv.Itoa(test.tempo)}}
+			metronome := Metronome{Perminute: &Perminute{Value: test.tempo}}
 			SetTempoAtBeginning(test.measure, &metronome)
 			hasTempo := false
 			for _, element := range test.measure.MusicDataElements {
@@ -309,7 +308,7 @@ func TestTempoAtBeginning(t *testing.T) {
 				if element.Direction != nil {
 					for _, dirType := range element.Direction.Directiontype {
 						if dirType.Metronome != nil && dirType.Metronome.Perminute != nil {
-							if dirType.Metronome.Perminute.Value == strconv.Itoa(test.tempo) {
+							if dirType.Metronome.Perminute.Value == test.tempo {
 								hasTempo = true
 							}
 						}
@@ -375,12 +374,12 @@ func TestSetTimeSignatureAtBeginning(t *testing.T) {
 		desc          string
 	}{
 		{
-			timeSignature: &Timesignature{Beats: "4", Beattype: "4"},
+			timeSignature: &Timesignature{Beats: 4, Beattype: 4},
 			measure:       &Measure{},
 			desc:          "Bar without elements",
 		},
 		{
-			timeSignature: &Timesignature{Beats: "4", Beattype: "4"},
+			timeSignature: &Timesignature{Beats: 4, Beattype: 4},
 			measure: &Measure{
 				MusicDataElements: []MusicDataElement{
 					{XMLName: xml.Name{Local: "attributes"}},
@@ -461,4 +460,47 @@ func TestApplyBeforeFirstNote(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestApplyBeforeFirstNoteNoteNotRemoved(t *testing.T) {
+	measure := &Measure{
+		MusicDataElements: []MusicDataElement{
+			{XMLName: xml.Name{Local: "direction"}},
+			{XMLName: xml.Name{Local: "note"}, Note: &Note{}},
+			{XMLName: xml.Name{Local: "direction"}},
+		},
+	}
+
+	fn := func(m *MusicDataElement) { m.XMLName.Local = "modified" }
+	applyBeforeFirstNote(measure, "attributes", false, fn)
+	if len(measure.MusicDataElements) != 4 {
+		t.Errorf("Element not added")
+	}
+
+	if measure.MusicDataElements[2].Note == nil {
+		t.Errorf("Note does not appear in the right place")
+	}
+
+}
+
+func TestSetTempoWithExistingMetronome(t *testing.T) {
+	tempo := 92
+	element := &MusicDataElement{
+		XMLName: xml.Name{Local: "direction"},
+		Direction: &Direction{
+			Directiontype: []*Directiontype{
+				{
+					Metronome: &Metronome{
+						Perminute: &Perminute{Value: 100},
+					},
+				},
+			},
+		},
+	}
+
+	setTempo(element, &Metronome{Perminute: &Perminute{Value: tempo}})
+	if element.Direction.Directiontype[0].Metronome.Perminute.Value != tempo {
+		t.Errorf("Tempo not set correctly, expected %d, got %d", tempo, element.Direction.Directiontype[0].Metronome.Perminute.Value)
+	}
+
 }

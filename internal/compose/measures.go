@@ -51,12 +51,25 @@ type sceneSection struct {
 }
 
 func sectionForScene(duration time.Duration, targetTempo float64, beatsPerMeasure int, sections []section) sceneSection {
-	targetNumberOfMeasures := duration.Minutes() * targetTempo / float64(beatsPerMeasure)
+	targetNumberOfMeasures := int(duration.Minutes() * targetTempo / float64(beatsPerMeasure))
 	currentNum := 0
 	counter := 0
-	for currentNum < int(targetNumberOfMeasures) {
+	for range 1000 {
 		sectionIdx := counter % len(sections)
 		numBars := sections[sectionIdx].end - sections[sectionIdx].start
+
+		nextNum := currentNum + numBars
+		remaining := targetNumberOfMeasures - currentNum
+		overshooting := nextNum - targetNumberOfMeasures
+		if nextNum > targetNumberOfMeasures {
+			if remaining < overshooting {
+				break
+			} else {
+				currentNum = nextNum
+				break
+			}
+		}
+
 		currentNum += numBars
 		counter += 1
 	}
@@ -78,8 +91,13 @@ func measuresForScene(measures []*musicxml.Measure, section sceneSection) []*mus
 	counter := 0
 
 	for len(result) < numToAdd {
-		for _, content := range chunks[counter%2] {
-			result = append(result, musicxml.MustDeepCopyMeasure(content))
+		currentChunk := chunks[counter%2]
+		end := len(currentChunk)
+		if len(result)+end > numToAdd {
+			end = numToAdd - len(result)
+		}
+		for i := range end {
+			result = append(result, musicxml.MustDeepCopyMeasure(currentChunk[i]))
 		}
 		counter += 1
 	}

@@ -2,7 +2,6 @@ package musicxml
 
 import (
 	"encoding/xml"
-	"strconv"
 )
 
 type MeasureOpt func(m *Measure)
@@ -29,7 +28,7 @@ type DirectionOpt func(d *Direction)
 
 func WithTempo(tempo int) DirectionOpt {
 	return func(d *Direction) {
-		dirType := Directiontype{Metronome: &Metronome{Perminute: &Perminute{Value: strconv.Itoa(tempo)}}}
+		dirType := Directiontype{Metronome: &Metronome{Perminute: &Perminute{Value: tempo}}}
 		d.Directiontype = append(d.Directiontype, &dirType)
 	}
 }

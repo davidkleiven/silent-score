@@ -66,8 +66,8 @@ func TestSectionForScene(t *testing.T) {
 	combinedSections := sectionForScene(time.Duration(2*60.0*1e9), 80, 4, sections)
 	want := sceneSection{
 		start: 0,
-		end:   48,
-		tempo: 96.0,
+		end:   36,
+		tempo: 72.0,
 	}
 
 	if combinedSections.start != want.start || combinedSections.end != want.end || math.Abs(combinedSections.tempo-want.tempo) > 1e-6 {

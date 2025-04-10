@@ -6,6 +6,7 @@ import (
 	"io/fs"
 	"log/slog"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -208,8 +209,7 @@ func applyBeforeFirstNote(measure *Measure, name string, reuseExisting bool, fn 
 		if element.Note != nil {
 			newElement := MusicDataElement{XMLName: xml.Name{Local: name}}
 			fn(&newElement)
-			newElements := append(measure.MusicDataElements[:i], newElement)
-			measure.MusicDataElements = append(newElements, measure.MusicDataElements[i:]...)
+			measure.MusicDataElements = slices.Insert(measure.MusicDataElements, i, newElement)
 			return
 		}
 		if element.XMLName.Local == name && reuseExisting {
