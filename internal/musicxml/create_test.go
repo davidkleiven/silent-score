@@ -12,8 +12,8 @@ func TestWithRehersalMark(t *testing.T) {
 
 func TestDirection(t *testing.T) {
 	direction := NewDirection(WithTempo(127))
-	if tempo := direction.Directiontype[0].Metronome.Perminute.Value; tempo != "127" {
-		t.Errorf("Wanted 127 got %s", tempo)
+	if tempo := direction.Directiontype[0].Metronome.Perminute.Value; tempo != 127 {
+		t.Errorf("Wanted 127 got %d", tempo)
 	}
 }
 

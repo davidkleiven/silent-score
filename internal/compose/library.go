@@ -21,6 +21,16 @@ const (
 	defaultBpm   = 4
 )
 
+var beatUnitMap = map[string]int{
+	"quarter": 4,
+	"eighth":  8,
+	"half":    2,
+	"whole":   1,
+	"16th":    16,
+	"32nd":    32,
+	"64th":    64,
+}
+
 type Library interface {
 	BestMatch(desc string) *musicxml.Scorepartwise
 }
@@ -127,7 +137,7 @@ func tempoIfGiven(tempo int, measures []*musicxml.Measure) *musicxml.Metronome {
 	}
 
 	if tempo > 0 {
-		metronome.Perminute.Value = strconv.Itoa(tempo)
+		metronome.Perminute.Value = tempo
 	}
 	return metronome
 }
@@ -135,7 +145,7 @@ func tempoIfGiven(tempo int, measures []*musicxml.Measure) *musicxml.Metronome {
 func defaultMetronome() *musicxml.Metronome {
 	return &musicxml.Metronome{
 		Perminute: &musicxml.Perminute{
-			Value: "82",
+			Value: 82,
 		},
 		Beatunit: musicxml.Beatunit{
 			Beatunit: "quarter",
@@ -143,7 +153,7 @@ func defaultMetronome() *musicxml.Metronome {
 	}
 }
 
-func beatsPerMeasure(measures []*musicxml.Measure) *musicxml.Timesignature {
+func timesignature(measures []*musicxml.Measure) *musicxml.Timesignature {
 	for _, measure := range measures {
 		if measure != nil {
 			for _, element := range measure.MusicDataElements {
@@ -158,8 +168,8 @@ func beatsPerMeasure(measures []*musicxml.Measure) *musicxml.Timesignature {
 		}
 	}
 	return &musicxml.Timesignature{
-		Beats:    "4",
-		Beattype: "4",
+		Beats:    4,
+		Beattype: 4,
 	}
 }
 
@@ -205,19 +215,14 @@ func pickMeasures(library Library, records []db.ProjectContentRecord) selection 
 		if piece != nil {
 			if len(piece.Part) > 0 {
 				sections := pieceSections(piece.Part[0].Measure)
-				timeSignature := beatsPerMeasure(piece.Part[0].Measure)
-				beatsInTimeSig := beatsPerMinutes(timeSignature.Beats)
+				slog.Info("Extracted sections", "title", title(piece), "num-sections", len(sections))
+				timeSignature := timesignature(piece.Part[0].Measure)
 				metronome := tempoIfGiven(int(record.Tempo), piece.Part[0].Measure)
-				tempo, err := strconv.Atoi(metronome.Perminute.Value)
-				if err != nil {
-					slog.Warn("Using default of 82 when picking tempo.", "error", err)
-					tempo = defaultTempo
-				}
-
-				sceneSection := sectionForScene(time.Duration(record.DurationSec)*time.Second, float64(tempo), beatsInTimeSig, sections)
+				beatsInTimeSig := beatsPerMeasure(timeSignature, metronome)
+				sceneSection := sectionForScene(time.Duration(record.DurationSec)*time.Second, float64(metronome.Perminute.Value), beatsInTimeSig, sections)
 
 				// Update tempo with result from scence selection
-				metronome.Perminute.Value = strconv.Itoa(int(sceneSection.tempo))
+				metronome.Perminute.Value = int(sceneSection.tempo)
 				measuresForScene := measuresForScene(piece.Part[0].Measure, sceneSection)
 				clearTempoMarkings(measuresForScene)
 
@@ -231,8 +236,8 @@ func pickMeasures(library Library, records []db.ProjectContentRecord) selection 
 					"keywords", record.Keywords,
 					"sceneDesc", record.SceneDesc,
 					"title", title(piece),
-					"timeSignature", fmt.Sprintf("%s/%s", timeSignature.Beats, timeSignature.Beattype),
-					"tempo", tempo,
+					"timeSignature", fmt.Sprintf("%d/%d", timeSignature.Beats, timeSignature.Beattype),
+					"tempo", metronome.Perminute.Value,
 				)
 			}
 		}
@@ -272,11 +277,22 @@ func CreateComposition(library Library, project *db.Project) *musicxml.Scorepart
 	return &composition
 }
 
-func beatsPerMinutes(beats string) int {
-	beatsInTimeSig, err := strconv.Atoi(beats)
-	if err != nil {
-		slog.Warn("Using default of 4 when picking tempo.", "error", err)
-		beatsInTimeSig = defaultBpm
+func beatsPerMeasure(timesignature *musicxml.Timesignature, metronome *musicxml.Metronome) int {
+	unit, num := unitsPerBeat(metronome)
+	return timesignature.Beats * unit / (timesignature.Beattype * num)
+}
+
+func unitsPerBeat(metronome *musicxml.Metronome) (int, int) {
+	unit, ok := beatUnitMap[metronome.Beatunit.Beatunit]
+	if !ok {
+		slog.Warn("Unknown beat unit. Ensure tempo mark is given in the score", "unit", metronome.Beatunit.Beatunit)
+		unit = 4
 	}
-	return beatsInTimeSig
+	num := 1
+	for _ = range metronome.Beatunit.Beatunitdot {
+		unit *= 2
+		num *= 2
+		num++
+	}
+	return unit, num
 }

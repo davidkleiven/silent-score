@@ -1799,7 +1799,7 @@ type Pedaltuning struct {
 // Perminute is The per-minute type can be a number, or a text description including numbers. If a font is specified, it overrides the font specified for the overall metronome element. This allows separate specification of a music font for the beat-unit and a text font for the numeric value, in cases where a single metronome font is not used.
 type Perminute struct {
 	Font  *Font
-	Value string `xml:",chardata"`
+	Value int `xml:",chardata"`
 }
 
 // Percussion is The other-percussion element represents percussion pictograms not defined elsewhere.
@@ -3036,8 +3036,8 @@ type Nontraditionalkey struct {
 
 // Timesignature ...
 type Timesignature struct {
-	Beats    string `xml:"beats"`
-	Beattype string `xml:"beat-type"`
+	Beats    int `xml:"beats"`
+	Beattype int `xml:"beat-type"`
 }
 
 // Traditionalkey ...
