@@ -45,61 +45,47 @@ func pieceSections(measures []*musicxml.Measure) []section {
 }
 
 type sceneSection struct {
-	start int
-	end   int
-	tempo float64
+	sections []section
+	tempo    float64
 }
 
 func sectionForScene(duration time.Duration, targetTempo float64, beatsPerMeasure int, sections []section) sceneSection {
 	targetNumberOfMeasures := int(duration.Minutes() * targetTempo / float64(beatsPerMeasure))
 	currentNum := 0
-	counter := 0
-	for range 1000 {
-		sectionIdx := counter % len(sections)
+	var chosenSections []section
+	for i := range 1000 {
+		sectionIdx := i % len(sections)
 		numBars := sections[sectionIdx].end - sections[sectionIdx].start
 
 		nextNum := currentNum + numBars
 		remaining := targetNumberOfMeasures - currentNum
 		overshooting := nextNum - targetNumberOfMeasures
-		if nextNum > targetNumberOfMeasures {
-			if remaining < overshooting {
-				break
-			} else {
-				currentNum = nextNum
-				break
-			}
+
+		if overshooting < remaining {
+			chosenSections = append(chosenSections, sections[sectionIdx])
+			currentNum += numBars
 		}
 
-		currentNum += numBars
-		counter += 1
+		if nextNum > targetNumberOfMeasures {
+			break
+		}
 	}
 	return sceneSection{
-		start: sections[0].start,
-		end:   currentNum,
-		tempo: float64(beatsPerMeasure) * float64(currentNum) / duration.Minutes(),
+		sections: chosenSections,
+		tempo:    float64(beatsPerMeasure) * float64(currentNum) / duration.Minutes(),
 	}
 }
 
 func measuresForScene(measures []*musicxml.Measure, section sceneSection) []*musicxml.Measure {
-	numToAdd := section.end - section.start
-	result := make([]*musicxml.Measure, 0, numToAdd)
-	if len(measures) == 0 || numToAdd == 0 {
+	var result []*musicxml.Measure
+	if len(measures) == 0 {
 		return result
 	}
-	chunks := [][]*musicxml.Measure{measures[section.start:], measures[:section.start]}
 
-	counter := 0
-
-	for len(result) < numToAdd {
-		currentChunk := chunks[counter%2]
-		end := len(currentChunk)
-		if len(result)+end > numToAdd {
-			end = numToAdd - len(result)
+	for _, section := range section.sections {
+		for i := section.start; i < section.end; i++ {
+			result = append(result, musicxml.MustDeepCopyMeasure(measures[i]))
 		}
-		for i := range end {
-			result = append(result, musicxml.MustDeepCopyMeasure(currentChunk[i]))
-		}
-		counter += 1
 	}
 	return result
 }

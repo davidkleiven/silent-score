@@ -65,21 +65,36 @@ func TestSectionForScene(t *testing.T) {
 
 	combinedSections := sectionForScene(time.Duration(2*60.0*1e9), 80, 4, sections)
 	want := sceneSection{
-		start: 0,
-		end:   36,
-		tempo: 72.0,
+		sections: []section{{start: 0, end: 4}, {start: 4, end: 16}, {start: 0, end: 4}, {start: 4, end: 16}, {start: 0, end: 4}},
+		tempo:    72.0,
 	}
 
-	if combinedSections.start != want.start || combinedSections.end != want.end || math.Abs(combinedSections.tempo-want.tempo) > 1e-6 {
+	if math.Abs(combinedSections.tempo-want.tempo) > 1e-6 {
 		t.Errorf("Wanted %v got %v", want, combinedSections)
+		return
+	}
+
+	if len(combinedSections.sections) != len(want.sections) {
+		t.Errorf("Wanted %v got %v", want, combinedSections)
+		return
+	}
+	for i := range want.sections {
+		if want.sections[i].start != combinedSections.sections[i].start || want.sections[i].end != combinedSections.sections[i].end {
+			t.Errorf("Wanted %v got %v", want, combinedSections)
+			return
+		}
 	}
 }
 
 func TestMeasuresForScene(t *testing.T) {
 	bars := eightBarPiece()
 	section := sceneSection{
-		start: 4,
-		end:   32,
+		sections: []section{
+			{start: 0, end: 8},
+			{start: 0, end: 8},
+			{start: 0, end: 8},
+			{start: 4, end: 8},
+		},
 		tempo: 92,
 	}
 	measures := measuresForScene(bars, section)
@@ -90,7 +105,7 @@ func TestMeasuresForScene(t *testing.T) {
 
 func TestMeasuresForSceneEmptyMeasures(t *testing.T) {
 	var m []*musicxml.Measure
-	result := measuresForScene(m, sceneSection{start: 0, end: 0, tempo: 92})
+	result := measuresForScene(m, sceneSection{sections: []section{{start: 0, end: 0}}, tempo: 92})
 	if len(result) != 0 {
 		t.Errorf("Should have empty result")
 	}
