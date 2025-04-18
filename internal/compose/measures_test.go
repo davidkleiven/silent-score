@@ -8,16 +8,16 @@ import (
 	"github.com/davidkleiven/silent-score/internal/musicxml"
 )
 
-func eightBarPiece() []*musicxml.Measure {
-	return []*musicxml.Measure{
-		musicxml.NewMeasure(),
-		musicxml.NewMeasure(musicxml.WithRehersalMark("A")),
-		musicxml.NewMeasure(),
-		musicxml.NewMeasure(musicxml.WithRehersalMark("B")),
-		musicxml.NewMeasure(),
-		musicxml.NewMeasure(),
-		musicxml.NewMeasure(),
-		musicxml.NewMeasure(),
+func eightBarPiece() []musicxml.Measure {
+	return []musicxml.Measure{
+		*musicxml.NewMeasure(),
+		*musicxml.NewMeasure(musicxml.WithRehersalMark("A")),
+		*musicxml.NewMeasure(),
+		*musicxml.NewMeasure(musicxml.WithRehersalMark("B")),
+		*musicxml.NewMeasure(),
+		*musicxml.NewMeasure(),
+		*musicxml.NewMeasure(),
+		*musicxml.NewMeasure(),
 	}
 }
 
@@ -104,7 +104,7 @@ func TestMeasuresForScene(t *testing.T) {
 }
 
 func TestMeasuresForSceneEmptyMeasures(t *testing.T) {
-	var m []*musicxml.Measure
+	var m []musicxml.Measure
 	result := measuresForScene(m, sceneSection{sections: []section{{start: 0, end: 0}}, tempo: 92})
 	if len(result) != 0 {
 		t.Errorf("Should have empty result")

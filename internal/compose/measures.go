@@ -24,15 +24,13 @@ func hasRehersalMark(elements []musicxml.MusicDataElement) bool {
 	return false
 }
 
-func pieceSections(measures []*musicxml.Measure) []section {
+func pieceSections(measures []musicxml.Measure) []section {
 	var sections []section
 	start := 0
 	for i, measure := range measures {
-		if measure != nil {
-			if hasRehersalMark(measure.MusicDataElements) && i > 0 {
-				sections = append(sections, section{start: start, end: i})
-				start = i
-			}
+		if hasRehersalMark(measure.MusicDataElements) && i > 0 {
+			sections = append(sections, section{start: start, end: i})
+			start = i
 		}
 	}
 
@@ -74,15 +72,15 @@ func sectionForScene(duration time.Duration, targetTempo float64, beatsPerMeasur
 	}
 }
 
-func measuresForScene(measures []*musicxml.Measure, section sceneSection) []*musicxml.Measure {
-	var result []*musicxml.Measure
+func measuresForScene(measures []musicxml.Measure, section sceneSection) []musicxml.Measure {
+	var result []musicxml.Measure
 	if len(measures) == 0 {
 		return result
 	}
 
 	for _, section := range section.sections {
 		for i := section.start; i < section.end; i++ {
-			result = append(result, musicxml.MustDeepCopyMeasure(measures[i]))
+			result = append(result, *musicxml.MustDeepCopyMeasure(&measures[i]))
 		}
 	}
 	return result

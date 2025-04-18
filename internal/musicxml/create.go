@@ -8,7 +8,7 @@ type MeasureOpt func(m *Measure)
 
 func WithRehersalMark(mark string) MeasureOpt {
 	return func(m *Measure) {
-		dirType := Directiontype{Rehearsal: []*Formattedtextid{{Value: mark}}}
+		dirType := Directiontype{Rehearsal: []Formattedtextid{{Value: mark}}}
 		direction := Direction{Directiontype: []Directiontype{dirType}}
 		element := MusicDataElement{Direction: &direction, XMLName: xml.Name{Local: "direction"}}
 		m.MusicDataElements = append(m.MusicDataElements, element)

@@ -870,33 +870,33 @@ type Dynamics struct {
 	Textdecoration *Textdecoration
 	Enclosure      *Enclosure
 	Optionaluniqueid
-	P             []*Empty     `xml:"p"`
-	Pp            []*Empty     `xml:"pp"`
-	Ppp           []*Empty     `xml:"ppp"`
-	Pppp          []*Empty     `xml:"pppp"`
-	Ppppp         []*Empty     `xml:"ppppp"`
-	Pppppp        []*Empty     `xml:"pppppp"`
-	F             []*Empty     `xml:"f"`
-	Ff            []*Empty     `xml:"ff"`
-	Fff           []*Empty     `xml:"fff"`
-	Ffff          []*Empty     `xml:"ffff"`
-	Fffff         []*Empty     `xml:"fffff"`
-	Ffffff        []*Empty     `xml:"ffffff"`
-	Mp            []*Empty     `xml:"mp"`
-	Mf            []*Empty     `xml:"mf"`
-	Sf            []*Empty     `xml:"sf"`
-	Sfp           []*Empty     `xml:"sfp"`
-	Sfpp          []*Empty     `xml:"sfpp"`
-	Fp            []*Empty     `xml:"fp"`
-	Rf            []*Empty     `xml:"rf"`
-	Rfz           []*Empty     `xml:"rfz"`
-	Sfz           []*Empty     `xml:"sfz"`
-	Sffz          []*Empty     `xml:"sffz"`
-	Fz            []*Empty     `xml:"fz"`
-	N             []*Empty     `xml:"n"`
-	Pf            []*Empty     `xml:"pf"`
-	Sfzp          []*Empty     `xml:"sfzp"`
-	Otherdynamics []*Othertext `xml:"other-dynamics"`
+	P             []Empty     `xml:"p"`
+	Pp            []Empty     `xml:"pp"`
+	Ppp           []Empty     `xml:"ppp"`
+	Pppp          []Empty     `xml:"pppp"`
+	Ppppp         []Empty     `xml:"ppppp"`
+	Pppppp        []Empty     `xml:"pppppp"`
+	F             []Empty     `xml:"f"`
+	Ff            []Empty     `xml:"ff"`
+	Fff           []Empty     `xml:"fff"`
+	Ffff          []Empty     `xml:"ffff"`
+	Fffff         []Empty     `xml:"fffff"`
+	Ffffff        []Empty     `xml:"ffffff"`
+	Mp            []Empty     `xml:"mp"`
+	Mf            []Empty     `xml:"mf"`
+	Sf            []Empty     `xml:"sf"`
+	Sfp           []Empty     `xml:"sfp"`
+	Sfpp          []Empty     `xml:"sfpp"`
+	Fp            []Empty     `xml:"fp"`
+	Rf            []Empty     `xml:"rf"`
+	Rfz           []Empty     `xml:"rfz"`
+	Sfz           []Empty     `xml:"sfz"`
+	Sffz          []Empty     `xml:"sffz"`
+	Fz            []Empty     `xml:"fz"`
+	N             []Empty     `xml:"n"`
+	Pf            []Empty     `xml:"pf"`
+	Sfzp          []Empty     `xml:"sfzp"`
+	Otherdynamics []Othertext `xml:"other-dynamics"`
 }
 
 // Empty is The empty type represents an empty element with no attributes.
@@ -1037,8 +1037,8 @@ type Midiinstrument struct {
 // Namedisplay is The name-display type is used for exact formatting of multi-font text in part and group names to the left of the system. The print-object attribute can be used to determine what, if anything, is printed at the start of each system. Enclosure for the display-text element is none by default. Language for the display-text element is Italian ("it") by default.
 type Namedisplay struct {
 	Printobject
-	Displaytext    []*Formattedtext  `xml:"display-text"`
-	Accidentaltext []*Accidentaltext `xml:"accidental-text"`
+	Displaytext    []Formattedtext  `xml:"display-text"`
+	Accidentaltext []Accidentaltext `xml:"accidental-text"`
 }
 
 // Otherplay is The other-play element represents other types of playback. The required type attribute indicates the type of playback to which the element content applies.
@@ -1049,11 +1049,11 @@ type Otherplay struct {
 
 // Play is The ipa element represents International Phonetic Alphabet (IPA) sounds for vocal music. String content is limited to IPA 2015 symbols represented in Unicode 13.0.
 type Play struct {
-	IdAttr      string       `xml:"id,attr,omitempty"`
-	Ipa         []string     `xml:"ipa"`
-	Mute        []string     `xml:"mute"`
-	Semipitched []string     `xml:"semi-pitched"`
-	Otherplay   []*Otherplay `xml:"other-play"`
+	IdAttr      string      `xml:"id,attr,omitempty"`
+	Ipa         []string    `xml:"ipa"`
+	Mute        []string    `xml:"mute"`
+	Semipitched []string    `xml:"semi-pitched"`
+	Otherplay   []Otherplay `xml:"other-play"`
 }
 
 // Segno is The segno type is the visual indicator of a segno sign. The exact glyph can be specified with the smufl attribute. A sound element is also needed to guide playback applications reliably.
@@ -1163,7 +1163,7 @@ type Forpart struct {
 type Interchangeable struct {
 	SymbolAttr    string `xml:"symbol,attr,omitempty"`
 	SeparatorAttr string `xml:"separator,attr,omitempty"`
-	Timesignature []*Timesignature
+	Timesignature []Timesignature
 	Timerelation  string `xml:"time-relation"`
 }
 
@@ -1174,8 +1174,8 @@ type Key struct {
 	Optionaluniqueid
 	NumberAttr int `xml:"number,attr,omitempty"`
 	Traditionalkey
-	Nontraditionalkey []*Nontraditionalkey
-	Keyoctave         []*Keyoctave `xml:"key-octave"`
+	Nontraditionalkey []Nontraditionalkey
+	Keyoctave         []Keyoctave `xml:"key-octave"`
 }
 
 // Keyaccidental is The key-accidental type indicates the accidental to be displayed in a non-traditional key signature, represented in the same manner as the accidental type without the formatting attributes.
@@ -1266,7 +1266,7 @@ type Staffdetails struct {
 	ShowfretsAttr string        `xml:"show-frets,attr,omitempty"`
 	Stafftype     string        `xml:"staff-type"`
 	Stafflines    int           `xml:"staff-lines"`
-	Linedetail    []*Linedetail `xml:"line-detail"`
+	Linedetail    []Linedetail  `xml:"line-detail"`
 	Stafftuning   []Stafftuning `xml:"staff-tuning"`
 	Capo          int           `xml:"capo"`
 	Staffsize     Staffsize     `xml:"staff-size"`
@@ -1294,7 +1294,7 @@ type Time struct {
 	NumberAttr      int    `xml:"number,attr,omitempty"`
 	SymbolAttr      string `xml:"symbol,attr,omitempty"`
 	SeparatorAttr   string `xml:"separator,attr,omitempty"`
-	Timesignature   []*Timesignature
+	Timesignature   []Timesignature
 	Interchangeable *Interchangeable `xml:"interchangeable"`
 	Senzamisura     string           `xml:"senza-misura"`
 }
@@ -1326,7 +1326,7 @@ type Barline struct {
 	Wavyline *Wavyline      `xml:"wavy-line"`
 	Segno    *Segno         `xml:"segno"`
 	Coda     *Coda          `xml:"coda"`
-	Fermata  []*Fermata     `xml:"fermata"`
+	Fermata  []Fermata      `xml:"fermata"`
 	Ending   *Ending        `xml:"ending"`
 	Repeat   *Repeat        `xml:"repeat"`
 }
@@ -1483,13 +1483,13 @@ type Direction struct {
 // Directiontype is The eyeglasses element represents the eyeglasses symbol, common in commercial music.
 type Directiontype struct {
 	Optionaluniqueid      *Optionaluniqueid
-	Rehearsal             []*Formattedtextid      `xml:"rehearsal"`
-	Segno                 []*Segno                `xml:"segno"`
-	Coda                  []*Coda                 `xml:"coda"`
-	Words                 []*Formattedtextid      `xml:"words"`
-	Symbol                []*Formattedsymbolid    `xml:"symbol"`
+	Rehearsal             []Formattedtextid       `xml:"rehearsal"`
+	Segno                 []Segno                 `xml:"segno"`
+	Coda                  []Coda                  `xml:"coda"`
+	Words                 []Formattedtextid       `xml:"words"`
+	Symbol                []Formattedsymbolid     `xml:"symbol"`
 	Wedge                 *Wedge                  `xml:"wedge"`
-	Dynamics              []*Dynamics             `xml:"dynamics"`
+	Dynamics              []Dynamics              `xml:"dynamics"`
 	Dashes                *Dashes                 `xml:"dashes"`
 	Bracket               *Bracket                `xml:"bracket"`
 	Pedal                 *Pedal                  `xml:"pedal"`
@@ -1503,7 +1503,7 @@ type Directiontype struct {
 	Scordatura            *Scordatura             `xml:"scordatura"`
 	Image                 *Image                  `xml:"image"`
 	Principalvoice        *Principalvoice         `xml:"principal-voice"`
-	Percussion            []*Percussion           `xml:"percussion"`
+	Percussion            []Percussion            `xml:"percussion"`
 	Accordionregistration *Accordionregistration  `xml:"accordion-registration"`
 	Staffdivide           *Staffdivide            `xml:"staff-divide,omitempty"`
 	Otherdirection        *Otherdirection         `xml:"other-direction"`
@@ -1535,13 +1535,13 @@ type Frame struct {
 	Halign      *Halign
 	Valignimage string
 	Optionaluniqueid
-	HeightAttr   float64      `xml:"height,attr,omitempty"`
-	WidthAttr    float64      `xml:"width,attr,omitempty"`
-	UnplayedAttr string       `xml:"unplayed,attr,omitempty"`
-	Framestrings int          `xml:"frame-strings"`
-	Framefrets   int          `xml:"frame-frets"`
-	Firstfret    *Firstfret   `xml:"first-fret"`
-	Framenote    []*Framenote `xml:"frame-note"`
+	HeightAttr   float64     `xml:"height,attr,omitempty"`
+	WidthAttr    float64     `xml:"width,attr,omitempty"`
+	UnplayedAttr string      `xml:"unplayed,attr,omitempty"`
+	Framestrings int         `xml:"frame-strings"`
+	Framefrets   int         `xml:"frame-frets"`
+	Firstfret    *Firstfret  `xml:"first-fret"`
+	Framenote    []Framenote `xml:"frame-note"`
 }
 
 // Framenote is The frame-note type represents each note included in the frame. An open string will have a fret value of 0, while a muted string will not be associated with a frame-note element.
@@ -1563,10 +1563,10 @@ type Glass struct {
 // This element is flexible to allow for different types of analyses. Future versions of the MusicXML format may add elements that can represent more standardized categories of analysis data, allowing for easier data sharing.
 type Grouping struct {
 	Optionaluniqueid
-	TypeAttr     string     `xml:"type,attr"`
-	NumberAttr   string     `xml:"number,attr,omitempty"`
-	MemberofAttr string     `xml:"member-of,attr,omitempty"`
-	Feature      []*Feature `xml:"feature"`
+	TypeAttr     string    `xml:"type,attr"`
+	NumberAttr   string    `xml:"number,attr,omitempty"`
+	MemberofAttr string    `xml:"member-of,attr,omitempty"`
+	Feature      []Feature `xml:"feature"`
 }
 
 // Harmony is The harmony type represents harmony analysis, including chord symbols in popular music as well as functional harmony analysis in classical music.
@@ -1594,7 +1594,7 @@ type Harmony struct {
 type Harppedals struct {
 	Printstylealign
 	Optionaluniqueid
-	Pedaltuning []*Pedaltuning `xml:"pedal-tuning"`
+	Pedaltuning []Pedaltuning `xml:"pedal-tuning"`
 }
 
 // Image is The image type is used to include graphical images in a score.
@@ -1649,9 +1649,9 @@ type Kind struct {
 //
 // The offset element is used to indicate that the listening change takes place offset from the current score position. If the listening element is a child of a direction element, the listening offset element overrides the direction offset element if both elements are present. Note that the offset reflects the intended musical position for the change in state. It should not be used to compensate for latency issues in particular hardware configurations.
 type Listening struct {
-	Sync           []*Sync           `xml:"sync"`
-	Otherlistening []*Otherlistening `xml:"other-listening"`
-	Offset         *Offset           `xml:"offset"`
+	Sync           []Sync           `xml:"sync"`
+	Otherlistening []Otherlistening `xml:"other-listening"`
+	Offset         *Offset          `xml:"offset"`
 }
 
 // Measurenumbering is The measure-numbering type describes how frequently measure numbers are displayed on this part. The text attribute from the measure element is used for display, or the number attribute if the text attribute is not present. Measures with an implicit attribute set to "yes" never display a measure number, regardless of the measure-numbering setting.
@@ -1688,11 +1688,11 @@ type Metronome struct {
 	Optionaluniqueid *Optionaluniqueid
 	ParenthesesAttr  string `xml:"parentheses,attr,omitempty"`
 	Beatunit
-	Beatunittied      []*Beatunittied  `xml:"beat-unit-tied"`
-	Perminute         *Perminute       `xml:"per-minute"`
-	Metronomearrows   *Empty           `xml:"metronome-arrows"`
-	Metronomenote     []*Metronomenote `xml:"metronome-note"`
-	Metronomerelation string           `xml:"metronome-relation,omitempty"`
+	Beatunittied      []Beatunittied  `xml:"beat-unit-tied"`
+	Perminute         *Perminute      `xml:"per-minute"`
+	Metronomearrows   *Empty          `xml:"metronome-arrows"`
+	Metronomenote     []Metronomenote `xml:"metronome-note"`
+	Metronomerelation string          `xml:"metronome-relation,omitempty"`
 }
 
 // Metronomebeam is The metronome-beam type works like the beam type in defining metric relationships, but does not include all the attributes available in the beam type.
@@ -1704,8 +1704,8 @@ type Metronomebeam struct {
 // Metronomenote is The metronome-dot element works like the dot element in defining metric relationships.
 type Metronomenote struct {
 	Metronometype   string           `xml:"metronome-type"`
-	Metronomedot    []*Empty         `xml:"metronome-dot"`
-	Metronomebeam   []*Metronomebeam `xml:"metronome-beam"`
+	Metronomedot    []Empty          `xml:"metronome-dot"`
+	Metronomebeam   []Metronomebeam  `xml:"metronome-beam"`
 	Metronometied   *Metronometied   `xml:"metronome-tied"`
 	Metronometuplet *Metronometuplet `xml:"metronome-tuplet"`
 }
@@ -1864,7 +1864,7 @@ type Rootstep struct {
 // Scordatura is Scordatura string tunings are represented by a series of accord elements, similar to the staff-tuning elements. Strings are numbered from high to low.
 type Scordatura struct {
 	Optionaluniqueid
-	Accord []*Accord `xml:"accord"`
+	Accord []Accord `xml:"accord"`
 }
 
 // Sound is The sound element contains general playback parameters. They can stand alone within a part/measure, or be a component element within a direction.
@@ -1999,26 +1999,26 @@ type Wood struct {
 
 // Encoding is The encoding element contains information about who did the digital encoding, when, with what software, and in what aspects. Standard type values for the encoder element are music, words, and arrangement, but other types may be used. The type attribute is only needed when there are multiple encoder elements.
 type Encoding struct {
-	Software            []string     `xml:"software"`
-	Encodingdate        []string     `xml:"encoding-date"`
-	Encoder             []*Typedtext `xml:"encoder"`
-	Encodingdescription []string     `xml:"encoding-description"`
-	Supports            []*Supports  `xml:"supports"`
+	Software            []string    `xml:"software"`
+	Encodingdate        []string    `xml:"encoding-date"`
+	Encoder             []Typedtext `xml:"encoder"`
+	Encodingdescription []string    `xml:"encoding-description"`
+	Supports            []Supports  `xml:"supports"`
 }
 
 // Identification is A related resource for the music that is encoded. This is similar to the Dublin Core relation element. Standard type values are music, words, and arrangement, but other types may be used.
 type Identification struct {
-	Creator       []*Typedtext   `xml:"creator"`
-	Rights        []*Typedtext   `xml:"rights"`
+	Creator       []Typedtext    `xml:"creator"`
+	Rights        []Typedtext    `xml:"rights"`
 	Encoding      *Encoding      `xml:"encoding"`
 	Source        string         `xml:"source,omitempty"`
-	Relation      []*Typedtext   `xml:"relation"`
+	Relation      []Typedtext    `xml:"relation"`
 	Miscellaneous *Miscellaneous `xml:"miscellaneous"`
 }
 
 // Miscellaneous is If a program has other metadata not yet supported in the MusicXML format, it can go in the miscellaneous element. The miscellaneous type puts each separate part of metadata into its own miscellaneous-field type.
 type Miscellaneous struct {
-	Miscellaneousfield []*Miscellaneousfield `xml:"miscellaneous-field"`
+	Miscellaneousfield []Miscellaneousfield `xml:"miscellaneous-field"`
 }
 
 // Miscellaneousfield is If a program has other metadata not yet supported in the MusicXML format, each type of metadata can go in a miscellaneous-field element. The required name attribute indicates the type of metadata the element content represents.
@@ -2037,11 +2037,11 @@ type Supports struct {
 
 // Appearance is The appearance type controls general graphical settings for the music's final form appearance on a printed page of display. This includes support for line widths, definitions for note sizes, and standard distances between notation elements, plus an extension element for other aspects of appearance.
 type Appearance struct {
-	Linewidth       []*Linewidth       `xml:"line-width"`
-	Notesize        []*Notesize        `xml:"note-size"`
-	Distance        []*Distance        `xml:"distance"`
-	Glyph           []*Glyph           `xml:"glyph"`
-	Otherappearance []*Otherappearance `xml:"other-appearance"`
+	Linewidth       []Linewidth       `xml:"line-width"`
+	Notesize        []Notesize        `xml:"note-size"`
+	Distance        []Distance        `xml:"distance"`
+	Glyph           []Glyph           `xml:"glyph"`
+	Otherappearance []Otherappearance `xml:"other-appearance"`
 }
 
 // Distance is The distance element represents standard distances between notation elements in tenths. The type attribute defines what type of distance is being defined. Valid values include hyphen (for hyphens in lyrics) and beam.
@@ -2085,9 +2085,9 @@ type Otherappearance struct {
 //
 // When used in the print element, the page-layout element affects the appearance of the current page only. All other pages use the default values as determined by the defaults element. If any child elements are missing from the page-layout element in a print element, the values determined by the defaults element are used there as well.
 type Pagelayout struct {
-	Pageheight  float64        `xml:"page-height"`
-	Pagewidth   float64        `xml:"page-width"`
-	Pagemargins []*Pagemargins `xml:"page-margins"`
+	Pageheight  float64       `xml:"page-height"`
+	Pagewidth   float64       `xml:"page-width"`
+	Pagemargins []Pagemargins `xml:"page-margins"`
 }
 
 // Pagemargins is Page margins are specified either for both even and odd pages, or via separate odd and even page number values. The type attribute is not needed when used as part of a print element. If omitted when the page-margins type is used in the defaults element, "both" is the default value.
@@ -2186,23 +2186,23 @@ type Arpeggiate struct {
 // Articulations is The other-articulation element is used to define any articulations not yet in the MusicXML format. The smufl attribute can be used to specify a particular articulation, allowing application interoperability without requiring every SMuFL articulation to have a MusicXML element equivalent. Using the other-articulation element without the smufl attribute allows for extended representation, though without application interoperability.
 type Articulations struct {
 	Optionaluniqueid  *Optionaluniqueid
-	Accent            []*Emptyplacement     `xml:"accent"`
-	Strongaccent      []*Strongaccent       `xml:"strong-accent"`
-	Staccato          []*Emptyplacement     `xml:"staccato"`
-	Tenuto            []*Emptyplacement     `xml:"tenuto"`
-	Detachedlegato    []*Emptyplacement     `xml:"detached-legato"`
-	Staccatissimo     []*Emptyplacement     `xml:"staccatissimo"`
-	Spiccato          []*Emptyplacement     `xml:"spiccato"`
-	Scoop             []*Emptyline          `xml:"scoop"`
-	Plop              []*Emptyline          `xml:"plop"`
-	Doit              []*Emptyline          `xml:"doit"`
-	Falloff           []*Emptyline          `xml:"falloff"`
-	Breathmark        []*Breathmark         `xml:"breath-mark"`
-	Caesura           []*Caesura            `xml:"caesura"`
-	Stress            []*Emptyplacement     `xml:"stress"`
-	Unstress          []*Emptyplacement     `xml:"unstress"`
-	Softaccent        []*Emptyplacement     `xml:"soft-accent"`
-	Otherarticulation []*Otherplacementtext `xml:"other-articulation"`
+	Accent            []Emptyplacement     `xml:"accent"`
+	Strongaccent      []Strongaccent       `xml:"strong-accent"`
+	Staccato          []Emptyplacement     `xml:"staccato"`
+	Tenuto            []Emptyplacement     `xml:"tenuto"`
+	Detachedlegato    []Emptyplacement     `xml:"detached-legato"`
+	Staccatissimo     []Emptyplacement     `xml:"staccatissimo"`
+	Spiccato          []Emptyplacement     `xml:"spiccato"`
+	Scoop             []Emptyline          `xml:"scoop"`
+	Plop              []Emptyline          `xml:"plop"`
+	Doit              []Emptyline          `xml:"doit"`
+	Falloff           []Emptyline          `xml:"falloff"`
+	Breathmark        []Breathmark         `xml:"breath-mark"`
+	Caesura           []Caesura            `xml:"caesura"`
+	Stress            []Emptyplacement     `xml:"stress"`
+	Unstress          []Emptyplacement     `xml:"unstress"`
+	Softaccent        []Emptyplacement     `xml:"soft-accent"`
+	Otherarticulation []Otherplacementtext `xml:"other-articulation"`
 }
 
 // Arrow is The arrow element represents an arrow used for a musical technical indication. It can represent both Unicode and SMuFL arrows. The presence of an arrowhead element indicates that only the arrowhead is displayed, not the arrow stem. The smufl attribute distinguishes different SMuFL glyphs that have an arrow appearance such as arrowBlackUp, guitarStrumUp, or handbellsSwingUp. The specified glyph should match the descriptive representation.
@@ -2315,7 +2315,7 @@ type Figuredbass struct {
 	ParenthesesAttr string `xml:"parentheses,attr,omitempty"`
 	Duration        string
 	Editorial
-	Figure []*Figure `xml:"figure"`
+	Figure []Figure `xml:"figure"`
 }
 
 // Forward is The backup and forward elements are required to coordinate multiple voices in one part, including music on multiple staves. The forward element is generally used within voices and staves. Duration values should always be positive, and should not cross measure boundaries or mid-measure changes in the divisions value.
@@ -2413,9 +2413,9 @@ type Instrument struct {
 
 // Listen is The listen and listening types, new in Version 4.0, specify different ways that a score following or machine listening application can interact with a performer. The listen type handles interactions that are specific to a note. If multiple child elements of the same type are present, they should have distinct player and/or time-only attributes.
 type Listen struct {
-	Assess      []*Assess         `xml:"assess"`
-	Wait        []*Wait           `xml:"wait"`
-	Otherlisten []*Otherlistening `xml:"other-listen"`
+	Assess      []Assess         `xml:"assess"`
+	Wait        []Wait           `xml:"wait"`
+	Otherlisten []Otherlistening `xml:"other-listen"`
 }
 
 // Lyric is The end-paragraph element comes from RP-017 for Standard MIDI File Lyric meta-events. It facilitates lyric display for Karaoke and similar applications.
@@ -2463,20 +2463,20 @@ type Notations struct {
 	Printobject
 	Optionaluniqueid
 	Editorial
-	Tied           []*Tied           `xml:"tied"`
-	Slur           []*Slur           `xml:"slur"`
-	Tuplet         []*Tuplet         `xml:"tuplet"`
-	Glissando      []*Glissando      `xml:"glissando"`
-	Slide          []*Slide          `xml:"slide"`
-	Ornaments      []*Ornaments      `xml:"ornaments"`
-	Technical      []*Technical      `xml:"technical"`
-	Articulations  []*Articulations  `xml:"articulations"`
-	Dynamics       []*Dynamics       `xml:"dynamics"`
-	Fermata        []*Fermata        `xml:"fermata"`
-	Arpeggiate     []*Arpeggiate     `xml:"arpeggiate"`
-	Nonarpeggiate  []*Nonarpeggiate  `xml:"non-arpeggiate"`
-	Accidentalmark []*Accidentalmark `xml:"accidental-mark"`
-	Othernotation  []*Othernotation  `xml:"other-notation"`
+	Tied           []Tied           `xml:"tied"`
+	Slur           []Slur           `xml:"slur"`
+	Tuplet         []Tuplet         `xml:"tuplet"`
+	Glissando      []Glissando      `xml:"glissando"`
+	Slide          []Slide          `xml:"slide"`
+	Ornaments      []Ornaments      `xml:"ornaments"`
+	Technical      []Technical      `xml:"technical"`
+	Articulations  []Articulations  `xml:"articulations"`
+	Dynamics       []Dynamics       `xml:"dynamics"`
+	Fermata        []Fermata        `xml:"fermata"`
+	Arpeggiate     []Arpeggiate     `xml:"arpeggiate"`
+	Nonarpeggiate  []Nonarpeggiate  `xml:"non-arpeggiate"`
+	Accidentalmark []Accidentalmark `xml:"accidental-mark"`
+	Othernotation  []Othernotation  `xml:"other-notation"`
 }
 
 // Note is One dot element is used for each dot of prolongation. The placement attribute is used to specify whether the dot should appear above or below the staff line. It is ignored for notes that appear on a staff space.
@@ -2498,19 +2498,19 @@ type Note struct {
 	Editorialvoice
 	Staff
 	Grace            *Grace            `xml:"grace"`
-	Tie              []*Tie            `xml:"tie"`
+	Tie              []Tie             `xml:"tie"`
 	Cue              *Empty            `xml:"cue"`
-	Instrument       []*Instrument     `xml:"instrument"`
+	Instrument       []Instrument      `xml:"instrument"`
 	Type             *Notetype         `xml:"type"`
-	Dot              []*Emptyplacement `xml:"dot"`
+	Dot              []Emptyplacement  `xml:"dot"`
 	Accidental       *Accidental       `xml:"accidental"`
 	Timemodification *Timemodification `xml:"time-modification"`
 	Stem             *Stem             `xml:"stem"`
 	Notehead         *Notehead         `xml:"notehead"`
 	Noteheadtext     *Noteheadtext     `xml:"notehead-text"`
-	Beam             []*Beam           `xml:"beam"`
-	Notations        []*Notations      `xml:"notations"`
-	Lyric            []*Lyric          `xml:"lyric"`
+	Beam             []Beam            `xml:"beam"`
+	Notations        []Notations       `xml:"notations"`
+	Lyric            []Lyric           `xml:"lyric"`
 	Play             *Play             `xml:"play"`
 	Listen           *Listen           `xml:"listen"`
 }
@@ -2539,8 +2539,8 @@ type Notehead struct {
 
 // Noteheadtext is The notehead-text type represents text that is displayed inside a notehead, as is done in some educational music. It is not needed for the numbers used in tablature or jianpu notation. The presence of a TAB or jianpu clefs is sufficient to indicate that numbers are used. The display-text and accidental-text elements allow display of fully formatted text and accidentals.
 type Noteheadtext struct {
-	Displaytext    []*Formattedtext  `xml:"display-text"`
-	Accidentaltext []*Accidentaltext `xml:"accidental-text"`
+	Displaytext    []Formattedtext  `xml:"display-text"`
+	Accidentaltext []Accidentaltext `xml:"accidental-text"`
 }
 
 // Ornaments is The other-ornament element is used to define any ornaments not yet in the MusicXML format. The smufl attribute can be used to specify a particular ornament, allowing application interoperability without requiring every SMuFL ornament to have a MusicXML element equivalent. Using the other-ornament element without the smufl attribute allows for extended representation, though without application interoperability.
@@ -2561,7 +2561,7 @@ type Ornaments struct {
 	Tremolo              *Tremolo            `xml:"tremolo"`
 	Haydn                *Emptytrillsound    `xml:"haydn"`
 	Otherornament        *Otherplacementtext `xml:"other-ornament"`
-	Accidentalmark       []*Accidentalmark   `xml:"accidental-mark"`
+	Accidentalmark       []Accidentalmark    `xml:"accidental-mark"`
 }
 
 // Othernotation is The other-notation type is used to define any notations not yet in the MusicXML format. It handles notations where more specific extension elements such as other-dynamics and other-technical are not appropriate. The smufl attribute can be used to specify a particular notation, allowing application interoperability without requiring every SMuFL glyph to have a MusicXML element equivalent. Using the other-notation type without the smufl attribute allows for extended representation, though without application interoperability.
@@ -2672,37 +2672,37 @@ type Tap struct {
 // Technical is The other-technical element is used to define any technical indications not yet in the MusicXML format. The smufl attribute can be used to specify a particular glyph, allowing application interoperability without requiring every SMuFL technical indication to have a MusicXML element equivalent. Using the other-technical element without the smufl attribute allows for extended representation, though without application interoperability.
 type Technical struct {
 	Optionaluniqueid
-	Upbow          []*Emptyplacement      `xml:"up-bow"`
-	Downbow        []*Emptyplacement      `xml:"down-bow"`
-	Harmonic       []*Harmonic            `xml:"harmonic"`
-	Openstring     []*Emptyplacement      `xml:"open-string"`
-	Thumbposition  []*Emptyplacement      `xml:"thumb-position"`
-	Fingering      []*Fingering           `xml:"fingering"`
-	Pluck          []*Placementtext       `xml:"pluck"`
-	Doubletongue   []*Emptyplacement      `xml:"double-tongue"`
-	Tripletongue   []*Emptyplacement      `xml:"triple-tongue"`
-	Stopped        []*Emptyplacementsmufl `xml:"stopped"`
-	Snappizzicato  []*Emptyplacement      `xml:"snap-pizzicato"`
-	Fret           []*Fret                `xml:"fret"`
-	String         []string               `xml:"string"`
-	Hammeron       []*Hammeronpulloff     `xml:"hammer-on"`
-	Pulloff        []*Hammeronpulloff     `xml:"pull-off"`
-	Bend           []*Bend                `xml:"bend"`
-	Tap            []*Tap                 `xml:"tap"`
-	Heel           []*Heeltoe             `xml:"heel"`
-	Toe            []*Heeltoe             `xml:"toe"`
-	Fingernails    []*Emptyplacement      `xml:"fingernails"`
-	Hole           []*Hole                `xml:"hole"`
-	Arrow          []*Arrow               `xml:"arrow"`
-	Handbell       []*Handbell            `xml:"handbell"`
-	Brassbend      []*Emptyplacement      `xml:"brass-bend"`
-	Flip           []*Emptyplacement      `xml:"flip"`
-	Smear          []*Emptyplacement      `xml:"smear"`
-	Open           []*Emptyplacementsmufl `xml:"open"`
-	Halfmuted      []*Emptyplacementsmufl `xml:"half-muted"`
-	Harmonmute     []*Harmonmute          `xml:"harmon-mute"`
-	Golpe          []*Emptyplacement      `xml:"golpe"`
-	Othertechnical []*Otherplacementtext  `xml:"other-technical"`
+	Upbow          []Emptyplacement      `xml:"up-bow"`
+	Downbow        []Emptyplacement      `xml:"down-bow"`
+	Harmonic       []Harmonic            `xml:"harmonic"`
+	Openstring     []Emptyplacement      `xml:"open-string"`
+	Thumbposition  []Emptyplacement      `xml:"thumb-position"`
+	Fingering      []Fingering           `xml:"fingering"`
+	Pluck          []Placementtext       `xml:"pluck"`
+	Doubletongue   []Emptyplacement      `xml:"double-tongue"`
+	Tripletongue   []Emptyplacement      `xml:"triple-tongue"`
+	Stopped        []Emptyplacementsmufl `xml:"stopped"`
+	Snappizzicato  []Emptyplacement      `xml:"snap-pizzicato"`
+	Fret           []Fret                `xml:"fret"`
+	String         []string              `xml:"string"`
+	Hammeron       []Hammeronpulloff     `xml:"hammer-on"`
+	Pulloff        []Hammeronpulloff     `xml:"pull-off"`
+	Bend           []Bend                `xml:"bend"`
+	Tap            []Tap                 `xml:"tap"`
+	Heel           []Heeltoe             `xml:"heel"`
+	Toe            []Heeltoe             `xml:"toe"`
+	Fingernails    []Emptyplacement      `xml:"fingernails"`
+	Hole           []Hole                `xml:"hole"`
+	Arrow          []Arrow               `xml:"arrow"`
+	Handbell       []Handbell            `xml:"handbell"`
+	Brassbend      []Emptyplacement      `xml:"brass-bend"`
+	Flip           []Emptyplacement      `xml:"flip"`
+	Smear          []Emptyplacement      `xml:"smear"`
+	Open           []Emptyplacementsmufl `xml:"open"`
+	Halfmuted      []Emptyplacementsmufl `xml:"half-muted"`
+	Harmonmute     []Harmonmute          `xml:"harmon-mute"`
+	Golpe          []Emptyplacement      `xml:"golpe"`
+	Othertechnical []Otherplacementtext  `xml:"other-technical"`
 }
 
 // Textelementdata is The text-element-data type represents a syllable or portion of a syllable for lyric text underlay. A hyphen in the string content should only be used for an actual hyphenated word. Language names for text elements come from ISO 639, with optional country subcodes from ISO 3166.
@@ -2747,10 +2747,10 @@ type Tied struct {
 
 // Timemodification is The normal-dot element is used to specify dotted normal tuplet types.
 type Timemodification struct {
-	Actualnotes int      `xml:"actual-notes"`
-	Normalnotes int      `xml:"normal-notes"`
-	Normaltype  string   `xml:"normal-type"`
-	Normaldot   []*Empty `xml:"normal-dot"`
+	Actualnotes int     `xml:"actual-notes"`
+	Normalnotes int     `xml:"normal-notes"`
+	Normaltype  string  `xml:"normal-type"`
+	Normaldot   []Empty `xml:"normal-dot"`
 }
 
 // Tremolo is The tremolo ornament can be used to indicate single-note, double-note, or unmeasured tremolos. Single-note tremolos use the single type, double-note tremolos use the start and stop types, and unmeasured tremolos use the unmeasured type. The default is "single" for compatibility with Version 1.1. The text of the element indicates the number of tremolo marks and is an integer from 0 to 8. Note that the number of attached beams is not included in this value, but is represented separately using the beam element. The value should be 0 for unmeasured tremolos.
@@ -2800,7 +2800,7 @@ type Tupletnumber struct {
 type Tupletportion struct {
 	Tupletnumber *Tupletnumber `xml:"tuplet-number"`
 	Tuplettype   *Tuplettype   `xml:"tuplet-type"`
-	Tupletdot    []*Tupletdot  `xml:"tuplet-dot"`
+	Tupletdot    []Tupletdot   `xml:"tuplet-dot"`
 }
 
 // Tuplettype is The tuplet-type type indicates the graphical note type of the notes for this portion of the tuplet.
@@ -2832,8 +2832,8 @@ type Credit struct {
 	Optionaluniqueid
 	PageAttr     int                `xml:"page,attr,omitempty"`
 	Credittype   []string           `xml:"credit-type"`
-	Link         []*Link            `xml:"link"`
-	Bookmark     []*Bookmark        `xml:"bookmark"`
+	Link         []Link             `xml:"link"`
+	Bookmark     []Bookmark         `xml:"bookmark"`
 	Creditimage  *Image             `xml:"credit-image"`
 	Creditwords  *Formattedtextid   `xml:"credit-words"`
 	Creditsymbol *Formattedsymbolid `xml:"credit-symbol"`
@@ -2843,14 +2843,14 @@ type Credit struct {
 //
 // A document with a concert-score element may not contain any transpose elements that have non-zero values for either the diatonic or chromatic elements. Concert scores may include octave transpositions, so transpose elements with a double element or a non-zero octave-change element value are permitted.
 type Defaults struct {
-	Scaling       *Scaling         `xml:"scaling"`
-	Pagelayout    *Pagelayout      `xml:"page-layout"`
-	Concertscore  *Empty           `xml:"concert-score"`
-	Appearance    *Appearance      `xml:"appearance"`
-	Musicfont     *Font            `xml:"music-font"`
-	Wordfont      *Font            `xml:"word-font"`
-	Lyricfont     []*Lyricfont     `xml:"lyric-font"`
-	Lyriclanguage []*Lyriclanguage `xml:"lyric-language"`
+	Scaling       *Scaling        `xml:"scaling"`
+	Pagelayout    *Pagelayout     `xml:"page-layout"`
+	Concertscore  *Empty          `xml:"concert-score"`
+	Appearance    *Appearance     `xml:"appearance"`
+	Musicfont     *Font           `xml:"music-font"`
+	Wordfont      *Font           `xml:"word-font"`
+	Lyricfont     []Lyricfont     `xml:"lyric-font"`
+	Lyriclanguage []Lyriclanguage `xml:"lyric-language"`
 }
 
 // Emptyfont is The empty-font type represents an empty element with font attributes.
@@ -2918,13 +2918,13 @@ type Partgroup struct {
 // Partlink is Multiple part-link elements can reference different types of linked documents, such as parts and condensed score. The optional group-link elements identify the groups used in the linked document. The content of a group-link element should match the content of a group element in the linked document.
 type Partlink struct {
 	Linkattributes *Linkattributes
-	Instrumentlink []*Instrumentlink `xml:"instrument-link"`
-	Grouplink      []string          `xml:"group-link"`
+	Instrumentlink []Instrumentlink `xml:"instrument-link"`
+	Grouplink      []string         `xml:"group-link"`
 }
 
 // Partlist is The part-list identifies the different musical parts in this document. Each part has an ID that is used later within the musical data. Since parts may be encoded separately and combined later, identification elements are present at both the score and score-part levels. There must be at least one score-part, combined as desired with part-group elements that indicate braces and brackets. Parts are ordered from top to bottom in a score based on the order in which they appear in the part-list.
 type Partlist struct {
-	Partgroup []*Partgroup
+	Partgroup []Partgroup
 	Scorepart *Scorepart `xml:"score-part"`
 }
 
@@ -2950,18 +2950,18 @@ type Scoreinstrument struct {
 
 // Scorepart is The group element allows the use of different versions of the part for different purposes. Typical values include score, parts, sound, and data. Ordering information can be derived from the ordering within a MusicXML score or opus.
 type Scorepart struct {
-	IdAttr                  string             `xml:"id,attr"`
-	Identification          *Identification    `xml:"identification"`
-	Partlink                []*Partlink        `xml:"part-link"`
-	Partname                *Partname          `xml:"part-name"`
-	Partnamedisplay         *Namedisplay       `xml:"part-name-display"`
-	Partabbreviation        *Partname          `xml:"part-abbreviation"`
-	Partabbreviationdisplay *Namedisplay       `xml:"part-abbreviation-display"`
-	Group                   []string           `xml:"group"`
-	Scoreinstrument         []*Scoreinstrument `xml:"score-instrument"`
-	Player                  []*Player          `xml:"player"`
-	Mididevice              *Mididevice        `xml:"midi-device"`
-	Midiinstrument          *Midiinstrument    `xml:"midi-instrument"`
+	IdAttr                  string            `xml:"id,attr"`
+	Identification          *Identification   `xml:"identification"`
+	Partlink                []Partlink        `xml:"part-link"`
+	Partname                *Partname         `xml:"part-name"`
+	Partnamedisplay         *Namedisplay      `xml:"part-name-display"`
+	Partabbreviation        *Partname         `xml:"part-abbreviation"`
+	Partabbreviationdisplay *Namedisplay      `xml:"part-abbreviation-display"`
+	Group                   []string          `xml:"group"`
+	Scoreinstrument         []Scoreinstrument `xml:"score-instrument"`
+	Player                  []Player          `xml:"player"`
+	Mididevice              *Mididevice       `xml:"midi-device"`
+	Midiinstrument          *Midiinstrument   `xml:"midi-instrument"`
 }
 
 // Virtualinstrument is The virtual-name element indicates the library-specific name for the virtual instrument.
@@ -3049,8 +3049,8 @@ type Traditionalkey struct {
 
 // Beatunit ...
 type Beatunit struct {
-	Beatunit    string   `xml:"beat-unit"`
-	Beatunitdot []*Empty `xml:"beat-unit-dot,omitempty"`
+	Beatunit    string  `xml:"beat-unit"`
+	Beatunitdot []Empty `xml:"beat-unit-dot,omitempty"`
 }
 
 // Harmonychord ...
@@ -3061,7 +3061,7 @@ type Harmonychord struct {
 	Kind      *Kind      `xml:"kind,omitempty"`
 	Inversion *Inversion `xml:"inversion,omitempty"`
 	Bass      *Bass      `xml:"bass,omitempty"`
-	Degree    []*Degree  `xml:"degree,omitempty"`
+	Degree    []Degree   `xml:"degree,omitempty"`
 }
 
 // Allmargins ...
@@ -3191,7 +3191,7 @@ type Scoreheader struct {
 	Movementtitle  string          `xml:"movement-title,omitempty"`
 	Identification *Identification `xml:"identification"`
 	Defaults       *Defaults       `xml:"defaults"`
-	Credit         []*Credit       `xml:"credit"`
+	Credit         []Credit        `xml:"credit"`
 	Partlist       *Partlist       `xml:"part-list"`
 }
 
@@ -3204,19 +3204,19 @@ type Measure struct {
 // Part ...
 type Part struct {
 	Partattributes
-	Measure []*Measure `xml:"measure"`
+	Measure []Measure `xml:"measure"`
 }
 
 type Scorepartwise struct {
 	XMLName xml.Name `xml:"score-partwise"`
 	Documentattributes
 	Scoreheader
-	Part []*Part `xml:"part"`
+	Part []Part `xml:"part"`
 }
 
 // Scoretimewise ...
 type Scoretimewise struct {
 	Documentattributes *Documentattributes
 	Scoreheader        *Scoreheader
-	Measure            []*Measure `xml:"measure"`
+	Measure            []Measure `xml:"measure"`
 }

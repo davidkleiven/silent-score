@@ -107,26 +107,23 @@ func bestMatchForDesc(desc string, texts []string) int {
 	return bestMatch[0].Index
 }
 
-func tempoIfGiven(tempo int, measures []*musicxml.Measure) *musicxml.Metronome {
+func tempoIfGiven(tempo int, measures []musicxml.Measure) *musicxml.Metronome {
 	var metronome *musicxml.Metronome
 	for _, measure := range measures {
-		if measure != nil {
-			for _, element := range measure.MusicDataElements {
-				if direction := element.Direction; direction != nil {
-					for _, dirType := range direction.Directiontype {
-						if dirType.Metronome != nil {
-							metronome = dirType.Metronome
-							break
-						}
+		for _, element := range measure.MusicDataElements {
+			if direction := element.Direction; direction != nil {
+				for _, dirType := range direction.Directiontype {
+					if dirType.Metronome != nil {
+						metronome = dirType.Metronome
+						break
 					}
 				}
+			}
 
-				if metronome != nil {
-					break
-				}
+			if metronome != nil {
+				break
 			}
 		}
-
 		if metronome != nil {
 			break
 		}
@@ -153,14 +150,12 @@ func defaultMetronome() *musicxml.Metronome {
 	}
 }
 
-func timesignature(measures []*musicxml.Measure) *musicxml.Timesignature {
+func timesignature(measures []musicxml.Measure) *musicxml.Timesignature {
 	for _, measure := range measures {
-		if measure != nil {
-			for _, element := range measure.MusicDataElements {
-				if attr := element.Attributes; attr != nil && attr.Time != nil {
-					for _, timesig := range attr.Time {
-						return &timesig
-					}
+		for _, element := range measure.MusicDataElements {
+			if attr := element.Attributes; attr != nil {
+				for _, timesig := range attr.Time {
+					return &timesig
 				}
 			}
 		}
@@ -171,15 +166,13 @@ func timesignature(measures []*musicxml.Measure) *musicxml.Timesignature {
 	}
 }
 
-func clearTempoMarkings(measures []*musicxml.Measure) {
-	for _, measure := range measures {
-		if measure != nil {
-			for i, element := range measure.MusicDataElements {
-				if direction := element.Direction; direction != nil {
-					for j, dirType := range direction.Directiontype {
-						if dirType.Metronome != nil {
-							measure.MusicDataElements[i].Direction.Directiontype[j].Metronome = nil
-						}
+func clearTempoMarkings(measures []musicxml.Measure) {
+	for measNo, measure := range measures {
+		for i, element := range measure.MusicDataElements {
+			if direction := element.Direction; direction != nil {
+				for j, dirType := range direction.Directiontype {
+					if dirType.Metronome != nil {
+						measures[measNo].MusicDataElements[i].Direction.Directiontype[j].Metronome = nil
 					}
 				}
 			}
@@ -187,16 +180,14 @@ func clearTempoMarkings(measures []*musicxml.Measure) {
 	}
 }
 
-func enumerateMeasuresInPlace(measures []*musicxml.Measure) {
-	for i, measure := range measures {
-		if measure != nil {
-			measure.NumberAttr = strconv.Itoa(i + 1)
-		}
+func enumerateMeasuresInPlace(measures []musicxml.Measure) {
+	for i := range measures {
+		measures[i].NumberAttr = strconv.Itoa(i + 1)
 	}
 }
 
 type selection struct {
-	measures []*musicxml.Measure
+	measures []musicxml.Measure
 }
 
 func title(score *musicxml.Scorepartwise) string {
@@ -207,7 +198,7 @@ func title(score *musicxml.Scorepartwise) string {
 }
 
 func pickMeasures(library Library, records []db.ProjectContentRecord) selection {
-	var measures []*musicxml.Measure
+	var measures []musicxml.Measure
 	for _, record := range records {
 		piece := library.BestMatch(record.Keywords)
 		if piece != nil {
@@ -225,9 +216,9 @@ func pickMeasures(library Library, records []db.ProjectContentRecord) selection 
 				clearTempoMarkings(measuresForScene)
 
 				if len(measuresForScene) > 0 {
-					musicxml.SetSystemTextAtBeginning(measuresForScene[0], record.SceneDesc)
-					musicxml.SetTimeSignatureAtBeginning(measuresForScene[0], *timeSignature)
-					musicxml.SetTempoAtBeginning(measuresForScene[0], metronome)
+					musicxml.SetSystemTextAtBeginning(&measuresForScene[0], record.SceneDesc)
+					musicxml.SetTimeSignatureAtBeginning(&measuresForScene[0], *timeSignature)
+					musicxml.SetTempoAtBeginning(&measuresForScene[0], metronome)
 				}
 				measures = append(measures, measuresForScene...)
 				slog.Info("Picking piece",
@@ -251,7 +242,7 @@ func CreateComposition(library Library, project *db.Project) *musicxml.Scorepart
 		Documentattributes: musicxml.Documentattributes{
 			VersionAttr: "4.0",
 		},
-		Part: []*musicxml.Part{
+		Part: []musicxml.Part{
 			{
 				Partattributes: musicxml.Partattributes{
 					IdAttr: "P1",

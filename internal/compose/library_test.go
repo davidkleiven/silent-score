@@ -10,33 +10,27 @@ import (
 	"pgregory.net/rapid"
 )
 
-func measuresAreEnumerated(measures []*musicxml.Measure) bool {
+func measuresAreEnumerated(measures []musicxml.Measure) bool {
 	for i, measure := range measures {
-		if measure != nil {
-			if measure.NumberAttr != strconv.Itoa(i+1) {
-				return false
-			}
+		if measure.NumberAttr != strconv.Itoa(i+1) {
+			return false
 		}
 	}
 	return true
 }
 
-func atLeastOneSceneDescPartOfComposition(measures []*musicxml.Measure, records []db.ProjectContentRecord) bool {
+func atLeastOneSceneDescPartOfComposition(measures []musicxml.Measure, records []db.ProjectContentRecord) bool {
 	if len(measures) == 0 {
 		return true
 	}
 	for _, measure := range measures {
-		if measure != nil {
-			for _, element := range measure.MusicDataElements {
-				if direction := element.Direction; direction != nil {
-					for _, dirType := range direction.Directiontype {
-						for _, words := range dirType.Words {
-							if words != nil {
-								for _, record := range records {
-									if words.Value == record.SceneDesc {
-										return true
-									}
-								}
+		for _, element := range measure.MusicDataElements {
+			if direction := element.Direction; direction != nil {
+				for _, dirType := range direction.Directiontype {
+					for _, words := range dirType.Words {
+						for _, record := range records {
+							if words.Value == record.SceneDesc {
+								return true
 							}
 						}
 					}
@@ -121,7 +115,7 @@ func TestUnitPerBeat(t *testing.T) {
 			desc:          "12/8 one beat per 8th note",
 		},
 		{
-			metronome:     &musicxml.Metronome{Beatunit: musicxml.Beatunit{Beatunit: "quarter", Beatunitdot: []*musicxml.Empty{{}}}},
+			metronome:     &musicxml.Metronome{Beatunit: musicxml.Beatunit{Beatunit: "quarter", Beatunitdot: []musicxml.Empty{{}}}},
 			timesignature: &musicxml.Timesignature{Beats: 12, Beattype: 8},
 			expectedUnit:  8,
 			expectedNum:   3,

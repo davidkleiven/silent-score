@@ -17,16 +17,14 @@ func TextFields(document Scorepartwise) []string {
 	out := []string{}
 
 	for _, credit := range document.Credit {
-		if credit != nil && credit.Creditwords != nil {
+		if credit.Creditwords != nil {
 			out = append(out, credit.Creditwords.Value)
 		}
 	}
 
 	for _, part := range document.Part {
-		if part != nil {
-			for _, measureText := range MeasureText(part.Measure) {
-				out = append(out, measureText.Text)
-			}
+		for _, measureText := range MeasureText(part.Measure) {
+			out = append(out, measureText.Text)
 		}
 	}
 	return out
@@ -37,12 +35,10 @@ type MeasureTextResult struct {
 	Text   string
 }
 
-func MeasureText(measures []*Measure) []MeasureTextResult {
+func MeasureText(measures []Measure) []MeasureTextResult {
 	result := []MeasureTextResult{}
 	for _, measure := range measures {
-		if measure != nil {
-			result = append(result, DirectionFromMeasure(*measure)...)
-		}
+		result = append(result, DirectionFromMeasure(measure)...)
 	}
 	return result
 }
@@ -61,9 +57,7 @@ func DirectionFromMeasure(measure Measure) []MeasureTextResult {
 
 				dirText := ""
 				for _, words := range dirType.Words {
-					if words != nil {
-						dirText += words.Value
-					}
+					dirText += words.Value
 				}
 
 				if dirText != "" {
@@ -72,9 +66,7 @@ func DirectionFromMeasure(measure Measure) []MeasureTextResult {
 
 				dirText = ""
 				for _, rehersal := range dirType.Rehearsal {
-					if rehersal != nil {
-						dirText += rehersal.Value
-					}
+					dirText += rehersal.Value
 				}
 
 				if dirText != "" {
@@ -200,7 +192,7 @@ func ensureAttributes(m *MusicDataElement) {
 
 func setSystemText(element *MusicDataElement, text string) {
 	ensureDirection(element)
-	element.Direction.Directiontype = append(element.Direction.Directiontype, Directiontype{Words: []*Formattedtextid{{Value: text}}})
+	element.Direction.Directiontype = append(element.Direction.Directiontype, Directiontype{Words: []Formattedtextid{{Value: text}}})
 }
 
 func applyBeforeFirstNote(measure *Measure, name string, reuseExisting bool, fn func(m *MusicDataElement)) {

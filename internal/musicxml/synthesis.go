@@ -8,18 +8,32 @@ import (
 )
 
 func GenerateRandomScorepartwise(t *rapid.T) *Scorepartwise {
+	partPointers := rapid.SliceOfN(generateRandomPart(), 1, 4).Draw(t, "Part")
+	partValues := make([]Part, len(partPointers))
+	for i, part := range partPointers {
+		if part != nil {
+			partValues[i] = *part
+		}
+	}
 	return &Scorepartwise{
-		Part: rapid.SliceOfN(generateRandomPart(), 1, 4).Draw(t, "Part"),
+		Part: partValues,
 	}
 }
 
 func generateRandomPart() *rapid.Generator[*Part] {
 	return rapid.Custom(func(t *rapid.T) *Part {
+		measurePointers := rapid.SliceOfN(generateRandomMeasure(), 1, 16).Draw(t, "Measure")
+		measureValues := make([]Measure, len(measurePointers))
+		for i, measure := range measurePointers {
+			if measure != nil {
+				measureValues[i] = *measure
+			}
+		}
 		return &Part{
 			Partattributes: Partattributes{
 				IdAttr: rapid.StringMatching(`[A-Z0-9]+`).Draw(t, "IdAttr"),
 			},
-			Measure: rapid.SliceOfN(generateRandomMeasure(), 1, 16).Draw(t, "Measure"),
+			Measure: measureValues,
 		}
 	})
 }
@@ -60,9 +74,23 @@ func generateRandomDirection() *rapid.Generator[*Direction] {
 
 func generateRandomDirectiontype() *rapid.Generator[*Directiontype] {
 	return rapid.Custom(func(t *rapid.T) *Directiontype {
+		wordsPointers := rapid.SliceOfN(generateRandomFormattedtextid("Words"), 0, 3).Draw(t, "Words")
+		rehersalPointers := rapid.SliceOfN(generateRandomFormattedtextid("Rehearsal"), 0, 3).Draw(t, "Rehearsal")
+		wordsValues := make([]Formattedtextid, len(wordsPointers))
+		rehersalValues := make([]Formattedtextid, len(rehersalPointers))
+		for i, words := range wordsPointers {
+			if words != nil {
+				wordsValues[i] = *words
+			}
+		}
+		for i, rehersal := range rehersalPointers {
+			if rehersal != nil {
+				rehersalValues[i] = *rehersal
+			}
+		}
 		return &Directiontype{
-			Words:     rapid.SliceOfN(generateRandomFormattedtextid("WordsValue"), 0, 3).Draw(t, "Words"),
-			Rehearsal: rapid.SliceOfN(generateRandomFormattedtextid("RehearsalValue"), 0, 3).Draw(t, "Rehearsal"),
+			Words:     wordsValues,
+			Rehearsal: rehersalValues,
 			Metronome: generateRandomMetronome().Draw(t, "Metronome"),
 		}
 	})
