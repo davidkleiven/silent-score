@@ -162,12 +162,12 @@ func SetSystemTextAtBeginning(measure *Measure, text string) {
 	applyBeforeFirstNote(measure, "direction", true, func(m *MusicDataElement) { setSystemText(m, text) })
 }
 
-func setTimeSignature(element *MusicDataElement, timeSignature *Timesignature) {
+func setTimeSignature(element *MusicDataElement, timeSignature Timesignature) {
 	ensureAttributes(element)
-	element.Attributes.Time = []*Timesignature{timeSignature}
+	element.Attributes.Time = []Timesignature{timeSignature}
 }
 
-func SetTimeSignatureAtBeginning(measure *Measure, timeSignature *Timesignature) {
+func SetTimeSignatureAtBeginning(measure *Measure, timeSignature Timesignature) {
 	applyBeforeFirstNote(measure, "attributes", true, func(m *MusicDataElement) { setTimeSignature(m, timeSignature) })
 }
 

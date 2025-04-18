@@ -1090,18 +1090,18 @@ type Wavyline struct {
 // Attributes is The for-part element is used in a concert score to indicate the transposition for a transposed part created from that score. It is only used in score files that contain a concert-score element in the defaults. This allows concert scores with transposed parts to be represented in a single uncompressed MusicXML file.
 type Attributes struct {
 	Editorial
-	Divisions    float64          `xml:"divisions,omitempty"`
-	Key          []*Key           `xml:"key"`
-	Time         []*Timesignature `xml:"time"`
-	Staves       int              `xml:"staves,omitempty"`
-	Partsymbol   *Partsymbol      `xml:"part-symbol"`
-	Instruments  int              `xml:"instruments,omitempty"`
-	Clef         []*Clef          `xml:"clef"`
-	Staffdetails []Staffdetails   `xml:"staff-details"`
-	Transpose    []*Transpose     `xml:"transpose"`
-	Forpart      []*Forpart       `xml:"for-part"`
-	Directive    []*Directive     `xml:"directive"`
-	Measurestyle []*Measurestyle  `xml:"measure-style"`
+	Divisions    float64         `xml:"divisions,omitempty"`
+	Key          []Key           `xml:"key"`
+	Time         []Timesignature `xml:"time"`
+	Staves       int             `xml:"staves,omitempty"`
+	Partsymbol   *Partsymbol     `xml:"part-symbol"`
+	Instruments  int             `xml:"instruments,omitempty"`
+	Clef         []Clef          `xml:"clef"`
+	Staffdetails []Staffdetails  `xml:"staff-details"`
+	Transpose    []Transpose     `xml:"transpose"`
+	Forpart      []Forpart       `xml:"for-part"`
+	Directive    []Directive     `xml:"directive"`
+	Measurestyle []Measurestyle  `xml:"measure-style"`
 }
 
 // Beatrepeat is The beat-repeat type is used to indicate that a single beat (but possibly many notes) is repeated. The slashes attribute specifies the number of slashes to use in the symbol. The use-dots attribute indicates whether or not to use dots as well (for instance, with mixed rhythm patterns). The value for slashes is 1 and the value for use-dots is no if not specified.
