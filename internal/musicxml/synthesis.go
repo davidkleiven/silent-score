@@ -78,8 +78,15 @@ func generateRandomFormattedtextid(label string) *rapid.Generator[*Formattedtext
 
 func generateRandomAttributes() *rapid.Generator[*Attributes] {
 	return rapid.Custom(func(t *rapid.T) *Attributes {
+		timeSigPointers := rapid.SliceOfN(generateRandomTimesignature(), 0, 2).Draw(t, "Time")
+		timeSigValues := make([]Timesignature, len(timeSigPointers))
+		for i, timeSig := range timeSigPointers {
+			if timeSig != nil {
+				timeSigValues[i] = *timeSig
+			}
+		}
 		return &Attributes{
-			Time: rapid.SliceOfN(generateRandomTimesignature(), 0, 2).Draw(t, "Time"),
+			Time: timeSigValues,
 		}
 	})
 }

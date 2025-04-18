@@ -159,9 +159,7 @@ func timesignature(measures []*musicxml.Measure) *musicxml.Timesignature {
 			for _, element := range measure.MusicDataElements {
 				if attr := element.Attributes; attr != nil && attr.Time != nil {
 					for _, timesig := range attr.Time {
-						if timesig != nil {
-							return timesig
-						}
+						return &timesig
 					}
 				}
 			}
@@ -228,7 +226,7 @@ func pickMeasures(library Library, records []db.ProjectContentRecord) selection 
 
 				if len(measuresForScene) > 0 {
 					musicxml.SetSystemTextAtBeginning(measuresForScene[0], record.SceneDesc)
-					musicxml.SetTimeSignatureAtBeginning(measuresForScene[0], timeSignature)
+					musicxml.SetTimeSignatureAtBeginning(measuresForScene[0], *timeSignature)
 					musicxml.SetTempoAtBeginning(measuresForScene[0], metronome)
 				}
 				measures = append(measures, measuresForScene...)

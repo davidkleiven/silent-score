@@ -364,17 +364,17 @@ func TestSetSystemTextAtBeginning(t *testing.T) {
 
 func TestSetTimeSignatureAtBeginning(t *testing.T) {
 	for _, test := range []struct {
-		timeSignature *Timesignature
+		timeSignature Timesignature
 		measure       *Measure
 		desc          string
 	}{
 		{
-			timeSignature: &Timesignature{Beats: 4, Beattype: 4},
+			timeSignature: Timesignature{Beats: 4, Beattype: 4},
 			measure:       &Measure{},
 			desc:          "Bar without elements",
 		},
 		{
-			timeSignature: &Timesignature{Beats: 4, Beattype: 4},
+			timeSignature: Timesignature{Beats: 4, Beattype: 4},
 			measure: &Measure{
 				MusicDataElements: []MusicDataElement{
 					{XMLName: xml.Name{Local: "attributes"}},
