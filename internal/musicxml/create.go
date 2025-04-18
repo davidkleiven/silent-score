@@ -9,7 +9,7 @@ type MeasureOpt func(m *Measure)
 func WithRehersalMark(mark string) MeasureOpt {
 	return func(m *Measure) {
 		dirType := Directiontype{Rehearsal: []*Formattedtextid{{Value: mark}}}
-		direction := Direction{Directiontype: []*Directiontype{&dirType}}
+		direction := Direction{Directiontype: []Directiontype{dirType}}
 		element := MusicDataElement{Direction: &direction, XMLName: xml.Name{Local: "direction"}}
 		m.MusicDataElements = append(m.MusicDataElements, element)
 	}
@@ -29,7 +29,7 @@ type DirectionOpt func(d *Direction)
 func WithTempo(tempo int) DirectionOpt {
 	return func(d *Direction) {
 		dirType := Directiontype{Metronome: &Metronome{Perminute: &Perminute{Value: tempo}}}
-		d.Directiontype = append(d.Directiontype, &dirType)
+		d.Directiontype = append(d.Directiontype, dirType)
 	}
 }
 

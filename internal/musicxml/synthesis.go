@@ -45,8 +45,15 @@ func generateRandomMeasure() *rapid.Generator[*Measure] {
 
 func generateRandomDirection() *rapid.Generator[*Direction] {
 	return rapid.Custom(func(t *rapid.T) *Direction {
+		dirTypePointers := rapid.SliceOfN(generateRandomDirectiontype(), 0, 2).Draw(t, "Directiontype")
+		dirTypeValues := make([]Directiontype, len(dirTypePointers))
+		for i, dirType := range dirTypePointers {
+			if dirType != nil {
+				dirTypeValues[i] = *dirType
+			}
+		}
 		return &Direction{
-			Directiontype: rapid.SliceOfN(generateRandomDirectiontype(), 0, 2).Draw(t, "Directiontype"),
+			Directiontype: dirTypeValues,
 		}
 	})
 }

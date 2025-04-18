@@ -9,8 +9,8 @@ import (
 	"testing"
 )
 
-func newMeasure(measureNo string, dirType *Directiontype) Measure {
-	direction := Direction{Directiontype: []*Directiontype{dirType}}
+func newMeasure(measureNo string, dirType Directiontype) Measure {
+	direction := Direction{Directiontype: []Directiontype{dirType}}
 	return Measure{
 		Measureattributes: Measureattributes{NumberAttr: measureNo},
 		MusicDataElements: []MusicDataElement{{Direction: &direction, XMLName: xml.Name{Local: "Direction"}}},
@@ -31,32 +31,27 @@ func TestDirectionFromMeasure(t *testing.T) {
 		desc    string
 	}{
 		{
-			newMeasure("1", nil),
-			[]MeasureTextResult{},
-			"Direction type nil",
-		},
-		{
-			newMeasure("1", &dirTypeRehersalNil),
+			newMeasure("1", dirTypeRehersalNil),
 			[]MeasureTextResult{},
 			"Rehersal content nil",
 		},
 		{
-			newMeasure("1", &dirTypeWOrdNil),
+			newMeasure("1", dirTypeWOrdNil),
 			[]MeasureTextResult{},
 			"Word content nil",
 		},
 		{
-			newMeasure("1", &dirTypeRehersalFilled),
+			newMeasure("1", dirTypeRehersalFilled),
 			[]MeasureTextResult{{Number: 1, Text: "value"}},
 			"Rehersal non nil",
 		},
 		{
-			newMeasure("1", &dirTypeWordFilled),
+			newMeasure("1", dirTypeWordFilled),
 			[]MeasureTextResult{{Number: 1, Text: "value"}},
 			"Word filled non nil",
 		},
 		{
-			newMeasure("non-int", &dirTypeWordFilled),
+			newMeasure("non-int", dirTypeWordFilled),
 			[]MeasureTextResult{},
 			"Word filled wrong measure number",
 		},
@@ -82,8 +77,8 @@ func TestMeasureText(t *testing.T) {
 	value := Formattedtextid{Value: "value"}
 	dirType := Directiontype{Rehearsal: []*Formattedtextid{&value}}
 
-	m1 := newMeasure("1", &dirType)
-	m2 := newMeasure("2", &dirType)
+	m1 := newMeasure("1", dirType)
+	m2 := newMeasure("2", dirType)
 	measures := []*Measure{&m1, &m2}
 
 	want := []MeasureTextResult{
@@ -488,7 +483,7 @@ func TestSetTempoWithExistingMetronome(t *testing.T) {
 	element := &MusicDataElement{
 		XMLName: xml.Name{Local: "direction"},
 		Direction: &Direction{
-			Directiontype: []*Directiontype{
+			Directiontype: []Directiontype{
 				{
 					Metronome: &Metronome{
 						Perminute: &Perminute{Value: 100},
