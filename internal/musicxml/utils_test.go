@@ -19,27 +19,15 @@ func newMeasure(measureNo string, dirType Directiontype) Measure {
 
 func TestDirectionFromMeasure(t *testing.T) {
 	formattedText := Formattedtextid{Value: "value"}
-	dirTypeRehersalNil := Directiontype{Rehearsal: []*Formattedtextid{nil}}
-	dirTypeWOrdNil := Directiontype{Words: []*Formattedtextid{nil}}
 
-	dirTypeRehersalFilled := Directiontype{Rehearsal: []*Formattedtextid{&formattedText}}
-	dirTypeWordFilled := Directiontype{Words: []*Formattedtextid{&formattedText}}
+	dirTypeRehersalFilled := Directiontype{Rehearsal: []Formattedtextid{formattedText}}
+	dirTypeWordFilled := Directiontype{Words: []Formattedtextid{formattedText}}
 
 	for _, test := range []struct {
 		measure Measure
 		want    []MeasureTextResult
 		desc    string
 	}{
-		{
-			newMeasure("1", dirTypeRehersalNil),
-			[]MeasureTextResult{},
-			"Rehersal content nil",
-		},
-		{
-			newMeasure("1", dirTypeWOrdNil),
-			[]MeasureTextResult{},
-			"Word content nil",
-		},
 		{
 			newMeasure("1", dirTypeRehersalFilled),
 			[]MeasureTextResult{{Number: 1, Text: "value"}},
@@ -75,11 +63,11 @@ func TestDirectionFromMeasure(t *testing.T) {
 
 func TestMeasureText(t *testing.T) {
 	value := Formattedtextid{Value: "value"}
-	dirType := Directiontype{Rehearsal: []*Formattedtextid{&value}}
+	dirType := Directiontype{Rehearsal: []Formattedtextid{value}}
 
 	m1 := newMeasure("1", dirType)
 	m2 := newMeasure("2", dirType)
-	measures := []*Measure{&m1, &m2}
+	measures := []Measure{m1, m2}
 
 	want := []MeasureTextResult{
 		{
@@ -348,7 +336,7 @@ func TestSetSystemTextAtBeginning(t *testing.T) {
 				}
 				if element.Direction != nil {
 					for _, dirType := range element.Direction.Directiontype {
-						if len(dirType.Words) > 0 && dirType.Words[0] != nil && dirType.Words[0].Value == test.text {
+						if len(dirType.Words) > 0 && dirType.Words[0].Value == test.text {
 							hasText = true
 						}
 					}
