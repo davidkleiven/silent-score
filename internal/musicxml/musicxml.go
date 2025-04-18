@@ -1474,10 +1474,10 @@ type Direction struct {
 	Optionaluniqueid
 	Editorialvoicedirection
 	Staff
-	Directiontype []*Directiontype `xml:"direction-type"`
-	Offset        *Offset          `xml:"offset"`
-	Sound         *Sound           `xml:"sound"`
-	Listening     *Listening       `xml:"listening"`
+	Directiontype []Directiontype `xml:"direction-type"`
+	Offset        *Offset         `xml:"offset"`
+	Sound         *Sound          `xml:"sound"`
+	Listening     *Listening      `xml:"listening"`
 }
 
 // Directiontype is The eyeglasses element represents the eyeglasses symbol, common in commercial music.

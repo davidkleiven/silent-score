@@ -58,28 +58,27 @@ func DirectionFromMeasure(measure Measure) []MeasureTextResult {
 	for _, element := range measure.MusicDataElements {
 		if direction := element.Direction; direction != nil {
 			for _, dirType := range direction.Directiontype {
-				if dirType != nil {
-					dirText := ""
-					for _, words := range dirType.Words {
-						if words != nil {
-							dirText += words.Value
-						}
-					}
 
-					if dirText != "" {
-						result = append(result, MeasureTextResult{Number: num, Text: dirText})
+				dirText := ""
+				for _, words := range dirType.Words {
+					if words != nil {
+						dirText += words.Value
 					}
+				}
 
-					dirText = ""
-					for _, rehersal := range dirType.Rehearsal {
-						if rehersal != nil {
-							dirText += rehersal.Value
-						}
-					}
+				if dirText != "" {
+					result = append(result, MeasureTextResult{Number: num, Text: dirText})
+				}
 
-					if dirText != "" {
-						result = append(result, MeasureTextResult{Number: num, Text: dirText})
+				dirText = ""
+				for _, rehersal := range dirType.Rehearsal {
+					if rehersal != nil {
+						dirText += rehersal.Value
 					}
+				}
+
+				if dirText != "" {
+					result = append(result, MeasureTextResult{Number: num, Text: dirText})
 				}
 			}
 		}
@@ -175,15 +174,15 @@ func SetTimeSignatureAtBeginning(measure *Measure, timeSignature *Timesignature)
 func setTempo(element *MusicDataElement, metronome *Metronome) {
 	ensureDirection(element)
 	metronomeIsSet := false
-	for _, dirType := range element.Direction.Directiontype {
-		if dirType != nil && dirType.Metronome != nil {
-			dirType.Metronome = metronome
+	for i, dirType := range element.Direction.Directiontype {
+		if dirType.Metronome != nil {
+			element.Direction.Directiontype[i].Metronome = metronome
 			metronomeIsSet = true
 		}
 	}
 
 	if !metronomeIsSet {
-		element.Direction.Directiontype = append(element.Direction.Directiontype, &Directiontype{Metronome: metronome})
+		element.Direction.Directiontype = append(element.Direction.Directiontype, Directiontype{Metronome: metronome})
 	}
 }
 
@@ -201,7 +200,7 @@ func ensureAttributes(m *MusicDataElement) {
 
 func setSystemText(element *MusicDataElement, text string) {
 	ensureDirection(element)
-	element.Direction.Directiontype = append(element.Direction.Directiontype, &Directiontype{Words: []*Formattedtextid{{Value: text}}})
+	element.Direction.Directiontype = append(element.Direction.Directiontype, Directiontype{Words: []*Formattedtextid{{Value: text}}})
 }
 
 func applyBeforeFirstNote(measure *Measure, name string, reuseExisting bool, fn func(m *MusicDataElement)) {

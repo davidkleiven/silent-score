@@ -114,7 +114,7 @@ func tempoIfGiven(tempo int, measures []*musicxml.Measure) *musicxml.Metronome {
 			for _, element := range measure.MusicDataElements {
 				if direction := element.Direction; direction != nil {
 					for _, dirType := range direction.Directiontype {
-						if dirType != nil && dirType.Metronome != nil {
+						if dirType.Metronome != nil {
 							metronome = dirType.Metronome
 							break
 						}
@@ -179,7 +179,7 @@ func clearTempoMarkings(measures []*musicxml.Measure) {
 			for i, element := range measure.MusicDataElements {
 				if direction := element.Direction; direction != nil {
 					for j, dirType := range direction.Directiontype {
-						if dirType != nil && dirType.Metronome != nil {
+						if dirType.Metronome != nil {
 							measure.MusicDataElements[i].Direction.Directiontype[j].Metronome = nil
 						}
 					}

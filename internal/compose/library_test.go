@@ -30,13 +30,11 @@ func atLeastOneSceneDescPartOfComposition(measures []*musicxml.Measure, records 
 			for _, element := range measure.MusicDataElements {
 				if direction := element.Direction; direction != nil {
 					for _, dirType := range direction.Directiontype {
-						if dirType != nil {
-							for _, words := range dirType.Words {
-								if words != nil {
-									for _, record := range records {
-										if words.Value == record.SceneDesc {
-											return true
-										}
+						for _, words := range dirType.Words {
+							if words != nil {
+								for _, record := range records {
+									if words.Value == record.SceneDesc {
+										return true
 									}
 								}
 							}

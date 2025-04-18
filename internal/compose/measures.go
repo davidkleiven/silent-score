@@ -15,10 +15,8 @@ func hasRehersalMark(elements []musicxml.MusicDataElement) bool {
 	for _, element := range elements {
 		if direction := element.Direction; direction != nil {
 			for _, dirType := range direction.Directiontype {
-				if dirType != nil {
-					if len(dirType.Rehearsal) > 0 {
-						return true
-					}
+				if len(dirType.Rehearsal) > 0 {
+					return true
 				}
 			}
 		}
