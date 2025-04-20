@@ -188,6 +188,23 @@ func enumerateMeasuresInPlace(measures []musicxml.Measure) {
 
 type selection struct {
 	measures []musicxml.Measure
+	pieces   []pieceInfo
+}
+
+func (s *selection) composer() string {
+	c := ""
+	for _, piece := range s.pieces {
+		if c != "" {
+			c += ", "
+		}
+		c += piece.composer
+	}
+	return c
+}
+
+type pieceInfo struct {
+	title    string
+	composer string
 }
 
 func title(score *musicxml.Scorepartwise) string {
@@ -197,8 +214,20 @@ func title(score *musicxml.Scorepartwise) string {
 	return ""
 }
 
+func composer(score *musicxml.Scorepartwise) string {
+	if score != nil {
+		for _, credit := range score.Scoreheader.Credit {
+			if slices.Contains(credit.Credittype, "composer") {
+				return credit.Creditwords.Value
+			}
+		}
+	}
+	return ""
+}
+
 func pickMeasures(library Library, records []db.ProjectContentRecord) selection {
 	var measures []musicxml.Measure
+	var pieces []pieceInfo
 	for _, record := range records {
 		piece := library.BestMatch(record.Keywords)
 		if piece != nil {
@@ -228,11 +257,17 @@ func pickMeasures(library Library, records []db.ProjectContentRecord) selection 
 					"timeSignature", fmt.Sprintf("%d/%d", timeSignature.Beats, timeSignature.Beattype),
 					"tempo", metronome.Perminute.Value,
 				)
+
+				pieces = append(pieces, pieceInfo{
+					title:    title(piece),
+					composer: composer(piece),
+				},
+				)
 			}
 		}
 	}
 	enumerateMeasuresInPlace(measures)
-	return selection{measures: measures}
+	return selection{measures: measures, pieces: pieces}
 }
 
 func CreateComposition(library Library, project *db.Project) *musicxml.Scorepartwise {
@@ -259,6 +294,29 @@ func CreateComposition(library Library, project *db.Project) *musicxml.Scorepart
 					IdAttr:           "P1",
 					Partname:         &musicxml.Partname{Value: "Piano"},
 					Partabbreviation: &musicxml.Partname{Value: "Pno."},
+				},
+			},
+			Defaults: &musicxml.Defaults{
+				Scaling: &musicxml.Scaling{
+					Millimeters: 6.99912,
+					Tenths:      40,
+				},
+				Pagelayout: &musicxml.Pagelayout{
+					Pageheight:  1596.77,
+					Pagewidth:   1233.87,
+					Pagemargins: []musicxml.Pagemargins{*musicxml.DefaultPageMargins("even"), *musicxml.DefaultPageMargins("odd")},
+				},
+			},
+			Credit: []musicxml.Credit{
+				{
+					PageAttr:    1,
+					Credittype:  []string{"title"},
+					Creditwords: musicxml.TitleElement(project.Name),
+				},
+				{
+					PageAttr:    1,
+					Credittype:  []string{"composer"},
+					Creditwords: musicxml.ComposerElement(result.composer()),
 				},
 			},
 		},

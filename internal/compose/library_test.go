@@ -133,3 +133,17 @@ func TestUnitPerBeat(t *testing.T) {
 		})
 	}
 }
+
+func TestComposer(t *testing.T) {
+	score := musicxml.NewScorePartwise(musicxml.WithComposer("Beethoven"))
+	if c := composer(score); c != "Beethoven" {
+		t.Errorf("Expected composer Beethoven, got %s", c)
+	}
+}
+
+func TestComposerEmpty(t *testing.T) {
+	score := musicxml.NewScorePartwise()
+	if c := composer(score); c != "" {
+		t.Errorf("Expected empty composer, got %s", c)
+	}
+}
