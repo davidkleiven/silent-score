@@ -2,6 +2,7 @@ package musicxml
 
 import (
 	"encoding/xml"
+	"strconv"
 )
 
 // Measure constructions
@@ -14,7 +15,42 @@ func WithRehersalMark(mark string) MeasureOpt {
 		element := MusicDataElement{Direction: &direction, XMLName: xml.Name{Local: "direction"}}
 		m.MusicDataElements = append(m.MusicDataElements, element)
 	}
+}
 
+type EndingType int
+
+const (
+	EndingTypeStart = iota
+	EndingTypeStop
+	EndingTypeDiscontinue
+)
+
+func (et EndingType) String() string {
+	switch et {
+	case EndingTypeStart:
+		return "start"
+	case EndingTypeStop:
+		return "stop"
+	case EndingTypeDiscontinue:
+		return "discontinue"
+	}
+	return "start"
+}
+
+func WithEndingBarline(number int, endingType EndingType) MeasureOpt {
+
+	return func(m *Measure) {
+		m.MusicDataElements = append(m.MusicDataElements, MusicDataElement{
+			Barline: &Barline{
+				LocationAttr: "left",
+				Ending: &Ending{
+					TypeAttr:   endingType.String(),
+					NumberAttr: strconv.Itoa(number),
+				},
+			},
+			XMLName: xml.Name{Local: "barline"},
+		})
+	}
 }
 
 func NewMeasure(opts ...MeasureOpt) *Measure {

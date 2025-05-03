@@ -63,3 +63,16 @@ func TestDefaultPageMaringsNotNil(t *testing.T) {
 		return
 	}
 }
+
+func TestWithEnding(t *testing.T) {
+	measure := NewMeasure(WithEndingBarline(1, EndingTypeStart))
+	if measure.MusicDataElements[0].Barline == nil {
+		t.Errorf("Should have a barline")
+		return
+	}
+
+	if measure.MusicDataElements[0].Barline.Ending == nil {
+		t.Errorf("Should have a ending")
+		return
+	}
+}
