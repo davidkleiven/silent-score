@@ -147,3 +147,32 @@ func TestComposerEmpty(t *testing.T) {
 		t.Errorf("Expected empty composer, got %s", c)
 	}
 }
+
+func TestRemoveRepititions(t *testing.T) {
+
+	measures := []musicxml.Measure{
+		*musicxml.NewMeasure(),
+		*musicxml.NewMeasure(musicxml.WithEndingBarline(1, musicxml.EndingTypeStart)),
+		*musicxml.NewMeasure(),
+		*musicxml.NewMeasure(musicxml.WithEndingBarline(1, musicxml.EndingTypeStop)),
+		*musicxml.NewMeasure(musicxml.WithEndingBarline(2, musicxml.EndingTypeStart)),
+	}
+
+	result := removeRepetitions(measures)
+
+	if len(measures) != 5 {
+		t.Errorf("Original measures should not be modified")
+	}
+
+	if len(result) != 2 {
+		t.Errorf("Should be 2 measures left got %d", len(result))
+	}
+
+	for _, measure := range result {
+		for _, element := range measure.MusicDataElements {
+			if element.Barline != nil && element.Barline.Ending != nil {
+				t.Errorf("There should be no endings left in the measures")
+			}
+		}
+	}
+}

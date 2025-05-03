@@ -232,16 +232,17 @@ func pickMeasures(library Library, records []db.ProjectContentRecord) selection 
 		piece := library.BestMatch(record.Keywords)
 		if piece != nil {
 			if len(piece.Part) > 0 {
-				sections := pieceSections(piece.Part[0].Measure)
+				measuresWithNoRepeats := removeRepetitions(piece.Part[0].Measure)
+				sections := pieceSections(measuresWithNoRepeats)
 				slog.Info("Extracted sections", "title", title(piece), "num-sections", len(sections))
-				timeSignature := timesignature(piece.Part[0].Measure)
-				metronome := tempoIfGiven(int(record.Tempo), piece.Part[0].Measure)
+				timeSignature := timesignature(measuresWithNoRepeats)
+				metronome := tempoIfGiven(int(record.Tempo), measuresWithNoRepeats)
 				beatsInTimeSig := beatsPerMeasure(timeSignature, metronome)
 				sceneSection := sectionForScene(time.Duration(record.DurationSec)*time.Second, float64(metronome.Perminute.Value), beatsInTimeSig, sections)
 
 				// Update tempo with result from scence selection
 				metronome.Perminute.Value = int(sceneSection.tempo)
-				measuresForScene := measuresForScene(piece.Part[0].Measure, sceneSection)
+				measuresForScene := measuresForScene(measuresWithNoRepeats, sceneSection)
 				clearTempoMarkings(measuresForScene)
 
 				if len(measuresForScene) > 0 {
@@ -342,4 +343,65 @@ func unitsPerBeat(metronome *musicxml.Metronome) (int, int) {
 		num++
 	}
 	return unit, num
+}
+
+func removeRepetitions(measures []musicxml.Measure) []musicxml.Measure {
+	result := make([]musicxml.Measure, 0, len(measures))
+
+	takeMeasures := true
+	for _, measure := range measures {
+		if firstEndingStarts(&measure) {
+			takeMeasures = false
+		}
+		if firstEndingEnds(&measure) {
+			takeMeasures = true
+			continue
+		}
+
+		if takeMeasures {
+			result = append(result, *musicxml.MustDeepCopyMeasure(&measure))
+		}
+	}
+	result = clearEndings(result)
+	return clearRepeatSigns(result)
+}
+
+func firstEndingStarts(measure *musicxml.Measure) bool {
+	for _, element := range measure.MusicDataElements {
+		if element.Barline != nil && element.Barline.Ending != nil && element.Barline.Ending.NumberAttr == "1" && element.Barline.Ending.TypeAttr == "start" {
+			return true
+		}
+	}
+	return false
+}
+
+func firstEndingEnds(measure *musicxml.Measure) bool {
+	for _, element := range measure.MusicDataElements {
+		if element.Barline != nil && element.Barline.Ending != nil && element.Barline.Ending.NumberAttr == "1" && element.Barline.Ending.TypeAttr == "stop" {
+			return true
+		}
+	}
+	return false
+}
+
+func clearEndings(measures []musicxml.Measure) []musicxml.Measure {
+	for i := range measures {
+		for j := range measures[i].MusicDataElements {
+			if measures[i].MusicDataElements[j].Barline != nil && measures[i].MusicDataElements[j].Barline.Ending != nil {
+				measures[i].MusicDataElements[j].Barline = nil
+			}
+		}
+	}
+	return measures
+}
+
+func clearRepeatSigns(measures []musicxml.Measure) []musicxml.Measure {
+	for i := range measures {
+		for j := range measures[i].MusicDataElements {
+			if measures[i].MusicDataElements[j].Barline != nil && measures[i].MusicDataElements[j].Barline.Repeat != nil {
+				measures[i].MusicDataElements[j].Barline.Repeat = nil
+			}
+		}
+	}
+	return measures
 }
