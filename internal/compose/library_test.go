@@ -149,13 +149,19 @@ func TestComposerEmpty(t *testing.T) {
 }
 
 func TestRemoveRepititions(t *testing.T) {
+	ending1 := musicxml.NewEnding(musicxml.WithEndingNumber(1), musicxml.WithEndingType(musicxml.EndingTypeStart))
+	ending2 := musicxml.NewEnding(musicxml.WithEndingNumber(1), musicxml.WithEndingType(musicxml.EndingTypeStop))
+	ending3 := musicxml.NewEnding(musicxml.WithEndingNumber(2), musicxml.WithEndingType(musicxml.EndingTypeStart))
 
+	barline1 := musicxml.NewBarline(musicxml.WithEnding(ending1))
+	barline2 := musicxml.NewBarline(musicxml.WithEnding(ending2))
+	barline3 := musicxml.NewBarline(musicxml.WithEnding(ending3))
 	measures := []musicxml.Measure{
 		*musicxml.NewMeasure(),
-		*musicxml.NewMeasure(musicxml.WithEndingBarline(1, musicxml.EndingTypeStart)),
+		*musicxml.NewMeasure(musicxml.WithBarline(barline1)),
 		*musicxml.NewMeasure(),
-		*musicxml.NewMeasure(musicxml.WithEndingBarline(1, musicxml.EndingTypeStop)),
-		*musicxml.NewMeasure(musicxml.WithEndingBarline(2, musicxml.EndingTypeStart)),
+		*musicxml.NewMeasure(musicxml.WithBarline(barline2)),
+		*musicxml.NewMeasure(musicxml.WithBarline(barline3)),
 	}
 
 	result := removeRepetitions(measures)
@@ -174,5 +180,69 @@ func TestRemoveRepititions(t *testing.T) {
 				t.Errorf("There should be no endings left in the measures")
 			}
 		}
+	}
+}
+
+func TestClearRepeatSigns(t *testing.T) {
+	repeat := musicxml.NewBarline(musicxml.WithRepeat(&musicxml.Repeat{}))
+	measures := []musicxml.Measure{
+		*musicxml.NewMeasure(musicxml.WithBarline(repeat)),
+		*musicxml.NewMeasure(),
+	}
+	result := clearRepeatSigns(measures)
+	for _, measure := range result {
+		for _, element := range measure.MusicDataElements {
+			if element.Barline != nil && element.Barline.Repeat != nil {
+				t.Errorf("There should be no repeat signs left in the measures")
+			}
+		}
+	}
+}
+
+func TestEnsurePageBreak(t *testing.T) {
+	for i, test := range []struct {
+		elements []musicxml.MusicDataElement
+		f        func([]musicxml.MusicDataElement) []musicxml.MusicDataElement
+	}{
+		{
+			elements: []musicxml.MusicDataElement{
+				musicxml.MusicDataElement{},
+				musicxml.MusicDataElement{Print: &musicxml.Print{}},
+			},
+			f: ensurePageBreak,
+		},
+		{
+			elements: []musicxml.MusicDataElement{
+				musicxml.MusicDataElement{},
+			},
+			f: ensurePageBreak,
+		},
+		{
+			elements: []musicxml.MusicDataElement{
+				musicxml.MusicDataElement{},
+				musicxml.MusicDataElement{Print: &musicxml.Print{}},
+			},
+			f: ensureLineBreak,
+		},
+		{
+			elements: []musicxml.MusicDataElement{
+				musicxml.MusicDataElement{},
+			},
+			f: ensureLineBreak,
+		},
+	} {
+		t.Run(strconv.Itoa(i), func(t *testing.T) {
+			result := test.f(test.elements)
+			hasPrint := false
+			for _, element := range result {
+				if element.Print != nil {
+					hasPrint = true
+					break
+				}
+			}
+			if !hasPrint {
+				t.Errorf("Expected print element, got %v", result)
+			}
+		})
 	}
 }

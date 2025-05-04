@@ -17,8 +17,9 @@ import (
 )
 
 const (
-	defaultTempo = 82
-	defaultBpm   = 4
+	defaultTempo      = 82
+	defaultBpm        = 4
+	numBarsInCueSheet = 4
 )
 
 var beatUnitMap = map[string]int{
@@ -205,6 +206,19 @@ func (s *selection) composer() string {
 type pieceInfo struct {
 	title    string
 	composer string
+	cue      []musicxml.Measure
+}
+
+func firstN(measures []musicxml.Measure, n int) []musicxml.Measure {
+	if n > len(measures) {
+		n = len(measures)
+	}
+
+	result := make([]musicxml.Measure, n)
+	for i, measure := range measures[:n] {
+		result[i] = *musicxml.MustDeepCopyMeasure(&measure)
+	}
+	return result
 }
 
 func title(score *musicxml.Scorepartwise) string {
@@ -262,6 +276,7 @@ func pickMeasures(library Library, records []db.ProjectContentRecord) selection 
 				pieces = append(pieces, pieceInfo{
 					title:    title(piece),
 					composer: composer(piece),
+					cue:      firstN(measuresForScene, numBarsInCueSheet),
 				},
 				)
 			}
@@ -274,6 +289,37 @@ func pickMeasures(library Library, records []db.ProjectContentRecord) selection 
 func CreateComposition(library Library, project *db.Project) *musicxml.Scorepartwise {
 	result := pickMeasures(library, project.Records)
 	slog.Info("Creating composition", "projectName", project.Name, "measuresCount", len(result.measures))
+
+	// Insert page breaks and line breaks
+	var allMeasures []musicxml.Measure
+
+	if len(result.measures) > 0 {
+		result.measures[0].MusicDataElements = ensurePageBreak(result.measures[0].MusicDataElements)
+	}
+	for i := 0; i < len(result.pieces); i++ {
+		if len(result.pieces[i].cue) == 0 {
+			continue
+		}
+		for j := 0; j < len(result.pieces[i].cue); j++ {
+			result.pieces[i].cue[j].MusicDataElements = clearPrint(result.pieces[i].cue[j].MusicDataElements)
+		}
+		var elements []musicxml.MusicDataElement
+		if i == 0 {
+			elements = ensurePageBreak(result.pieces[i].cue[0].MusicDataElements)
+		} else {
+			elements = ensureLineBreak(result.pieces[i].cue[0].MusicDataElements)
+		}
+
+		result.pieces[i].cue[0].MusicDataElements = elements
+	}
+
+	// Merge all measures
+	for _, piece := range result.pieces {
+		allMeasures = append(allMeasures, piece.cue...)
+	}
+	allMeasures = append(allMeasures, result.measures...)
+	enumerateMeasuresInPlace(allMeasures)
+
 	composition := musicxml.Scorepartwise{
 		Documentattributes: musicxml.Documentattributes{
 			VersionAttr: "4.0",
@@ -283,7 +329,7 @@ func CreateComposition(library Library, project *db.Project) *musicxml.Scorepart
 				Partattributes: musicxml.Partattributes{
 					IdAttr: "P1",
 				},
-				Measure: result.measures,
+				Measure: allMeasures,
 			},
 		},
 		Scoreheader: musicxml.Scoreheader{
@@ -404,4 +450,30 @@ func clearRepeatSigns(measures []musicxml.Measure) []musicxml.Measure {
 		}
 	}
 	return measures
+}
+
+func ensurePageBreak(elements []musicxml.MusicDataElement) []musicxml.MusicDataElement {
+	for i := range elements {
+		if elements[i].Print != nil {
+			elements[i].Print.NewpageAttr = "yes"
+			return elements
+		}
+	}
+	return append([]musicxml.MusicDataElement{musicxml.NewPage()}, elements...)
+}
+
+func ensureLineBreak(elements []musicxml.MusicDataElement) []musicxml.MusicDataElement {
+	for i := range elements {
+		if elements[i].Print != nil {
+			elements[i].Print.NewsystemAttr = "yes"
+			return elements
+		}
+	}
+	return append([]musicxml.MusicDataElement{musicxml.NewSystem()}, elements...)
+}
+
+func clearPrint(elements []musicxml.MusicDataElement) []musicxml.MusicDataElement {
+	return slices.DeleteFunc(elements, func(element musicxml.MusicDataElement) bool {
+		return element.Print != nil
+	})
 }
