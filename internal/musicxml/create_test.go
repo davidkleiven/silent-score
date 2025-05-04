@@ -65,14 +65,55 @@ func TestDefaultPageMaringsNotNil(t *testing.T) {
 }
 
 func TestWithEnding(t *testing.T) {
-	measure := NewMeasure(WithEndingBarline(1, EndingTypeStart))
-	if measure.MusicDataElements[0].Barline == nil {
-		t.Errorf("Should have a barline")
+	for i, endNum := range []EndingType{EndingTypeStart, EndingTypeStop, EndingTypeDiscontinue} {
+		measure := NewMeasure(WithBarline(NewBarline(WithEnding(NewEnding(WithEndingNumber(i), WithEndingType(endNum))))))
+		if measure.MusicDataElements[0].Barline == nil {
+			t.Errorf("Test #%d: Should have a barline", i)
+			return
+		}
+
+		if measure.MusicDataElements[0].Barline.Ending == nil {
+			t.Errorf("Test #%d: Should have a ending", i)
+			return
+		}
+	}
+}
+
+func TestNewPage(t *testing.T) {
+	n := NewPage()
+	if n.Print == nil {
+		t.Errorf("Page should have a print element")
 		return
 	}
+}
 
-	if measure.MusicDataElements[0].Barline.Ending == nil {
-		t.Errorf("Should have a ending")
+func TestNewSystem(t *testing.T) {
+	n := NewSystem()
+	if n.Print == nil {
+		t.Errorf("System should have a print element")
 		return
+	}
+}
+
+func TestWithRepeat(t *testing.T) {
+	b := NewBarline(WithRepeat(&Repeat{}))
+	if b.Repeat == nil {
+		t.Errorf("Barline should have a repeat element")
+		return
+	}
+}
+
+func TestWithPrint(t *testing.T) {
+	p := NewMeasure(WithPrint(&Print{}))
+
+	hasPrint := false
+	for _, element := range p.MusicDataElements {
+		if element.Print != nil {
+			hasPrint = true
+			break
+		}
+	}
+	if !hasPrint {
+		t.Errorf("Measure should have a print element")
 	}
 }

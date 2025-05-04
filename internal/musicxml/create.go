@@ -17,38 +17,21 @@ func WithRehersalMark(mark string) MeasureOpt {
 	}
 }
 
-type EndingType int
-
-const (
-	EndingTypeStart = iota
-	EndingTypeStop
-	EndingTypeDiscontinue
-)
-
-func (et EndingType) String() string {
-	switch et {
-	case EndingTypeStart:
-		return "start"
-	case EndingTypeStop:
-		return "stop"
-	case EndingTypeDiscontinue:
-		return "discontinue"
-	}
-	return "start"
-}
-
-func WithEndingBarline(number int, endingType EndingType) MeasureOpt {
+func WithBarline(b *Barline) MeasureOpt {
 
 	return func(m *Measure) {
 		m.MusicDataElements = append(m.MusicDataElements, MusicDataElement{
-			Barline: &Barline{
-				LocationAttr: "left",
-				Ending: &Ending{
-					TypeAttr:   endingType.String(),
-					NumberAttr: strconv.Itoa(number),
-				},
-			},
+			Barline: b,
 			XMLName: xml.Name{Local: "barline"},
+		})
+	}
+}
+
+func WithPrint(p *Print) MeasureOpt {
+	return func(m *Measure) {
+		m.MusicDataElements = append(m.MusicDataElements, MusicDataElement{
+			Print:   p,
+			XMLName: xml.Name{Local: "print"},
 		})
 	}
 }
@@ -161,4 +144,93 @@ func DefaultPageMargins(marginType string) *Pagemargins {
 			Bottommargin: 85.725,
 		},
 	}
+}
+
+func NewPage() MusicDataElement {
+	return MusicDataElement{
+		XMLName: xml.Name{Local: "print"},
+		Print: &Print{
+			Printattributes: Printattributes{
+				NewpageAttr: "yes",
+			},
+		},
+	}
+}
+
+func NewSystem() MusicDataElement {
+	return MusicDataElement{
+		XMLName: xml.Name{Local: "print"},
+		Print: &Print{
+			Printattributes: Printattributes{
+				NewsystemAttr: "yes",
+			},
+		},
+	}
+}
+
+// Barline constructions
+type BarlineOpt func(b *Barline)
+
+func WithEnding(ending *Ending) BarlineOpt {
+	return func(b *Barline) {
+		b.Ending = ending
+	}
+}
+
+func WithRepeat(repeat *Repeat) BarlineOpt {
+	return func(b *Barline) {
+		b.Repeat = repeat
+	}
+}
+
+func NewBarline(opts ...BarlineOpt) *Barline {
+	var b Barline
+	for _, opt := range opts {
+		opt(&b)
+	}
+	return &b
+
+}
+
+// Ending constructions
+type EndingOpt func(e *Ending)
+
+func WithEndingType(endingType EndingType) EndingOpt {
+	return func(e *Ending) {
+		e.TypeAttr = endingType.String()
+	}
+}
+func WithEndingNumber(endingNumber int) EndingOpt {
+	return func(e *Ending) {
+		e.NumberAttr = strconv.Itoa(endingNumber)
+	}
+}
+
+type EndingType int
+
+const (
+	EndingTypeStart = iota
+	EndingTypeStop
+	EndingTypeDiscontinue
+)
+
+func (et EndingType) String() string {
+	var result string
+	switch et {
+	case EndingTypeStart:
+		result = "start"
+	case EndingTypeStop:
+		result = "stop"
+	case EndingTypeDiscontinue:
+		result = "discontinue"
+	}
+	return result
+}
+
+func NewEnding(opts ...EndingOpt) *Ending {
+	var e Ending
+	for _, opt := range opts {
+		opt(&e)
+	}
+	return &e
 }
