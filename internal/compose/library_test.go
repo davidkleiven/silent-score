@@ -205,30 +205,20 @@ func TestEnsurePageBreak(t *testing.T) {
 		f        func([]musicxml.MusicDataElement) []musicxml.MusicDataElement
 	}{
 		{
-			elements: []musicxml.MusicDataElement{
-				musicxml.MusicDataElement{},
-				musicxml.MusicDataElement{Print: &musicxml.Print{}},
-			},
-			f: ensurePageBreak,
+			elements: []musicxml.MusicDataElement{{}, {Print: &musicxml.Print{}}},
+			f:        ensurePageBreak,
 		},
 		{
-			elements: []musicxml.MusicDataElement{
-				musicxml.MusicDataElement{},
-			},
-			f: ensurePageBreak,
+			elements: []musicxml.MusicDataElement{{}},
+			f:        ensurePageBreak,
 		},
 		{
-			elements: []musicxml.MusicDataElement{
-				musicxml.MusicDataElement{},
-				musicxml.MusicDataElement{Print: &musicxml.Print{}},
-			},
-			f: ensureLineBreak,
+			elements: []musicxml.MusicDataElement{{}, {Print: &musicxml.Print{}}},
+			f:        ensureLineBreak,
 		},
 		{
-			elements: []musicxml.MusicDataElement{
-				musicxml.MusicDataElement{},
-			},
-			f: ensureLineBreak,
+			elements: []musicxml.MusicDataElement{{}},
+			f:        ensureLineBreak,
 		},
 	} {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
