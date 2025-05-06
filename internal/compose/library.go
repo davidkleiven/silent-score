@@ -263,6 +263,8 @@ func pickMeasures(library Library, records []db.ProjectContentRecord) selection 
 					musicxml.SetSystemTextAtBeginning(&measuresForScene[0], record.SceneDesc)
 					musicxml.SetTimeSignatureAtBeginning(&measuresForScene[0], *timeSignature)
 					musicxml.SetTempoAtBeginning(&measuresForScene[0], metronome)
+					barline := musicxml.NewBarline(musicxml.WithBarStyle(musicxml.BarStyleLightLight))
+					musicxml.SetBarlineAtEnd(&measuresForScene[len(measuresForScene)-1], barline)
 				}
 				measures = append(measures, measuresForScene...)
 				slog.Info("Picking piece",
@@ -283,6 +285,12 @@ func pickMeasures(library Library, records []db.ProjectContentRecord) selection 
 		}
 	}
 	enumerateMeasuresInPlace(measures)
+
+	// Add barline at very end
+	barline := musicxml.NewBarline(musicxml.WithBarStyle(musicxml.BarStyleLightHeavy))
+	if len(measures) > 0 {
+		musicxml.SetBarlineAtEnd(&measures[len(measures)-1], barline)
+	}
 	return selection{measures: measures, pieces: pieces}
 }
 
