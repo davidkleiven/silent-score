@@ -291,6 +291,8 @@ func pickMeasures(library Library, records []db.ProjectContentRecord) selection 
 	if len(measures) > 0 {
 		musicxml.SetBarlineAtEnd(&measures[len(measures)-1], barline)
 	}
+
+	removeRedundantClefs(measures)
 	return selection{measures: measures, pieces: pieces}
 }
 
@@ -484,4 +486,22 @@ func clearPrint(elements []musicxml.MusicDataElement) []musicxml.MusicDataElemen
 	return slices.DeleteFunc(elements, func(element musicxml.MusicDataElement) bool {
 		return element.Print != nil
 	})
+}
+
+func removeRedundantClefs(measures []musicxml.Measure) {
+	var currentClef *musicxml.Clef
+	for i := range measures {
+		for j, elem := range measures[i].MusicDataElements {
+			if elem.Attributes != nil {
+				for k := 0; k < len(elem.Attributes.Clef); k++ {
+					if musicxml.ClefEquals(&elem.Attributes.Clef[k], currentClef) {
+						measures[i].MusicDataElements[j].Attributes.Clef = slices.Delete(measures[i].MusicDataElements[j].Attributes.Clef, k, k+1)
+						k--
+					} else {
+						currentClef = &elem.Attributes.Clef[k]
+					}
+				}
+			}
+		}
+	}
 }

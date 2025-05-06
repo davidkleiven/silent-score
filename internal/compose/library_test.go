@@ -1,6 +1,7 @@
 package compose
 
 import (
+	"encoding/xml"
 	"strconv"
 	"testing"
 
@@ -235,4 +236,74 @@ func TestEnsurePageBreak(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestRemoveRedundantClefs(t *testing.T) {
+	clef1 := musicxml.Clef{ClefDesc: musicxml.ClefDesc{Sign: "G"}}
+	clef2 := musicxml.Clef{}
+
+	for _, test := range []struct {
+		clefs        map[int][]musicxml.Clef
+		wantNumClefs int
+		desc         string
+	}{
+		{
+			clefs:        map[int][]musicxml.Clef{},
+			wantNumClefs: 0,
+			desc:         "No clefs",
+		},
+		{
+			clefs:        map[int][]musicxml.Clef{0: {clef1}},
+			wantNumClefs: 1,
+			desc:         "One clef at beginning",
+		},
+		{
+			clefs:        map[int][]musicxml.Clef{0: {clef1}, 4: {clef1}},
+			wantNumClefs: 1,
+			desc:         "One redundant clef at bar 4",
+		},
+		{
+			clefs:        map[int][]musicxml.Clef{0: {clef1}, 4: {clef2}},
+			wantNumClefs: 2,
+			desc:         "New clef in bar 4",
+		},
+		{
+			clefs:        map[int][]musicxml.Clef{0: {clef1, clef2}, 4: {clef1}},
+			wantNumClefs: 3,
+			desc:         "Clef split in bar 0 and back to old clef in bar 4",
+		},
+		{
+			clefs:        map[int][]musicxml.Clef{0: {clef1, clef2}, 4: {clef2}},
+			wantNumClefs: 2,
+			desc:         "Clef split in bar 0 and redundant clef in bar 4",
+		},
+	} {
+		t.Run(test.desc, func(t *testing.T) {
+			measures := eightBarPiece()
+
+			// Add clefs to the measures
+			for i, clefs := range test.clefs {
+				measures[i].MusicDataElements = append(measures[i].MusicDataElements, musicxml.MusicDataElement{
+					Attributes: &musicxml.Attributes{
+						Clef: clefs,
+					},
+					XMLName: xml.Name{Local: "attributes"},
+				})
+			}
+			removeRedundantClefs(measures)
+			numClefs := 0
+			for _, measure := range measures {
+				for _, elem := range measure.MusicDataElements {
+					if elem.Attributes != nil {
+						numClefs += len(elem.Attributes.Clef)
+					}
+				}
+			}
+
+			if numClefs != test.wantNumClefs {
+				t.Errorf("Expected %d clefs, got %d", test.wantNumClefs, numClefs)
+			}
+		})
+	}
+
 }

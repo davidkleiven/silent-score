@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/xml"
 	"errors"
+	"fmt"
 	"io/fs"
 	"os"
 	"testing"
@@ -486,4 +487,30 @@ func TestSetTempoWithExistingMetronome(t *testing.T) {
 		t.Errorf("Tempo not set correctly, expected %d, got %d", tempo, element.Direction.Directiontype[0].Metronome.Perminute.Value)
 	}
 
+}
+
+func TestClefEqual(t *testing.T) {
+	clef1 := Clef{ClefDesc: ClefDesc{Sign: "G", Line: 2}}
+	clef2 := Clef{ClefDesc: ClefDesc{Sign: "G", Line: 2}}
+	clef3 := Clef{ClefDesc: ClefDesc{Sign: "F", Line: 2}}
+	clef4 := Clef{ClefDesc: ClefDesc{Sign: "G", Line: 4}}
+
+	for i, test := range []struct {
+		clef1, clef2 *Clef
+		expected     bool
+	}{
+		{&clef1, &clef2, true},
+		{&clef1, &clef3, false},
+		{&clef1, &clef4, false},
+		{&clef1, nil, false},
+		{nil, &clef2, false},
+		{nil, nil, false},
+	} {
+		t.Run(fmt.Sprintf("Test %d", i), func(t *testing.T) {
+			result := ClefEquals(test.clef1, test.clef2)
+			if result != test.expected {
+				t.Errorf("Expected %v, got %v", test.expected, result)
+			}
+		})
+	}
 }

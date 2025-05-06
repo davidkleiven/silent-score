@@ -223,3 +223,10 @@ func SetBarlineAtEnd(measure *Measure, barline *Barline) {
 		XMLName: xml.Name{Local: "barline"},
 	})
 }
+
+func ClefEquals(clef1, clef2 *Clef) bool {
+	if clef1 == nil || clef2 == nil {
+		return false
+	}
+	return clef1.Sign == clef2.Sign && clef1.Line == clef2.Line && clef1.OctaveChange == clef2.OctaveChange
+}
