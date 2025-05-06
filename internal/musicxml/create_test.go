@@ -117,3 +117,13 @@ func TestWithPrint(t *testing.T) {
 		t.Errorf("Measure should have a print element")
 	}
 }
+
+func TestWithBarStyle(t *testing.T) {
+	for i, style := range []BarStyle{BarStyleDashed, BarStyleDotted, BarStyleHeavy, BarStyleHeavyHeavy, BarStyleShort, BarStyleHeavyLight, BarStyleLightLight, BarStyleTick, BarStyleLightHeavy, BarStyleRegular} {
+		barline := NewBarline(WithBarStyle(style))
+		if barline.Barstyle.Value != style.String() {
+			t.Errorf("Test #%d: Barline should have a barstyle %s", i, style.String())
+			return
+		}
+	}
+}

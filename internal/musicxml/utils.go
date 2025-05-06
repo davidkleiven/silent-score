@@ -213,3 +213,13 @@ func applyBeforeFirstNote(measure *Measure, name string, reuseExisting bool, fn 
 	fn(&newElement)
 	measure.MusicDataElements = append(measure.MusicDataElements, newElement)
 }
+
+func SetBarlineAtEnd(measure *Measure, barline *Barline) {
+	measure.MusicDataElements = slices.DeleteFunc(measure.MusicDataElements, func(m MusicDataElement) bool {
+		return m.Barline != nil
+	})
+	measure.MusicDataElements = append(measure.MusicDataElements, MusicDataElement{
+		Barline: barline,
+		XMLName: xml.Name{Local: "barline"},
+	})
+}

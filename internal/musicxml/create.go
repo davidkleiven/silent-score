@@ -183,6 +183,54 @@ func WithRepeat(repeat *Repeat) BarlineOpt {
 	}
 }
 
+type BarStyle int
+
+const (
+	BarStyleDashed = iota
+	BarStyleDotted
+	BarStyleHeavy
+	BarStyleHeavyHeavy
+	BarStyleHeavyLight
+	BarStyleLightHeavy
+	BarStyleLightLight
+	BarStyleRegular
+	BarStyleShort
+	BarStyleTick
+)
+
+func (bs BarStyle) String() string {
+	var result string
+	switch bs {
+	case BarStyleDashed:
+		result = "dashed"
+	case BarStyleDotted:
+		result = "dotted"
+	case BarStyleHeavy:
+		result = "heavy"
+	case BarStyleHeavyHeavy:
+		result = "heavy-heavy"
+	case BarStyleHeavyLight:
+		result = "heavy-light"
+	case BarStyleLightHeavy:
+		result = "light-heavy"
+	case BarStyleLightLight:
+		result = "light-light"
+	case BarStyleRegular:
+		result = "regular"
+	case BarStyleShort:
+		result = "short"
+	case BarStyleTick:
+		result = "tick"
+	}
+	return result
+}
+
+func WithBarStyle(style BarStyle) BarlineOpt {
+	return func(b *Barline) {
+		b.Barstyle = &Barstylecolor{Value: style.String()}
+	}
+}
+
 func NewBarline(opts ...BarlineOpt) *Barline {
 	var b Barline
 	for _, opt := range opts {
