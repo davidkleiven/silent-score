@@ -32,40 +32,52 @@ var beatUnitMap = map[string]int{
 	"64th":    64,
 }
 
-type Library interface {
-	BestMatch(desc string) *musicxml.Scorepartwise
-}
-
 //go:embed assets/*.musicxml
 var standardLib embed.FS
 
-type StandardLibrary struct {
+type FileNameProvider interface {
+	Names() []string
+}
+
+type StandardLibraryFileNameProvider struct {
 	directory string
 }
 
-func NewStandardLibrary() *StandardLibrary {
-	return &StandardLibrary{directory: "assets"}
-}
-
-func (sl *StandardLibrary) readNames() []string {
-	entries, err := standardLib.ReadDir(sl.directory)
+func (s *StandardLibraryFileNameProvider) Names() []string {
+	entries, err := standardLib.ReadDir(s.directory)
 	if err != nil {
 		slog.Error("Failed to read standard library directory", "error", err)
 		return []string{}
 	}
 	names := make([]string, len(entries))
 	for i, entry := range entries {
-		names[i] = entry.Name()
+		names[i] = s.directory + "/" + entry.Name()
 	}
 	slog.Info("Standard library loaded", "count", len(names))
 	return names
 }
 
+func NewStandardLibraryFileNameProvider() *StandardLibraryFileNameProvider {
+	return &StandardLibraryFileNameProvider{directory: "assets"}
+}
+
+type Library interface {
+	BestMatch(desc string) *musicxml.Scorepartwise
+}
+
+type StandardLibrary struct {
+	nameProvider FileNameProvider
+}
+
+func NewStandardLibrary() *StandardLibrary {
+	return &StandardLibrary{nameProvider: NewStandardLibraryFileNameProvider()}
+}
+
 func (sl *StandardLibrary) scores() iter.Seq[*musicxml.Scorepartwise] {
-	names := sl.readNames()
+	names := sl.nameProvider.Names()
 	return func(yield func(item *musicxml.Scorepartwise) bool) {
 		for _, name := range names {
-			score := musicxml.ReadFromFileName(standardLib, sl.directory+"/"+name)
+			score := musicxml.ReadFromFileName(standardLib, name)
 			if !yield(&score) {
 				break
 			}
@@ -76,8 +88,8 @@ func (sl *StandardLibrary) scores() iter.Seq[*musicxml.Scorepartwise] {
 func (sl *StandardLibrary) BestMatch(desc string) *musicxml.Scorepartwise {
 	texts := collectTextFields(sl.scores())
 	bestMatch := bestMatchForDesc(desc, texts)
-	name := sl.readNames()[bestMatch]
-	score := musicxml.ReadFromFileName(standardLib, sl.directory+"/"+name)
+	name := sl.nameProvider.Names()[bestMatch]
+	score := musicxml.ReadFromFileName(standardLib, name)
 	return &score
 }
 

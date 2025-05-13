@@ -69,8 +69,8 @@ func TestCompose(t *testing.T) {
 }
 
 func TestStandardLibrary(t *testing.T) {
-	sl := NewStandardLibrary()
-	names := sl.readNames()
+	sl := NewStandardLibraryFileNameProvider()
+	names := sl.Names()
 	if len(names) == 0 {
 		t.Errorf("Expected non-empty names, got %v", names)
 	}
@@ -86,8 +86,8 @@ func TestStandardLibraryBestMatch(t *testing.T) {
 }
 
 func TestStandardLibraryErrorOnOpen(t *testing.T) {
-	sl := StandardLibrary{directory: "invalid/path"}
-	names := sl.readNames()
+	sl := StandardLibraryFileNameProvider{directory: "invalid/directory"}
+	names := sl.Names()
 	if len(names) != 0 {
 		t.Errorf("Expected empty names, got %v", names)
 	}
