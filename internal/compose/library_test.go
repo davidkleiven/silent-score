@@ -2,6 +2,12 @@ package compose
 
 import (
 	"encoding/xml"
+	"fmt"
+	"io/fs"
+	"os"
+	"path/filepath"
+	"runtime"
+	"slices"
 	"strconv"
 	"testing"
 
@@ -306,4 +312,57 @@ func TestRemoveRedundantClefs(t *testing.T) {
 		})
 	}
 
+}
+
+type failingFs struct{}
+
+func (f *failingFs) Open(name string) (fs.File, error) {
+	return nil, fmt.Errorf("failed to open %s", name)
+}
+
+func TestLocalDirectoryFolderEmptyOnError(t *testing.T) {
+	f := failingFs{}
+	l := LocalFileNameProvider{fs: &f}
+	names := l.Names()
+	if len(names) != 0 {
+		t.Errorf("Expected empty names, got %v", names)
+	}
+}
+
+func TestLocalDirtoryProvider(t *testing.T) {
+	folder, err := os.MkdirTemp("/tmp", "test")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	defer os.RemoveAll(folder)
+
+	for _, filename := range []string{"test.txt", "test.musicxml", "test.pdf"} {
+		file, err := os.Create(folder + "/" + filename)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		defer file.Close()
+	}
+
+	l := LocalFileNameProvider{fs: os.DirFS(folder)}
+	names := l.Names()
+	expect := []string{"test.musicxml"}
+	if slices.Compare(names, expect) != 0 {
+		t.Errorf("Expected names to be %v, got %v", expect, names)
+	}
+}
+
+func TestLocalLibrary(t *testing.T) {
+	_, currentFile, _, _ := runtime.Caller(0)
+	currentDir := filepath.Dir(currentFile)
+	testData := filepath.Join(currentDir, "../../test/data")
+	library := NewLocalLibrary(testData)
+	bestMatch := library.BestMatch("Whatever")
+
+	expect := "Untitled score"
+	if bestMatch.Work.Worktitle != expect {
+		t.Errorf("Expected work title %s, got %s", expect, bestMatch.Work.Worktitle)
+	}
 }

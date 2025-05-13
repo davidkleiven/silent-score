@@ -3,7 +3,9 @@ package compose
 import (
 	"embed"
 	"fmt"
+	"io/fs"
 	"iter"
+	"os"
 	"slices"
 	"strconv"
 	"strings"
@@ -37,10 +39,15 @@ var standardLib embed.FS
 
 type FileNameProvider interface {
 	Names() []string
+	Fs() fs.FS
 }
 
 type StandardLibraryFileNameProvider struct {
 	directory string
+}
+
+func (s *StandardLibraryFileNameProvider) Fs() fs.FS {
+	return standardLib
 }
 
 func (s *StandardLibraryFileNameProvider) Names() []string {
@@ -61,23 +68,49 @@ func NewStandardLibraryFileNameProvider() *StandardLibraryFileNameProvider {
 	return &StandardLibraryFileNameProvider{directory: "assets"}
 }
 
+type LocalFileNameProvider struct {
+	fs fs.FS
+}
+
+func (s *LocalFileNameProvider) Names() []string {
+	entries, err := fs.Glob(s.fs, "*.musicxml")
+	if err != nil {
+		slog.Error("Failed to read local library directory", "error", err)
+		return []string{}
+	}
+	slog.Info("Local library loaded", "count", len(entries))
+	return entries
+}
+
+func (s *LocalFileNameProvider) Fs() fs.FS {
+	return s.fs
+}
+
+func NewLocalLibraryFileNameProvider(directory string) *LocalFileNameProvider {
+	return &LocalFileNameProvider{fs: os.DirFS(directory)}
+}
+
 type Library interface {
 	BestMatch(desc string) *musicxml.Scorepartwise
 }
 
-type StandardLibrary struct {
+type FsLibrary struct {
 	nameProvider FileNameProvider
 }
 
-func NewStandardLibrary() *StandardLibrary {
-	return &StandardLibrary{nameProvider: NewStandardLibraryFileNameProvider()}
+func NewStandardLibrary() *FsLibrary {
+	return &FsLibrary{nameProvider: NewStandardLibraryFileNameProvider()}
 }
 
-func (sl *StandardLibrary) scores() iter.Seq[*musicxml.Scorepartwise] {
+func NewLocalLibrary(directory string) *FsLibrary {
+	return &FsLibrary{nameProvider: NewLocalLibraryFileNameProvider(directory)}
+}
+
+func (sl *FsLibrary) scores() iter.Seq[*musicxml.Scorepartwise] {
 	names := sl.nameProvider.Names()
 	return func(yield func(item *musicxml.Scorepartwise) bool) {
 		for _, name := range names {
-			score := musicxml.ReadFromFileName(standardLib, name)
+			score := musicxml.ReadFromFileName(sl.nameProvider.Fs(), name)
 			if !yield(&score) {
 				break
 			}
@@ -85,11 +118,11 @@ func (sl *StandardLibrary) scores() iter.Seq[*musicxml.Scorepartwise] {
 	}
 }
 
-func (sl *StandardLibrary) BestMatch(desc string) *musicxml.Scorepartwise {
+func (sl *FsLibrary) BestMatch(desc string) *musicxml.Scorepartwise {
 	texts := collectTextFields(sl.scores())
 	bestMatch := bestMatchForDesc(desc, texts)
 	name := sl.nameProvider.Names()[bestMatch]
-	score := musicxml.ReadFromFileName(standardLib, name)
+	score := musicxml.ReadFromFileName(sl.nameProvider.Fs(), name)
 	return &score
 }
 
