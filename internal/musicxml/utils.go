@@ -91,8 +91,8 @@ func ReadFromFile(reader io.Reader) (Scorepartwise, error) {
 	return score, nil
 }
 
-func ReadFromFileName(fs fs.FS, name string) Scorepartwise {
-	file, err := fs.Open(name)
+func ReadFromFileName(fileSystem fs.FS, name string) Scorepartwise {
+	file, err := fileSystem.Open(name)
 	if err != nil {
 		slog.Error("Failed to open file", "file", name, "error", err)
 		return Scorepartwise{}
