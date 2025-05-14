@@ -42,6 +42,11 @@ type FileNameProvider interface {
 	Fs() fs.FS
 }
 
+type matchResult struct {
+	score      *musicxml.Scorepartwise
+	similarity int
+}
+
 type StandardLibraryFileNameProvider struct {
 	directory string
 }
@@ -91,7 +96,7 @@ func NewLocalLibraryFileNameProvider(directory string) *LocalFileNameProvider {
 }
 
 type Library interface {
-	BestMatch(desc string) *musicxml.Scorepartwise
+	BestMatch(desc string) matchResult
 }
 
 type FsLibrary struct {
@@ -118,21 +123,27 @@ func (sl *FsLibrary) scores() iter.Seq[*musicxml.Scorepartwise] {
 	}
 }
 
-func (sl *FsLibrary) BestMatch(desc string) *musicxml.Scorepartwise {
+func (sl *FsLibrary) BestMatch(desc string) matchResult {
 	texts := collectTextFields(sl.scores())
 	bestMatch := bestMatchForDesc(desc, texts)
-	name := sl.nameProvider.Names()[bestMatch]
+	name := sl.nameProvider.Names()[bestMatch.Index]
 	score := musicxml.ReadFromFileName(sl.nameProvider.Fs(), name)
-	return &score
+	return matchResult{
+		score:      &score,
+		similarity: bestMatch.Similarity}
 }
 
 type InMemoryLibrary struct {
 	scores []*musicxml.Scorepartwise
 }
 
-func (l *InMemoryLibrary) BestMatch(desc string) *musicxml.Scorepartwise {
+func (l *InMemoryLibrary) BestMatch(desc string) matchResult {
 	texts := collectTextFields(slices.Values(l.scores))
-	return l.scores[bestMatchForDesc(desc, texts)]
+	result := bestMatchForDesc(desc, texts)
+	return matchResult{
+		score:      l.scores[result.Index],
+		similarity: result.Similarity,
+	}
 }
 
 func collectTextFields(scoreIter iter.Seq[*musicxml.Scorepartwise]) []string {
@@ -143,14 +154,13 @@ func collectTextFields(scoreIter iter.Seq[*musicxml.Scorepartwise]) []string {
 	return texts
 }
 
-func bestMatchForDesc(desc string, texts []string) int {
+func bestMatchForDesc(desc string, texts []string) Score {
 	normalizedDesc := normalize(desc)
 	normalizedTexts := make([]string, len(texts))
 	for i, text := range texts {
 		normalizedTexts[i] = normalize(text)
 	}
-	bestMatch := orderPieces(normalizedDesc, normalizedTexts)
-	return bestMatch[0].Index
+	return orderPieces(normalizedDesc, normalizedTexts)[0]
 }
 
 func tempoIfGiven(tempo int, measures []musicxml.Measure) *musicxml.Metronome {
@@ -288,7 +298,7 @@ func pickMeasures(library Library, records []db.ProjectContentRecord) selection 
 	var measures []musicxml.Measure
 	var pieces []pieceInfo
 	for _, record := range records {
-		piece := library.BestMatch(record.Keywords)
+		piece := library.BestMatch(record.Keywords).score
 		if piece != nil {
 			if len(piece.Part) > 0 {
 				measuresWithNoRepeats := removeRepetitions(piece.Part[0].Measure)

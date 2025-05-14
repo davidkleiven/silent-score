@@ -85,7 +85,7 @@ func TestStandardLibrary(t *testing.T) {
 func TestStandardLibraryBestMatch(t *testing.T) {
 	sl := NewStandardLibrary()
 	desc := "Andante Doloroso, No. 70"
-	score := sl.BestMatch(desc)
+	score := sl.BestMatch(desc).score
 	if score.Work.Worktitle != desc {
 		t.Errorf("Expected work title %s, got %s", desc, score.Work.Worktitle)
 	}
@@ -362,7 +362,7 @@ func TestLocalLibrary(t *testing.T) {
 	bestMatch := library.BestMatch("Whatever")
 
 	expect := "Untitled score"
-	if bestMatch.Work.Worktitle != expect {
-		t.Errorf("Expected work title %s, got %s", expect, bestMatch.Work.Worktitle)
+	if bestMatch.score.Work.Worktitle != expect {
+		t.Errorf("Expected work title %s, got %s", expect, bestMatch.score.Work.Worktitle)
 	}
 }
