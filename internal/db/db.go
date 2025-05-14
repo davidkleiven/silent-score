@@ -17,7 +17,7 @@ func GormConnection(name string) (*gorm.DB, error) {
 func AutoMigrate(con *gorm.DB) error {
 	return utils.ReturnFirstError(
 		func() error { return con.Exec("PRAGMA foreign_keys = ON", nil).Error },
-		func() error { return con.AutoMigrate(&Project{}, &ProjectContentRecord{}) },
+		func() error { return con.AutoMigrate(&Project{}, &ProjectContentRecord{}, &ConfiguredLibraries{}) },
 	)
 }
 
@@ -70,6 +70,12 @@ type ProjectContentRecord struct {
 	Theme       uint   `gorm:"default:0"`
 }
 
+type ConfiguredLibraries struct {
+	ID        uint `gorm:"primarykey,autoincrement"`
+	CreatedAt time.Time
+	Path      string `gorm:"unique"`
+}
+
 type GormStore struct {
 	Database *gorm.DB
 }
@@ -102,4 +108,24 @@ func (g *GormStore) Load() ([]Project, error) {
 	var projects []Project
 	tx := g.Database.Model(&Project{}).Preload("Records").Find(&projects)
 	return projects, tx.Error
+}
+
+func (g *GormStore) AddLibrary(path string) error {
+	lib := ConfiguredLibraries{
+		CreatedAt: time.Now(),
+		Path:      path,
+	}
+	return g.Database.Create(&lib).Error
+}
+
+func (g *GormStore) RemoveLibrary(id uint) error {
+	var lib ConfiguredLibraries
+	tx := g.Database.Delete(&lib, "id = ?", id)
+	return tx.Error
+}
+
+func (g *GormStore) ListLibraries() ([]ConfiguredLibraries, error) {
+	var libs []ConfiguredLibraries
+	tx := g.Database.Find(&libs)
+	return libs, tx.Error
 }
