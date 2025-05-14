@@ -115,7 +115,12 @@ func (g *GormStore) AddLibrary(path string) error {
 		CreatedAt: time.Now(),
 		Path:      path,
 	}
-	return g.Database.Create(&lib).Error
+	return g.Database.Clauses(
+		clause.OnConflict{
+			Columns:   []clause.Column{{Name: "path"}},
+			DoNothing: true,
+		},
+	).Create(&lib).Error
 }
 
 func (g *GormStore) RemoveLibrary(id uint) error {

@@ -283,39 +283,89 @@ func storeTests(dbName string) []storeTest {
 	}
 }
 
+type configuredLibraryTest struct {
+	store LibraryList
+	desc  string
+}
+
+func configuredLibraryTests(dbName string) []configuredLibraryTest {
+	return []configuredLibraryTest{
+		{
+			store: namedGormStore(dbName),
+			desc:  "gorm store",
+		},
+		{
+			store: NewInMemoryLibraryList(),
+			desc:  "in memory list",
+		},
+	}
+}
+
 func TestConfiguredLibraries(t *testing.T) {
-	store := namedGormStore(t.Name())
 	defer os.Remove(t.Name())
 
-	if err := store.AddLibrary("/path/to/library1"); err != nil {
-		t.Error(err)
-		return
-	}
+	for _, test := range configuredLibraryTests(t.Name()) {
+		t.Run(test.desc, func(t *testing.T) {
 
-	projects, err := store.ListLibraries()
-	if err != nil {
-		t.Error(err)
-		return
+			if err := test.store.AddLibrary("/path/to/library1"); err != nil {
+				t.Error(err)
+				return
+			}
+
+			projects, err := test.store.ListLibraries()
+			if err != nil {
+				t.Error(err)
+				return
+			}
+			if len(projects) != 1 {
+				t.Errorf("Expected 1 library got %d", len(projects))
+				return
+			}
+			if projects[0].Path != "/path/to/library1" {
+				t.Errorf("Expected path '/path/to/library1' got '%s'", projects[0].Path)
+				return
+			}
+			if err := test.store.RemoveLibrary(projects[0].ID); err != nil {
+				t.Error(err)
+				return
+			}
+			projects, err = test.store.ListLibraries()
+			if err != nil {
+				t.Error(err)
+				return
+			}
+			if len(projects) != 0 {
+				t.Errorf("Expected 0 libraries got %d", len(projects))
+				return
+			}
+		})
 	}
-	if len(projects) != 1 {
-		t.Errorf("Expected 1 library got %d", len(projects))
-		return
-	}
-	if projects[0].Path != "/path/to/library1" {
-		t.Errorf("Expected path '/path/to/library1' got '%s'", projects[0].Path)
-		return
-	}
-	if err := store.RemoveLibrary(projects[0].ID); err != nil {
-		t.Error(err)
-		return
-	}
-	projects, err = store.ListLibraries()
-	if err != nil {
-		t.Error(err)
-		return
-	}
-	if len(projects) != 0 {
-		t.Errorf("Expected 0 libraries got %d", len(projects))
-		return
+}
+
+func TestConfiguredLibrariesDuplicate(t *testing.T) {
+	defer os.Remove(t.Name())
+
+	for _, test := range configuredLibraryTests(t.Name()) {
+		t.Run(test.desc, func(t *testing.T) {
+			if err := test.store.AddLibrary("/path/to/library1"); err != nil {
+				t.Error(err)
+				return
+			}
+
+			if err := test.store.AddLibrary("/path/to/library1"); err != nil {
+				t.Error(err)
+				return
+			}
+
+			projects, err := test.store.ListLibraries()
+			if err != nil {
+				t.Error(err)
+				return
+			}
+			if len(projects) != 1 {
+				t.Errorf("Expected 1 library got %d", len(projects))
+				return
+			}
+		})
 	}
 }
