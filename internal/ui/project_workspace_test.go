@@ -15,7 +15,7 @@ import (
 )
 
 func initializedPw() ProjectWorkspace {
-	pw := ProjectWorkspace{store: db.NewInMemoryStore(), project: db.NewProject(db.WithName("my-project"))}
+	pw := ProjectWorkspace{store: db.NewInMemoryProjectStore(), project: db.NewProject(db.WithName("my-project"))}
 	pw.Init()
 	return pw
 }
@@ -497,7 +497,7 @@ func TestCtrlS(t *testing.T) {
 	} {
 		t.Run(test.desc, func(t *testing.T) {
 			pw := ProjectWorkspace{
-				store:   db.NewInMemoryStore(),
+				store:   db.NewInMemoryProjectStore(),
 				project: db.NewProject(db.WithName("my-project")),
 			}
 			pw.Init()
@@ -525,11 +525,17 @@ func TestCtrlS(t *testing.T) {
 
 func TestEsc(t *testing.T) {
 	pw := initializedPw()
-	pw.store = db.NewInMemoryStore()
-	model, _ := pw.Update(tea.KeyMsg{Type: tea.KeyEsc})
+	pw.store = db.NewInMemoryProjectStore()
+	_, cmd := pw.Update(tea.KeyMsg{Type: tea.KeyEsc})
 
-	switch model.(type) {
-	case *ProjectOverviewModel:
+	if cmd == nil {
+		t.Errorf("Wanted nil command got %v", cmd)
+	}
+
+	result := cmd()
+
+	switch result.(type) {
+	case toProjectOverview:
 	default:
 		t.Error("Wanted project overview model")
 	}
@@ -631,7 +637,7 @@ func TestSaveFailsDuringDelete(t *testing.T) {
 }
 
 func initProjectFromWithRecords(projects []db.Project) (ProjectWorkspace, error) {
-	database := db.NewInMemoryStore()
+	database := db.NewInMemoryProjectStore()
 	for _, p := range projects {
 		if err := database.Save(&p); err != nil {
 			return ProjectWorkspace{}, err
@@ -669,7 +675,7 @@ func (c *customFileCreator) Create(name string) (musicxml.WriterCloser, error) {
 func TestGenerateScore(t *testing.T) {
 	tmpFile := t.TempDir() + "/test.xml"
 	pw := ProjectWorkspace{
-		store:   db.NewInMemoryStore(),
+		store:   db.NewInMemoryProjectStore(),
 		project: db.NewProject(db.WithName("my-project")),
 		library: compose.NewStandardLibrary(),
 		creator: &customFileCreator{name: tmpFile},

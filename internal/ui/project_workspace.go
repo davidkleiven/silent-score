@@ -367,7 +367,9 @@ func (pw *ProjectWorkspace) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			err := pw.save()
 			pw.status.Set("Successfully stored project", err)
 			if keyName == "esc" {
-				return &ProjectOverviewModel{store: pw.store}, nil
+				return pw, func() tea.Msg {
+					return toProjectOverview{}
+				}
 			}
 		case "delete":
 			pw.iTable.deleteActiveRow()
