@@ -277,7 +277,7 @@ func storeTests(dbName string) []storeTest {
 			desc:  "gorm store",
 		},
 		{
-			store: NewInMemoryStore(),
+			store: NewInMemoryProjectStore(),
 			desc:  "in memory store",
 		},
 	}

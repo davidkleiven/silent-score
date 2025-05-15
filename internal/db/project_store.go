@@ -12,7 +12,7 @@ type InMemoryProjectStore struct {
 	projects map[uint]Project
 }
 
-func NewInMemoryStore() *InMemoryProjectStore {
+func NewInMemoryProjectStore() *InMemoryProjectStore {
 	return &InMemoryProjectStore{
 		projects: make(map[uint]Project),
 	}

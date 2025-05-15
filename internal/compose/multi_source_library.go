@@ -6,7 +6,7 @@ type MultiSourceLibrary struct {
 	libraries []Library
 }
 
-func (m *MultiSourceLibrary) BestMatch(desc string) *musicxml.Scorepartwise {
+func (m *MultiSourceLibrary) BestMatch(desc string) matchResult {
 	var best *musicxml.Scorepartwise
 	bestScore := 0
 	for _, lib := range m.libraries {
@@ -16,5 +16,11 @@ func (m *MultiSourceLibrary) BestMatch(desc string) *musicxml.Scorepartwise {
 			bestScore = result.similarity
 		}
 	}
-	return best
+	return matchResult{score: best, similarity: bestScore}
+}
+
+func NewMultiSourceLibrary(libraries ...Library) *MultiSourceLibrary {
+	return &MultiSourceLibrary{
+		libraries: libraries,
+	}
 }

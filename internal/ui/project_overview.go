@@ -11,9 +11,7 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/davidkleiven/silent-score/internal/compose"
 	"github.com/davidkleiven/silent-score/internal/db"
-	"github.com/davidkleiven/silent-score/internal/musicxml"
 )
 
 type ProjectOverviewMode int
@@ -188,7 +186,15 @@ func (p *ProjectOverviewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				p.toDeleteConfirmation()
 			case "enter":
 				p.status.Set(fmt.Sprintf("Selected project %s", p.projects.SelectedItem().FilterValue()), nil)
-				return &ProjectWorkspace{store: p.store, project: p.projects.SelectedItem().(*db.Project), library: compose.NewStandardLibrary(), creator: &musicxml.FileCreator{}}, nil
+				return p, func() tea.Msg {
+					return toProjectWorkspace{
+						project: p.projects.SelectedItem().(*db.Project),
+					}
+				}
+			case "ctrl+l":
+				return p, func() tea.Msg {
+					return toLibraryList{}
+				}
 			}
 		}
 		p.projects, cmd = p.projects.Update(msg)
@@ -200,6 +206,7 @@ func (p *ProjectOverviewModel) View() string {
 	content := []string{
 		p.projects.View(),
 		p.newProjectName.View(),
+		helpStyle.Render("ctrl+l: List libraries \u2022 ctrl+n: New project \u2022 delete: Delete project \u2022 enter: Open project \u2022 ctrl+c: Quit"),
 		p.status.Render(modeDescription(p.mode)),
 	}
 	return lipgloss.JoinVertical(lipgloss.Left, content...)

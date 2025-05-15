@@ -76,6 +76,10 @@ type ConfiguredLibraries struct {
 	Path      string `gorm:"unique"`
 }
 
+func (c *ConfiguredLibraries) FilterValue() string {
+	return c.Path
+}
+
 type GormStore struct {
 	Database *gorm.DB
 }

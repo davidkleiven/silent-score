@@ -21,7 +21,7 @@ func TestMultiLibraryBestMatch(t *testing.T) {
 		},
 	}
 
-	bm := library.BestMatch("Bach")
+	bm := library.BestMatch("Bach").score
 	if bm.Scoreheader.Credit[0].Creditwords.Value != "Bach" {
 		t.Errorf("Expected 'Bach', got '%s'", bm.Scoreheader.Credit[0].Creditwords.Value)
 	}

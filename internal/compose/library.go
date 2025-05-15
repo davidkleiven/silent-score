@@ -298,7 +298,8 @@ func pickMeasures(library Library, records []db.ProjectContentRecord) selection 
 	var measures []musicxml.Measure
 	var pieces []pieceInfo
 	for _, record := range records {
-		piece := library.BestMatch(record.Keywords).score
+		bm := library.BestMatch(record.Keywords)
+		piece := bm.score
 		if piece != nil {
 			if len(piece.Part) > 0 {
 				measuresWithNoRepeats := removeRepetitions(piece.Part[0].Measure)
@@ -325,6 +326,7 @@ func pickMeasures(library Library, records []db.ProjectContentRecord) selection 
 				slog.Info("Picking piece",
 					"keywords", record.Keywords,
 					"sceneDesc", record.SceneDesc,
+					"similarity-score", bm.similarity,
 					"title", title(piece),
 					"timeSignature", fmt.Sprintf("%d/%d", timeSignature.Beats, timeSignature.Beattype),
 					"tempo", metronome.Perminute.Value,

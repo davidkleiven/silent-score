@@ -8,7 +8,7 @@ import (
 	"github.com/davidkleiven/silent-score/internal/db"
 )
 
-func initProjectDb() *db.InMemoryProjectStore {
+func initProjectDb() *db.InMemoryStore {
 	store := db.NewInMemoryStore()
 
 	store.Save(db.NewProject(db.WithName("project1")))
