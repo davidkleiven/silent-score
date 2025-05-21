@@ -418,7 +418,7 @@ func TestLibrarySelection(t *testing.T) {
 }
 
 func TestSelectionComposer(t *testing.T) {
-	selection := selection{pieces: []pieceInfo{{composer: "Beethoven"}, {composer: "Bach"}}}
+	selection := selection{pieces: []pieceInfo{{composer: "Beethoven"}, {composer: "Bach"}, {composer: "Beethoven"}}}
 	if composers := selection.composer(); composers != "Beethoven, Bach" {
 		t.Errorf("Expected composers Beethoven, Bach, got %s", composers)
 	}
