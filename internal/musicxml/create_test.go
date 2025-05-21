@@ -127,3 +127,11 @@ func TestWithBarStyle(t *testing.T) {
 		}
 	}
 }
+
+func TestWithPart(t *testing.T) {
+	score := NewScorePartwise(WithPart(Part{}))
+	if len(score.Part) != 1 {
+		t.Errorf("Scorepartwise should have a part")
+		return
+	}
+}

@@ -9,7 +9,7 @@ import (
 )
 
 func eightBarPiece() []musicxml.Measure {
-	return []musicxml.Measure{
+	measures := []musicxml.Measure{
 		*musicxml.NewMeasure(),
 		*musicxml.NewMeasure(musicxml.WithRehersalMark("A")),
 		*musicxml.NewMeasure(),
@@ -19,6 +19,8 @@ func eightBarPiece() []musicxml.Measure {
 		*musicxml.NewMeasure(),
 		*musicxml.NewMeasure(),
 	}
+	enumerateMeasuresInPlace(measures)
+	return measures
 }
 
 func TestPieceSections(t *testing.T) {
