@@ -366,3 +366,53 @@ func TestLocalLibrary(t *testing.T) {
 		t.Errorf("Expected work title %s, got %s", expect, bestMatch.score.Work.Worktitle)
 	}
 }
+
+func TestLibrarySelection(t *testing.T) {
+	for _, test := range []struct {
+		theme     uint
+		composers []string
+		desc      string
+	}{
+		{
+			theme:     0,
+			composers: []string{"Bach", "Beethoven"},
+			desc:      "No theme",
+		},
+		{
+			theme:     1,
+			composers: []string{"Beethoven", "Beethoven"},
+			desc:      "One theme",
+		},
+	} {
+		t.Run(test.desc, func(t *testing.T) {
+			records := []db.ProjectContentRecord{
+				{
+					Keywords: "Beethoven",
+					Theme:    test.theme,
+				},
+				{
+					Keywords: "Bach",
+					Theme:    test.theme,
+				},
+			}
+			part := musicxml.Part{Measure: eightBarPiece()}
+			library := InMemoryLibrary{
+				scores: []*musicxml.Scorepartwise{
+					musicxml.NewScorePartwise(musicxml.WithComposer("Beethoven"), musicxml.WithPart(part)),
+					musicxml.NewScorePartwise(musicxml.WithComposer("Bach"), musicxml.WithPart(part)),
+				},
+			}
+			result := pickMeasures(&library, records)
+			composers := make([]string, len(result.pieces))
+			for i, piece := range result.pieces {
+				composers[i] = piece.composer
+			}
+
+			slices.Sort(composers)
+			if !slices.Equal(test.composers, composers) {
+				t.Errorf("Expected composers %v, got %v", test.composers, composers)
+			}
+		})
+	}
+
+}

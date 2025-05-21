@@ -297,9 +297,18 @@ func composer(score *musicxml.Scorepartwise) string {
 func pickMeasures(library Library, records []db.ProjectContentRecord) selection {
 	var measures []musicxml.Measure
 	var pieces []pieceInfo
+	scoresByTheme := make(map[uint]matchResult)
 	for _, record := range records {
-		bm := library.BestMatch(record.Keywords)
+		bm, ok := scoresByTheme[record.Theme]
+		if !ok {
+			bm = library.BestMatch(record.Keywords)
+		}
+
+		if record.Theme > 0 {
+			scoresByTheme[record.Theme] = bm
+		}
 		piece := bm.score
+
 		if piece != nil {
 			if len(piece.Part) > 0 {
 				measuresWithNoRepeats := removeRepetitions(piece.Part[0].Measure)

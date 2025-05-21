@@ -93,6 +93,12 @@ func WithComposer(composer string) func(s *Scorepartwise) {
 	}
 }
 
+func WithPart(part Part) func(s *Scorepartwise) {
+	return func(s *Scorepartwise) {
+		s.Part = append(s.Part, part)
+	}
+}
+
 // Other constructors
 func TitleElement(title string) *Formattedtextid {
 	return &Formattedtextid{
