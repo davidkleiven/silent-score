@@ -249,7 +249,12 @@ type selection struct {
 
 func (s *selection) composer() string {
 	c := ""
+	seenComposers := make(map[string]struct{})
 	for _, piece := range s.pieces {
+		if _, ok := seenComposers[piece.composer]; ok {
+			continue
+		}
+		seenComposers[piece.composer] = struct{}{}
 		if c != "" {
 			c += ", "
 		}
