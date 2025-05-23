@@ -97,6 +97,23 @@ func NewLocalLibraryFileNameProvider(directory string) *LocalFileNameProvider {
 
 type Library interface {
 	BestMatch(desc string) matchResult
+	Content() []LibraryContent
+}
+
+type LibraryContent struct {
+	ScoreTitle string
+	Composer   string
+}
+
+func (lc *LibraryContent) FilterValue() string {
+	return lc.ScoreTitle + " " + lc.Composer
+}
+
+func (lc *LibraryContent) Title() string {
+	return lc.ScoreTitle
+}
+func (lc *LibraryContent) Description() string {
+	return lc.Composer
 }
 
 type FsLibrary struct {
@@ -133,17 +150,25 @@ func (sl *FsLibrary) BestMatch(desc string) matchResult {
 		similarity: bestMatch.Similarity}
 }
 
+func (sl *FsLibrary) Content() []LibraryContent {
+	return metadataFromScore(sl.scores())
+}
+
 type InMemoryLibrary struct {
-	scores []*musicxml.Scorepartwise
+	Scores []*musicxml.Scorepartwise
 }
 
 func (l *InMemoryLibrary) BestMatch(desc string) matchResult {
-	texts := collectTextFields(slices.Values(l.scores))
+	texts := collectTextFields(slices.Values(l.Scores))
 	result := bestMatchForDesc(desc, texts)
 	return matchResult{
-		score:      l.scores[result.Index],
+		score:      l.Scores[result.Index],
 		similarity: result.Similarity,
 	}
+}
+
+func (l *InMemoryLibrary) Content() []LibraryContent {
+	return metadataFromScore(slices.Values(l.Scores))
 }
 
 func collectTextFields(scoreIter iter.Seq[*musicxml.Scorepartwise]) []string {
@@ -152,6 +177,17 @@ func collectTextFields(scoreIter iter.Seq[*musicxml.Scorepartwise]) []string {
 		texts = append(texts, strings.Join(musicxml.TextFields(*score), " "))
 	}
 	return texts
+}
+
+func metadataFromScore(scoreIter iter.Seq[*musicxml.Scorepartwise]) []LibraryContent {
+	var metadata []LibraryContent
+	for score := range scoreIter {
+		metadata = append(metadata, LibraryContent{
+			ScoreTitle: title(score),
+			Composer:   composer(score),
+		})
+	}
+	return metadata
 }
 
 func bestMatchForDesc(desc string, texts []string) Score {

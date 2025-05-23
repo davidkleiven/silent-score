@@ -52,6 +52,10 @@ func (a *AppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	case toLibraryList:
 		nextModel = &LibraryModel{store: a.store}
+	case toLibraryContent:
+		libs := libraries(a.store)
+		libs = append(libs, compose.NewStandardLibrary())
+		nextModel = &LibraryContentView{lib: compose.NewMultiSourceLibrary(libs...), width: a.view.Width, height: a.view.Height}
 	}
 
 	if nextModel != nil && nextModel != a.current {
