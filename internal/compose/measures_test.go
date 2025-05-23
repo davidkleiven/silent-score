@@ -88,6 +88,16 @@ func TestSectionForScene(t *testing.T) {
 	}
 }
 
+func TestSectionForScheneNoSections(t *testing.T) {
+	var sections []section
+	combinedSections := sectionForScene(time.Duration(2*60.0*1e9), 80, 4, sections)
+
+	if len(combinedSections.sections) != 0 {
+		t.Errorf("Wanted empty sections got %v", combinedSections)
+		return
+	}
+}
+
 func TestMeasuresForScene(t *testing.T) {
 	bars := eightBarPiece()
 	section := sceneSection{
