@@ -46,6 +46,9 @@ type sceneSection struct {
 }
 
 func sectionForScene(duration time.Duration, targetTempo float64, beatsPerMeasure int, sections []section) sceneSection {
+	if len(sections) == 0 {
+		return sceneSection{}
+	}
 	targetNumberOfMeasures := int(duration.Minutes() * targetTempo / float64(beatsPerMeasure))
 	currentNum := 0
 	var chosenSections []section
