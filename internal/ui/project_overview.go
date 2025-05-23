@@ -195,6 +195,10 @@ func (p *ProjectOverviewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return p, func() tea.Msg {
 					return toLibraryList{}
 				}
+			case "ctrl+a":
+				return p, func() tea.Msg {
+					return toLibraryContent{}
+				}
 			}
 		}
 		p.projects, cmd = p.projects.Update(msg)
@@ -206,7 +210,7 @@ func (p *ProjectOverviewModel) View() string {
 	content := []string{
 		p.projects.View(),
 		p.newProjectName.View(),
-		helpStyle.Render("ctrl+l: List libraries \u2022 ctrl+n: New project \u2022 delete: Delete project \u2022 enter: Open project \u2022 ctrl+c: Quit"),
+		helpStyle.Render("ctrl+n: New project \u2022 delete: Delete project \u2022 enter: Open project \u2022 ctrl+l: List libraries \u2022 ctrl+a: List pieces \u2022 ctrl+c: Quit"),
 		p.status.Render(modeDescription(p.mode)),
 	}
 	return lipgloss.JoinVertical(lipgloss.Left, content...)

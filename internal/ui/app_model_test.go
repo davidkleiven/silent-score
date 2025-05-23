@@ -123,6 +123,18 @@ func TestTransitionToProjectWorkspace(t *testing.T) {
 	}
 }
 
+func TestTransitionToLibraryContent(t *testing.T) {
+	app := NewAppModel(initProjectDb())
+	app.Init()
+	app.Update(toLibraryContent{})
+
+	switch app.current.(type) {
+	case *LibraryContentView:
+	default:
+		t.Error("Wanted library content")
+	}
+}
+
 func TestLibraries(t *testing.T) {
 	store := db.NewInMemoryLibraryList()
 	store.AddLibrary("test")

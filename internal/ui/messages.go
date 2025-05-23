@@ -8,3 +8,4 @@ type toProjectWorkspace struct {
 }
 
 type toLibraryList struct{}
+type toLibraryContent struct{}

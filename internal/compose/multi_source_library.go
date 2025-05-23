@@ -24,3 +24,11 @@ func NewMultiSourceLibrary(libraries ...Library) *MultiSourceLibrary {
 		libraries: libraries,
 	}
 }
+
+func (m *MultiSourceLibrary) Content() []LibraryContent {
+	var content []LibraryContent
+	for _, lib := range m.libraries {
+		content = append(content, lib.Content()...)
+	}
+	return content
+}

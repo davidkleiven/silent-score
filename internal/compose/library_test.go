@@ -56,7 +56,7 @@ func TestCompose(t *testing.T) {
 
 	rapid.Check(t, func(t *rapid.T) {
 		scores := rapid.SliceOfN(scoreGen, 1, 3).Draw(t, "scores")
-		library := &InMemoryLibrary{scores: scores}
+		library := &InMemoryLibrary{Scores: scores}
 		project := test.GenerateProjects(t)[0]
 		composition := CreateComposition(library, &project)
 
@@ -397,7 +397,7 @@ func TestLibrarySelection(t *testing.T) {
 			}
 			part := musicxml.Part{Measure: eightBarPiece()}
 			library := InMemoryLibrary{
-				scores: []*musicxml.Scorepartwise{
+				Scores: []*musicxml.Scorepartwise{
 					musicxml.NewScorePartwise(musicxml.WithComposer("Beethoven"), musicxml.WithPart(part)),
 					musicxml.NewScorePartwise(musicxml.WithComposer("Bach"), musicxml.WithPart(part)),
 				},

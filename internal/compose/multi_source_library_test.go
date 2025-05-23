@@ -13,10 +13,10 @@ func TestMultiLibraryBestMatch(t *testing.T) {
 	library := MultiSourceLibrary{
 		libraries: []Library{
 			&InMemoryLibrary{
-				scores: []*musicxml.Scorepartwise{score1},
+				Scores: []*musicxml.Scorepartwise{score1},
 			},
 			&InMemoryLibrary{
-				scores: []*musicxml.Scorepartwise{score2},
+				Scores: []*musicxml.Scorepartwise{score2},
 			},
 		},
 	}
