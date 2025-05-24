@@ -337,7 +337,7 @@ func TestLocalDirtoryProvider(t *testing.T) {
 	}
 	defer os.RemoveAll(folder)
 
-	for _, filename := range []string{"test.txt", "test.musicxml", "test.pdf"} {
+	for _, filename := range []string{"test.txt", "test.musicxml", "test.pdf", "compressed.mxl"} {
 		file, err := os.Create(folder + "/" + filename)
 		if err != nil {
 			t.Error(err)
@@ -348,7 +348,7 @@ func TestLocalDirtoryProvider(t *testing.T) {
 
 	l := LocalFileNameProvider{fs: os.DirFS(folder)}
 	names := l.Names()
-	expect := []string{"test.musicxml"}
+	expect := []string{"test.musicxml", "compressed.mxl"}
 	if slices.Compare(names, expect) != 0 {
 		t.Errorf("Expected names to be %v, got %v", expect, names)
 	}

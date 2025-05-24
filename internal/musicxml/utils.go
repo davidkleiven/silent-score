@@ -1,6 +1,7 @@
 package musicxml
 
 import (
+	"archive/zip"
 	"encoding/xml"
 	"io"
 	"io/fs"
@@ -92,17 +93,47 @@ func ReadFromFile(reader io.Reader) (Scorepartwise, error) {
 }
 
 func ReadFromFileName(fileSystem fs.FS, name string) Scorepartwise {
+	var score Scorepartwise
 	file, err := fileSystem.Open(name)
 	if err != nil {
 		slog.Error("Failed to open file", "file", name, "error", err)
-		return Scorepartwise{}
+		return score
 	}
 	defer file.Close()
-	score, err := ReadFromFile(file)
-	if err != nil {
-		slog.Error("Failed to read score", "file", name, "error", err)
+
+	if strings.HasSuffix(name, ".mxl") {
+		reader, err := Zip2MusicXMLReader(file)
+		if err != nil {
+			slog.Error("Failed to read compressed file", "file", name, "error", err)
+			return score
+		}
+		score, err = ReadFromFile(reader)
+		if err != nil {
+			slog.Error("Failed to read score from compressed file", "file", name, "error", err)
+			return score
+		}
+	} else {
+		score, err = ReadFromFile(file)
+		if err != nil {
+			slog.Error("Failed to read score", "file", name, "error", err)
+		}
 	}
 	return score
+}
+
+func ReadCompressedFile(reader *zip.Reader) (Scorepartwise, error) {
+	var score Scorepartwise
+	for _, file := range reader.File {
+		if strings.HasSuffix(file.Name, ".musicxml") {
+			f, err := file.Open()
+			if err != nil {
+				return score, err
+			}
+			defer f.Close()
+			return ReadFromFile(f)
+		}
+	}
+	return score, fs.ErrNotExist
 }
 
 func WriteScore(writer io.Writer, score *Scorepartwise) error {
