@@ -78,11 +78,14 @@ type LocalFileNameProvider struct {
 }
 
 func (s *LocalFileNameProvider) Names() []string {
-	entries, err := fs.Glob(s.fs, "*.musicxml")
-	if err != nil {
-		slog.Error("Failed to read local library directory", "error", err)
-		return []string{}
+	var entries []string
+	entries, errMusicXml := fs.Glob(s.fs, "*.musicxml")
+	compressedEntries, errMxl := fs.Glob(s.fs, "*.mxl")
+
+	if errMusicXml != nil || errMxl != nil {
+		slog.Error("Failed to read local library directory", "error", errMusicXml, "compressedError", errMxl)
 	}
+	entries = append(entries, compressedEntries...)
 	slog.Info("Local library loaded", "count", len(entries))
 	return entries
 }
