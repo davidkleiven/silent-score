@@ -1,12 +1,14 @@
 package musicxml
 
 import (
+	"archive/zip"
 	"bytes"
 	"encoding/xml"
 	"errors"
 	"fmt"
 	"io/fs"
 	"os"
+	"path/filepath"
 	"testing"
 )
 
@@ -102,7 +104,22 @@ func (o *openFailFs) Open(name string) (fs.File, error) {
 	return nil, os.ErrNotExist
 }
 func TestReadFromFileNameOpenFails(t *testing.T) {
-	score := ReadFromFileName(&openFailFs{}, "file.xml")
+	reader := LocalFileSystemReader{
+		FileSystem: &openFailFs{},
+	}
+	score := ReadFromFileName(&reader, "file.xml")
+	if score.Work != nil {
+		t.Errorf("Expected empty score, got %v", score)
+	}
+}
+
+func TestReadFromXmlNonMuusicXmlContent(t *testing.T) {
+	data := []byte("<not-musicxml>content</not-musicxml>")
+	reader := bytes.NewReader(data)
+	score, err := ReadFromFile(reader)
+	if err == nil {
+		t.Errorf("Expected error reading non-MusicXML content, got nil")
+	}
 	if score.Work != nil {
 		t.Errorf("Expected empty score, got %v", score)
 	}
@@ -127,7 +144,46 @@ func (n *nonXmlFileFs) Open(name string) (fs.File, error) {
 }
 
 func TestReadFromFileNameNonXmlFile(t *testing.T) {
-	score := ReadFromFileName(&nonXmlFileFs{}, "file.xml")
+	reader := LocalFileSystemReader{
+		FileSystem: &nonXmlFileFs{},
+	}
+	score := ReadFromFileName(&reader, "file.xml")
+	if score.Work != nil {
+		t.Errorf("Expected empty score, got %v", score)
+	}
+}
+
+type failingZipReader struct{}
+
+func (f *failingZipReader) OpenFile(name string) (fs.File, error) {
+	return nil, os.ErrNotExist
+}
+func (f *failingZipReader) OpenZipFile(name string) (*zip.ReadCloser, error) {
+	return nil, os.ErrNotExist
+}
+
+func TestReadFromFileNameOpenZipReaderFails(t *testing.T) {
+	reader := &failingZipReader{}
+	score := ReadFromFileName(reader, "file.mxl")
+	if score.Work != nil {
+		t.Errorf("Expected empty score, got %v", score)
+	}
+}
+
+type readerWithNoMusicXMLFile struct{}
+
+func (r *readerWithNoMusicXMLFile) OpenFile(name string) (fs.File, error) {
+	return nil, fs.ErrNotExist
+}
+func (r *readerWithNoMusicXMLFile) OpenZipFile(name string) (*zip.ReadCloser, error) {
+	return &zip.ReadCloser{
+		Reader: zip.Reader{},
+	}, nil
+}
+
+func TestReadFromFileNameNoMusicXMLFile(t *testing.T) {
+	reader := &readerWithNoMusicXMLFile{}
+	score := ReadFromFileName(reader, "file.mxl")
 	if score.Work != nil {
 		t.Errorf("Expected empty score, got %v", score)
 	}
@@ -512,5 +568,56 @@ func TestClefEqual(t *testing.T) {
 				t.Errorf("Expected %v, got %v", test.expected, result)
 			}
 		})
+	}
+}
+
+func TestReadCompressedFile(t *testing.T) {
+	data := testFile("Saltarello.mxl")
+	zipReader, err := zip.OpenReader(data)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	defer zipReader.Close()
+	score, err := ReadCompressedFile(&zipReader.Reader)
+	if err != nil {
+		t.Errorf("Error reading compressed file: %v", err)
+		return
+	}
+
+	if score.Scoreheader.Movementtitle != "Saltarello" {
+		t.Errorf("Expected score with title 'Saltarello', got %v", score.Work)
+		return
+	}
+
+	if len(score.Part) != 1 {
+		t.Errorf("Expected one part, got %d", len(score.Part))
+		return
+	}
+
+	if len(score.Part[0].Measure) != 22 {
+		t.Errorf("Expected 22 measures, got %d", len(score.Part[0].Measure))
+		return
+	}
+}
+
+func TestErrorWhenNoMusicXmlFileExists(t *testing.T) {
+	reader := &zip.Reader{}
+	_, err := ReadCompressedFile(reader)
+	if !errors.Is(err, fs.ErrNotExist) {
+		t.Errorf("Expected fs.ErrNotExist error, got %v", err)
+		return
+	}
+}
+
+func TestReadCompressedFileFromFileName(t *testing.T) {
+	data := testFile("Saltarello.mxl")
+	reader := LocalFileSystemReader{
+		FileSystem: os.DirFS(filepath.Dir(data)),
+	}
+	score := ReadFromFileName(&reader, data)
+	if score.Scoreheader.Movementtitle != "Saltarello" {
+		t.Errorf("Expected score with title 'Saltarello', got %v", score.Work)
+		return
 	}
 }

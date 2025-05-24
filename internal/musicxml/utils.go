@@ -1,6 +1,7 @@
 package musicxml
 
 import (
+	"archive/zip"
 	"encoding/xml"
 	"io"
 	"io/fs"
@@ -91,8 +92,41 @@ func ReadFromFile(reader io.Reader) (Scorepartwise, error) {
 	return score, nil
 }
 
-func ReadFromFileName(fileSystem fs.FS, name string) Scorepartwise {
-	file, err := fileSystem.Open(name)
+type FileSystemReader interface {
+	OpenFile(name string) (fs.File, error)
+	OpenZipFile(name string) (*zip.ReadCloser, error)
+}
+
+type LocalFileSystemReader struct {
+	FileSystem fs.FS
+}
+
+func (l *LocalFileSystemReader) OpenFile(name string) (fs.File, error) {
+	return l.FileSystem.Open(name)
+}
+
+func (l *LocalFileSystemReader) OpenZipFile(name string) (*zip.ReadCloser, error) {
+	return zip.OpenReader(name)
+}
+
+func ReadFromFileName(fsReader FileSystemReader, name string) Scorepartwise {
+	if strings.HasSuffix(name, ".mxl") {
+		// If the file is a compressed MusicXML file, read it as a zip archive
+		zipReader, err := fsReader.OpenZipFile(name)
+		if err != nil {
+			slog.Error("Failed to open compressed file", "file", name, "error", err)
+			return Scorepartwise{}
+		}
+		defer zipReader.Close()
+		score, err := ReadCompressedFile(&zipReader.Reader)
+		if err != nil {
+			slog.Error("Failed to read compressed score", "file", name, "error", err)
+			return Scorepartwise{}
+		}
+		return score
+	}
+
+	file, err := fsReader.OpenFile(name)
 	if err != nil {
 		slog.Error("Failed to open file", "file", name, "error", err)
 		return Scorepartwise{}
@@ -103,6 +137,21 @@ func ReadFromFileName(fileSystem fs.FS, name string) Scorepartwise {
 		slog.Error("Failed to read score", "file", name, "error", err)
 	}
 	return score
+}
+
+func ReadCompressedFile(reader *zip.Reader) (Scorepartwise, error) {
+	var score Scorepartwise
+	for _, file := range reader.File {
+		if strings.HasSuffix(file.Name, ".musicxml") {
+			f, err := file.Open()
+			if err != nil {
+				return score, err
+			}
+			defer f.Close()
+			return ReadFromFile(f)
+		}
+	}
+	return score, fs.ErrNotExist
 }
 
 func WriteScore(writer io.Writer, score *Scorepartwise) error {

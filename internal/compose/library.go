@@ -39,7 +39,7 @@ var standardLib embed.FS
 
 type FileNameProvider interface {
 	Names() []string
-	Fs() fs.FS
+	Reader() musicxml.FileSystemReader
 }
 
 type matchResult struct {
@@ -51,8 +51,10 @@ type StandardLibraryFileNameProvider struct {
 	directory string
 }
 
-func (s *StandardLibraryFileNameProvider) Fs() fs.FS {
-	return standardLib
+func (s *StandardLibraryFileNameProvider) Reader() musicxml.FileSystemReader {
+	return &musicxml.LocalFileSystemReader{
+		FileSystem: standardLib,
+	}
 }
 
 func (s *StandardLibraryFileNameProvider) Names() []string {
@@ -87,8 +89,10 @@ func (s *LocalFileNameProvider) Names() []string {
 	return entries
 }
 
-func (s *LocalFileNameProvider) Fs() fs.FS {
-	return s.fs
+func (s *LocalFileNameProvider) Reader() musicxml.FileSystemReader {
+	return &musicxml.LocalFileSystemReader{
+		FileSystem: s.fs,
+	}
 }
 
 func NewLocalLibraryFileNameProvider(directory string) *LocalFileNameProvider {
@@ -132,7 +136,7 @@ func (sl *FsLibrary) scores() iter.Seq[*musicxml.Scorepartwise] {
 	names := sl.nameProvider.Names()
 	return func(yield func(item *musicxml.Scorepartwise) bool) {
 		for _, name := range names {
-			score := musicxml.ReadFromFileName(sl.nameProvider.Fs(), name)
+			score := musicxml.ReadFromFileName(sl.nameProvider.Reader(), name)
 			if !yield(&score) {
 				break
 			}
@@ -144,7 +148,7 @@ func (sl *FsLibrary) BestMatch(desc string) matchResult {
 	texts := collectTextFields(sl.scores())
 	bestMatch := bestMatchForDesc(desc, texts)
 	name := sl.nameProvider.Names()[bestMatch.Index]
-	score := musicxml.ReadFromFileName(sl.nameProvider.Fs(), name)
+	score := musicxml.ReadFromFileName(sl.nameProvider.Reader(), name)
 	return matchResult{
 		score:      &score,
 		similarity: bestMatch.Similarity}

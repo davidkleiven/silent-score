@@ -11,10 +11,14 @@ import (
 	"github.com/ucarion/c14n"
 )
 
-func testScoreBytes() ([]byte, error) {
+func testFile(name string) string {
 	_, currentFile, _, _ := runtime.Caller(0)
 	currentDir := filepath.Dir(currentFile)
-	testData := filepath.Join(currentDir, "../../test/data/testScore.musicxml")
+	return filepath.Join(currentDir, "../../test/data/", name)
+}
+
+func testScoreBytes() ([]byte, error) {
+	testData := testFile("testScore.musicxml")
 	return os.ReadFile(testData)
 }
 
