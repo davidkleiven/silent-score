@@ -135,6 +135,8 @@ func TestDelete(t *testing.T) {
 
 	model.Init()
 
+	selected := model.currentLibraries.SelectedItem().FilterValue()
+
 	model.Update(tea.KeyMsg{Type: tea.KeyDelete})
 	if len(model.currentLibraries.Items()) != 1 {
 		t.Errorf("Wanted one item to be deleted")
@@ -150,8 +152,8 @@ func TestDelete(t *testing.T) {
 		extractedPaths[i] = path.Path
 	}
 
-	if slices.Compare(extractedPaths, []string{"/MyLibrary2"}) != 0 {
-		t.Errorf("Wanted to delete /MyLibrary got %s", extractedPaths)
+	if slices.Contains(extractedPaths, selected) {
+		t.Errorf("Wanted %s to be deleted", selected)
 	}
 
 }
