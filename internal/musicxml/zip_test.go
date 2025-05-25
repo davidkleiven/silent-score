@@ -48,3 +48,49 @@ func TestErrorWhenNoMusicXml(t *testing.T) {
 		t.Errorf("Expected ErrNoMusixXMLFileInZip, got %v", err)
 	}
 }
+
+func TestUnmarshalErrorWhenWrongXML(t *testing.T) {
+	xmlString := `This is not a valid XML string`
+
+	byteBuffer := bytes.NewBuffer([]byte{})
+	zipWriter := zip.NewWriter(byteBuffer)
+	fileWriter, err := zipWriter.Create("META-INF/container.xml")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	fileWriter.Write([]byte(xmlString))
+	zipWriter.Close()
+
+	if byteBuffer.Len() == 0 {
+		t.Error("Expected non-empty buffer, got empty")
+		return
+	}
+
+	_, err = Zip2MusicXMLReader(byteBuffer)
+	if err == nil {
+		t.Errorf("Expected fs.ErrNotExist, got %v", err)
+	}
+}
+
+func TestNoMusicXmlFileSpecifiedInContainer(t *testing.T) {
+	xmlString := "<container><rootfiles></rootfiles></container>"
+	byteBuffer := bytes.NewBuffer([]byte{})
+	zipWriter := zip.NewWriter(byteBuffer)
+	fileWriter, err := zipWriter.Create("META-INF/container.xml")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	fileWriter.Write([]byte(xmlString))
+	zipWriter.Close()
+	if byteBuffer.Len() == 0 {
+		t.Error("Expected non-empty buffer, got empty")
+		return
+	}
+	_, err = Zip2MusicXMLReader(byteBuffer)
+	if !errors.Is(err, ErrNoMusicXMLRootFile) {
+		t.Errorf("Expected ErrNoMusicXMLRootFile, got %v", err)
+	}
+}
