@@ -9,7 +9,7 @@ require (
 	github.com/ucarion/c14n v0.1.0
 	golang.org/x/exp v0.0.0-20220909182711-5c715a9e8561
 	gorm.io/driver/sqlite v1.5.7
-	gorm.io/gorm v1.26.1
+	gorm.io/gorm v1.30.0
 	pgregory.net/rapid v1.2.0
 )
 
