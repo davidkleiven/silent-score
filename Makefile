@@ -7,7 +7,7 @@ test:
 	go tool cover -html=coverage.out -o ${COVEROUT}
 
 build:
-	go build -o silent-score app/main.go
+	go build -o silent-score main.go
 
 run: build
 	./silent-score
