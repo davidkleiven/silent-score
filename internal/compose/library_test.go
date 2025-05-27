@@ -82,6 +82,37 @@ func TestStandardLibrary(t *testing.T) {
 	}
 }
 
+func TestOpenAllScoresInStandardLibrary(t *testing.T) {
+	sl := NewStandardLibraryFileNameProvider()
+
+	for _, name := range sl.Names() {
+		t.Run(name, func(t *testing.T) {
+			file, err := sl.Fs().Open(name)
+			if err != nil {
+				t.Error(err)
+				return
+			}
+			defer file.Close()
+
+			score, err := musicxml.ReadFromFile(file)
+			if err != nil {
+				t.Error(err)
+				return
+			}
+
+			if len(score.Part) == 0 {
+				t.Errorf("Score %s has no parts", name)
+				return
+			}
+
+			if len(score.Part[0].Measure) == 0 {
+				t.Errorf("Score %s has no measures", name)
+				return
+			}
+		})
+	}
+}
+
 func TestStandardLibraryBestMatch(t *testing.T) {
 	sl := NewStandardLibrary()
 	desc := "Andante Doloroso, No. 70"
