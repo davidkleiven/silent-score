@@ -7,9 +7,9 @@ The application features a terminal user interface, and a help section displayin
 
 The program generates a compiled score by selecting pieces from the standard library and any local folder the user has configured. In the project workspace, the user populates the following table:
 
-| Scene Description | Tempo | Keywords | Theme | Duration |
+| Scene Description | Tempo (optional) | Keywords | Theme (optional) | Duration |
 | ----------------- | ----- | -------- | ----- | -------- |
-| Description of the scene that will appear as *Staff text* | Tempo (beats per minute) of the piece (if not specified, the tempo is extracted from the chosen score) | Text describing the type of music desired. Any text field within a `.musicxml` or `.mxl` file is used for matching. Examples may be composer, agitato, allegro, waltz, foxtrott etc. The piece with text that has the highest similarity with the text in the keyword field will be selected for the scene | Scenes with the same theme number are guaranteed to use the same piece | Duration of the scene in seconds |
+| Description of the scene that will appear as *Staff text* | Tempo (beats per minute) of the piece (if not specified, the tempo is extracted from the chosen score) | Text describing the type of music desired. Any text field within a `.musicxml` or `.mxl` file is used for matching. Examples may be composer, agitato, allegro, waltz, foxtrott etc. The piece with text that has the highest similarity with the text in the keyword field will be selected for the scene | Scenes with the same theme number are guaranteed to use the same piece. If not given no constraint on the piece selection is imposed. | Duration of the scene in seconds |
 
 
 ## Installation
