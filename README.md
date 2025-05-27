@@ -17,5 +17,5 @@ The program generates a compiled score by selecting pieces from the standard lib
 Install
 
 ```bash
-go install github.com/davidkleiven/silent-score/app/silent-score@main
+go install github.com/davidkleiven/silent-score@main
 ```
