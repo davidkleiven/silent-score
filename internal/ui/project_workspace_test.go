@@ -15,7 +15,7 @@ import (
 )
 
 func initializedPw() ProjectWorkspace {
-	pw := ProjectWorkspace{store: db.NewInMemoryProjectStore(), project: db.NewProject(db.WithName("my-project"))}
+	pw := ProjectWorkspace{store: db.NewInMemoryProjectStore(), project: db.NewProject(db.WithName("my-project")), initialWidth: 120}
 	pw.Init()
 	return pw
 }
@@ -691,5 +691,65 @@ func TestGenerateScore(t *testing.T) {
 	}
 	if !strings.Contains(string(content), "<score-partwise") {
 		t.Errorf("Wanted to find <score-piecewise> in file %s", string(content))
+	}
+}
+
+func TestWidth(t *testing.T) {
+	row := NewTiRow(WithWidth(250))
+	totalWidth := 0
+	for _, item := range row {
+		totalWidth += item.Width
+	}
+
+	expect := 250 - 2*rowPadding - 4
+	if totalWidth != expect {
+		t.Errorf("Wanted total width to be %d got %d", expect, totalWidth)
+	}
+}
+
+func uniqueWidths(rows []tiRow) map[int]struct{} {
+	unique := make(map[int]struct{})
+	for _, item := range rows {
+		totalWidth := 0
+		for _, col := range item {
+			totalWidth += col.Width
+		}
+		unique[totalWidth] = struct{}{}
+	}
+	return unique
+}
+
+func TestWindowResize(t *testing.T) {
+	records := make([]db.ProjectContentRecord, 10)
+	pw := ProjectWorkspace{
+		store:        db.NewInMemoryProjectStore(),
+		project:      db.NewProject(db.WithName("my-project"), db.WithRecords(records)),
+		initialWidth: 120,
+	}
+	pw.Init()
+
+	if len(pw.iTable.iRows) == 0 {
+		t.Error("No rows in table")
+		return
+	}
+
+	originalWidth := uniqueWidths(pw.iTable.iRows)
+
+	if len(originalWidth) != 1 {
+		t.Errorf("All rows should have the same width. Got %v", originalWidth)
+		return
+	}
+
+	pw.Update(tea.WindowSizeMsg{Width: 200, Height: 100})
+	newWidths := uniqueWidths(pw.iTable.iRows)
+	if len(newWidths) != 1 {
+		t.Errorf("All rows should have the same width after resize. Got %v", newWidths)
+		return
+	}
+
+	for width := range originalWidth {
+		if _, ok := newWidths[width]; ok {
+			t.Errorf("Width should not have been the same after resize. Got %d", width)
+		}
 	}
 }

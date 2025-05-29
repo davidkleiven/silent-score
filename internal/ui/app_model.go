@@ -34,6 +34,7 @@ func (a *AppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		a.view.Width = msg.Width
 		a.view.Height = msg.Height
+		slog.Info("Window size changed", "width", msg.Width, "height", msg.Height)
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c":
@@ -45,10 +46,11 @@ func (a *AppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		libs := libraries(a.store)
 		libs = append(libs, compose.NewStandardLibrary())
 		nextModel = &ProjectWorkspace{
-			store:   a.store,
-			project: msg.project,
-			library: compose.NewMultiSourceLibrary(libs...),
-			creator: &musicxml.FileCreator{},
+			store:        a.store,
+			project:      msg.project,
+			library:      compose.NewMultiSourceLibrary(libs...),
+			creator:      &musicxml.FileCreator{},
+			initialWidth: a.view.Width,
 		}
 	case toLibraryList:
 		nextModel = &LibraryModel{store: a.store}
