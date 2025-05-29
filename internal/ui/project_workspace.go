@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log/slog"
 	"strconv"
+	"strings"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -30,6 +31,7 @@ const (
 	tiTheme
 	tiDuration
 )
+const rowPadding = 2
 
 type tiRow []textinput.Model
 
@@ -63,6 +65,22 @@ func NewTiRow(opts ...tiOpt) tiRow {
 	}
 	row[tiScene].Focus()
 	return row
+}
+
+func (row tiRow) SetWidth(width int) {
+	remainingWidth := width - 2*rowPadding
+	row[tiTempo].Width = confine(6, 0, remainingWidth)
+	remainingWidth = remainingWidth - row[tiTempo].Width - 1
+
+	row[tiTheme].Width = confine(6, 0, remainingWidth)
+	remainingWidth = remainingWidth - row[tiTheme].Width - 1
+
+	row[tiDuration].Width = confine(14, 0, remainingWidth)
+	remainingWidth = remainingWidth - row[tiDuration].Width - 1
+
+	row[tiKeywords].Width = confine(remainingWidth/2, 0, remainingWidth)
+	remainingWidth = remainingWidth - row[tiKeywords].Width - 1
+	row[tiScene].Width = confine(remainingWidth, 0, remainingWidth)
 }
 
 func NewTiRowFromRecord(record *db.ProjectContentRecord) tiRow {
@@ -116,13 +134,22 @@ func (t tiRow) View() string {
 	for i, item := range t {
 		data[i] = item.View()
 	}
-	return lipgloss.JoinHorizontal(lipgloss.Top, data...)
+	return strings.Repeat(" ", rowPadding) + lipgloss.JoinHorizontal(lipgloss.Top, data...)
 }
 
-func (t tiRow) Update(msg tea.Msg) {
+func (t tiRow) Update(msg tea.Msg) tea.Cmd {
+	var cmd tea.Cmd
+	cmds := make([]tea.Cmd, len(t))
 	for i, item := range t {
-		t[i], _ = item.Update(msg)
+		t[i], cmd = item.Update(msg)
+		cmds[i] = cmd
 	}
+
+	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+		t.SetWidth(msg.Width)
+	}
+	return tea.Batch(cmds...)
 }
 
 func (t tiRow) Duration() string {
@@ -165,6 +192,12 @@ func WithTheme(theme string) tiOpt {
 	}
 }
 
+func WithWidth(width int) tiOpt {
+	return func(ti tiRow) {
+		ti.SetWidth(width)
+	}
+}
+
 type InteractiveTable struct {
 	iRows  []tiRow
 	cursor int
@@ -182,12 +215,12 @@ func (it *InteractiveTable) Header() string {
 	for i, name := range names {
 		width := 20
 		if len(it.iRows) > 0 {
-			width = it.iRows[0][i].Width + it.iRows[0][i].TextStyle.GetPaddingLeft() + it.iRows[0][i].TextStyle.GetPaddingRight()
+			width = it.iRows[0][i].Width
 		}
 		header[i] = style.Width(width + 1).Render(name)
 	}
 
-	return lipgloss.JoinHorizontal(lipgloss.Top, header...)
+	return strings.Repeat(" ", rowPadding) + lipgloss.JoinHorizontal(lipgloss.Top, header...)
 }
 
 func (it *InteractiveTable) Init() tea.Cmd {
@@ -253,6 +286,10 @@ func (it *InteractiveTable) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Ensure correct row is activated
 		if r := it.activeTiRow(); r != nil {
 			r.Update(msg)
+		}
+	case tea.WindowSizeMsg:
+		for i := range it.iRows {
+			it.iRows[i].SetWidth(msg.Width)
 		}
 	}
 	return it, nil
@@ -332,12 +369,13 @@ func (it *InteractiveTable) toRecords(projectId uint) ([]db.ProjectContentRecord
 }
 
 type ProjectWorkspace struct {
-	store   db.ProjectStore
-	project *db.Project
-	status  *Status
-	iTable  *InteractiveTable
-	library compose.Library
-	creator musicxml.Creator
+	store        db.ProjectStore
+	project      *db.Project
+	status       *Status
+	iTable       *InteractiveTable
+	library      compose.Library
+	creator      musicxml.Creator
+	initialWidth int
 }
 
 func (pw *ProjectWorkspace) Init() tea.Cmd {
@@ -346,6 +384,7 @@ func (pw *ProjectWorkspace) Init() tea.Cmd {
 
 	for _, record := range pw.project.Records {
 		row := NewTiRowFromRecord(&record)
+		row.SetWidth(pw.initialWidth)
 		row.Blur()
 		pw.iTable.iRows = append(pw.iTable.iRows, row)
 	}
