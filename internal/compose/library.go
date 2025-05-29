@@ -403,6 +403,7 @@ func pickMeasures(library Library, records []db.ProjectContentRecord) selection 
 	}
 
 	removeRedundantClefs(measures)
+	removeRepeatJumps(measures)
 	return selection{measures: measures, pieces: pieces}
 }
 
@@ -614,4 +615,19 @@ func removeRedundantClefs(measures []musicxml.Measure) {
 			}
 		}
 	}
+}
+
+func removeRepeatJumps(measures []musicxml.Measure) {
+	numRemoved := 0
+	for i := range measures {
+		for j, elem := range measures[i].MusicDataElements {
+			if elem.Direction != nil && musicxml.IsRepeatJump(elem.Direction) {
+				// Remove repeat jumps
+				measures[i].MusicDataElements[j].Direction = nil
+				numRemoved++
+			}
+		}
+	}
+
+	slog.Info("Removed repeat jumps", "count", numRemoved)
 }

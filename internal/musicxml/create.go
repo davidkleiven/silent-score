@@ -36,6 +36,15 @@ func WithPrint(p *Print) MeasureOpt {
 	}
 }
 
+func WithDirection(d *Direction) MeasureOpt {
+	return func(m *Measure) {
+		m.MusicDataElements = append(m.MusicDataElements, MusicDataElement{
+			Direction: d,
+			XMLName:   xml.Name{Local: "direction"},
+		})
+	}
+}
+
 func NewMeasure(opts ...MeasureOpt) *Measure {
 	m := Measure{}
 	for _, opt := range opts {
@@ -63,6 +72,27 @@ type DirectionOpt func(d *Direction)
 func WithTempo(tempo int) DirectionOpt {
 	return func(d *Direction) {
 		dirType := Directiontype{Metronome: &Metronome{Perminute: &Perminute{Value: tempo}}}
+		d.Directiontype = append(d.Directiontype, dirType)
+	}
+}
+
+func WithWords(words string) DirectionOpt {
+	return func(d *Direction) {
+		dirType := Directiontype{Words: []Formattedtextid{{Value: words}}}
+		d.Directiontype = append(d.Directiontype, dirType)
+	}
+}
+
+func WithSegno(segno Segno) DirectionOpt {
+	return func(d *Direction) {
+		dirType := Directiontype{Segno: []Segno{segno}}
+		d.Directiontype = append(d.Directiontype, dirType)
+	}
+}
+
+func WithCoda(coda Coda) DirectionOpt {
+	return func(d *Direction) {
+		dirType := Directiontype{Coda: []Coda{coda}}
 		d.Directiontype = append(d.Directiontype, dirType)
 	}
 }

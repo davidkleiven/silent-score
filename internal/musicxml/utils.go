@@ -261,3 +261,26 @@ func ClefEquals(clef1, clef2 *Clef) bool {
 	}
 	return clef1.Sign == clef2.Sign && clef1.Line == clef2.Line && clef1.OctaveChange == clef2.OctaveChange
 }
+
+// IsRepeatJump returns true if the direction element represents a jump such as da capo, dal segno, or similar.
+func IsRepeatJump(direction *Direction) bool {
+	if direction == nil {
+		return false
+	}
+	for _, dirType := range direction.Directiontype {
+		if len(dirType.Coda) > 0 || len(dirType.Segno) > 0 {
+			return true
+		}
+		for _, word := range dirType.Words {
+			lowerWord := strings.ToLower(word.Value)
+			if strings.Contains(lowerWord, "da capo") || strings.Contains(lowerWord, "dal segno") ||
+				strings.Contains(lowerWord, "dopo la coda") || strings.Contains(lowerWord, "fine") ||
+				strings.Contains(lowerWord, "al fine") || strings.Contains(lowerWord, "al coda") ||
+				strings.Contains(lowerWord, "coda") || strings.Contains(lowerWord, "segno") ||
+				strings.Contains(lowerWord, "d. c.") || strings.Contains(lowerWord, "d. s.") {
+				return true
+			}
+		}
+	}
+	return false
+}
