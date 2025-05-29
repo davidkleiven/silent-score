@@ -454,3 +454,26 @@ func TestSelectionComposer(t *testing.T) {
 		t.Errorf("Expected composers Beethoven, Bach, got %s", composers)
 	}
 }
+
+func TestRemoveRepeatJumps(t *testing.T) {
+	measures := []musicxml.Measure{
+		*musicxml.NewMeasure(),
+		*musicxml.NewMeasure(musicxml.WithDirection(musicxml.NewDirection(musicxml.WithWords("To Coda")))),
+		*musicxml.NewMeasure(),
+	}
+
+	removeRepeatJumps(measures)
+	if len(measures) != 3 {
+		t.Errorf("Number of measures should not change, got %d", len(measures))
+		return
+	}
+
+	for _, measure := range measures {
+		for _, element := range measure.MusicDataElements {
+			if element.Direction != nil {
+				t.Errorf("There should be no direction elements left in the measures after removing repeat jumps")
+				return
+			}
+		}
+	}
+}

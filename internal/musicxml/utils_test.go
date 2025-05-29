@@ -586,3 +586,54 @@ func TestReadCompressedFileFromFileName(t *testing.T) {
 		return
 	}
 }
+
+func TestIsRepeatJump(t *testing.T) {
+	for _, test := range []struct {
+		element *Direction
+		want    bool
+		desc    string
+	}{
+		{
+			element: NewDirection(WithSegno(Segno{})),
+			want:    true,
+			desc:    "Dal segno",
+		},
+		{
+			element: NewDirection(WithCoda(Coda{})),
+			want:    true,
+			desc:    "Contains coda",
+		},
+		{
+			element: NewDirection(WithWords("D. S.")),
+			want:    true,
+			desc:    "D. S. is a repeat jump",
+		},
+		{
+			element: NewDirection(WithWords("Fine")),
+			want:    true,
+			desc:    "Fine is a repeat jump",
+		},
+		{
+			element: NewDirection(WithWords("To Coda")),
+			want:    true,
+			desc:    "To Coda is a repeat jump",
+		},
+		{
+			element: NewDirection(WithWords("<sym>Coda</sym>")),
+			want:    true,
+			desc:    "Coda with sym tag is a repeat jump",
+		},
+		{
+			element: NewDirection(WithWords("This is not a repeat")),
+			want:    false,
+			desc:    "This is not a repeat jump",
+		},
+	} {
+		t.Run(test.desc, func(t *testing.T) {
+			result := IsRepeatJump(test.element)
+			if result != test.want {
+				t.Errorf("Expected %v, got %v", test.want, result)
+			}
+		})
+	}
+}
