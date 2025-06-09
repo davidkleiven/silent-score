@@ -8,7 +8,7 @@ require (
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/ucarion/c14n v0.1.0
 	golang.org/x/exp v0.0.0-20220909182711-5c715a9e8561
-	gorm.io/driver/sqlite v1.5.7
+	gorm.io/driver/sqlite v1.6.0
 	gorm.io/gorm v1.30.0
 	pgregory.net/rapid v1.2.0
 )
