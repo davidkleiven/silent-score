@@ -10,7 +10,7 @@ require (
 	golang.org/x/exp v0.0.0-20231006140011-7918f672742d
 	gorm.io/driver/sqlite v1.6.0
 	gorm.io/gorm v1.31.1
-	pgregory.net/rapid v1.2.0
+	pgregory.net/rapid v1.3.0
 )
 
 require (
